@@ -1,0 +1,31 @@
+# Deploys the portfolio to Azure Static Web Apps on every push to main
+# that touches site/. Can also be run manually from the Actions tab.
+#
+# Prereq: repo secret SWA_DEPLOYMENT_TOKEN
+#   (Settings → Secrets and variables → Actions → New repository secret)
+#   Value from: az staticwebapp secrets list -n swa-colinshanahan-portfolio --query properties.apiKey -o tsv
+
+name: Deploy portfolio
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "site/**"
+  workflow_dispatch: # manual "Run workflow" button
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    name: Deploy to Azure Static Web Apps
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Deploy
+        uses: Azure/static-web-apps-deploy@v1
+        with:
+          azure_static_web_apps_api_token: ${{ secrets.SWA_DEPLOYMENT_TOKEN }}
+          action: upload
+          app_location: site # folder containing index.html + resume files
+          skip_app_build: true # plain static HTML, nothing to build
