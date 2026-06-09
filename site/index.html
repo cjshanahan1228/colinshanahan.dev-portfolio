@@ -599,45 +599,37 @@
            ══════════════════════════════════════════════════════════════ -->
       <article class="project">
         <div class="project-info">
-          <div class="tag">infrastructure as code · terraform</div>
-          <h3>YOUR-PROJECT-NAME — Azure environment factory</h3>
+          <div class="tag">infrastructure as code · terraform · github actions</div>
+          <h3>This site, as code</h3>
           <div class="desc">
-            <p>Describe the project in 2–3 sentences: what it provisions, why you built it, and what decision it shows off (module structure, remote state, naming conventions, environment promotion).</p>
-            <p>Example framing: "A reusable Terraform module set that stands up a complete Azure environment — Container Apps, Key Vault, networking — from a single tfvars file per environment."</p>
+            <p>The portfolio you're reading is its own demo: Terraform provisions the Azure Static Web App hosting it, and a GitHub Actions workflow redeploys it on every push to main — token-scoped, no cloud credentials in CI.</p>
+            <p>The repo is public. Clone it, read the Terraform, check the workflow runs — everything claimed here is verifiable.</p>
           </div>
           <div class="tech-tags">
-            <span>terraform</span><span>azure</span><span>container-apps</span><span>key-vault</span><span>remote-state</span>
+            <span>terraform</span><span>azure-static-web-apps</span><span>github-actions</span><span>azurerm</span>
           </div>
           <div class="project-links">
-            <a class="repo-btn" href="https://github.com/YOUR-USERNAME/YOUR-TERRAFORM-REPO" target="_blank" rel="noopener">
+            <a class="repo-btn" href="https://github.com/cjshanahan1228/portfolio-project-alpha" target="_blank" rel="noopener">
               <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.3-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>
               View repository
             </a>
-            <a class="repo-btn ghost" href="#console">Try `stack` in the console →</a>
+            <a class="repo-btn ghost" href="https://github.com/cjshanahan1228/portfolio-project-alpha/actions" target="_blank" rel="noopener">Live workflow runs →</a>
           </div>
         </div>
         <div class="project-code">
-          <div class="code-head"><span>modules/container-app/main.tf</span><span>placeholder — swap for your real code</span></div>
-          <pre><span class="cmt"># Replace this excerpt with ~20 lines of YOUR best Terraform —</span>
-<span class="cmt"># pick the part that shows a decision, not boilerplate.</span>
+          <div class="code-head"><span>infra/main.tf</span><span>the actual code hosting this page</span></div>
+          <pre><span class="k">resource</span> <span class="s">"azurerm_static_web_app"</span> <span class="s">"portfolio"</span> {
+  <span class="fn">name</span>                = var.swa_name
+  <span class="fn">resource_group_name</span> = azurerm_resource_group.portfolio.<span class="fn">name</span>
+  <span class="fn">location</span>            = azurerm_resource_group.portfolio.<span class="fn">location</span>
 
-<span class="k">resource</span> <span class="s">"azurerm_container_app"</span> <span class="s">"app"</span> {
-  <span class="fn">name</span>                = <span class="s">"${var.prefix}-${var.environment}-app"</span>
-  <span class="fn">resource_group_name</span> = azurerm_resource_group.rg.<span class="fn">name</span>
+  <span class="fn">sku_tier</span> = <span class="s">"Free"</span> <span class="cmt"># 100 GB bandwidth/mo, custom domains, free SSL</span>
+  <span class="fn">sku_size</span> = <span class="s">"Free"</span>
+}
 
-  <span class="k">template</span> {
-    <span class="k">container</span> {
-      <span class="fn">name</span>   = <span class="s">"web"</span>
-      <span class="fn">image</span>  = <span class="s">"${var.acr_login_server}/${var.image}:${var.tag}"</span>
-      <span class="fn">cpu</span>    = var.cpu
-      <span class="fn">memory</span> = var.memory
-    }
-  }
-
-  <span class="k">secret</span> {
-    <span class="fn">name</span>                = <span class="s">"registry-password"</span>
-    <span class="fn">key_vault_secret_id</span> = azurerm_key_vault_secret.acr.<span class="fn">id</span>
-  }
+<span class="k">output</span> <span class="s">"deployment_token"</span> {
+  <span class="fn">value</span>     = azurerm_static_web_app.portfolio.<span class="fn">api_key</span>
+  <span class="fn">sensitive</span> = <span class="k">true</span> <span class="cmt"># lives only in a GitHub Actions secret</span>
 }</pre>
         </div>
       </article>
@@ -659,11 +651,11 @@
             <span>azure-pipelines</span><span>yaml-templates</span><span>azure-artifacts</span><span>nuget/npm</span><span>versioning</span>
           </div>
           <div class="project-links">
-            <a class="repo-btn" href="https://bitbucket.org/YOUR-WORKSPACE/YOUR-PIPELINE-REPO" target="_blank" rel="noopener">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 5h16l-2.4 14H6.4L4 5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 9.5h5l-.8 5h-3.4l-.8-5z" fill="currentColor"/></svg>
+            <a class="repo-btn" href="https://github.com/cjshanahan1228/YOUR-PIPELINE-REPO" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.3-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>
               View repository
             </a>
-            <a class="repo-btn ghost" href="https://github.com/YOUR-USERNAME?tab=repositories" target="_blank" rel="noopener">All projects →</a>
+            <a class="repo-btn ghost" href="https://github.com/cjshanahan1228?tab=repositories" target="_blank" rel="noopener">All projects →</a>
           </div>
         </div>
         <div class="project-code">
@@ -895,8 +887,11 @@
       </a>
     </div>
     <div class="foot-note">
-      <span>© 2026 Colin Shanahan</span>
-      <span>relocating → charlotte, nc · status: <span style="color:#3CC98B">available</span></span>
+      <span>© 2026 Colin Shanahan · <a href="https://github.com/cjshanahan1228" style="color:#7FB4E8">github.com/cjshanahan1228</a></span>
+      <span style="display:inline-flex;align-items:center;gap:10px">
+        <a href="https://github.com/cjshanahan1228/portfolio-project-alpha/actions/workflows/deploy.yml" title="This site deploys itself — view the pipeline"><img src="https://github.com/cjshanahan1228/portfolio-project-alpha/actions/workflows/deploy.yml/badge.svg" alt="Deploy pipeline status" style="vertical-align:middle;height:18px"></a>
+        relocating → charlotte, nc · status: <span style="color:#3CC98B">available</span>
+      </span>
     </div>
   </div>
 </footer>
@@ -967,7 +962,7 @@ phone:  (540) 454-1170
 status: available — relocating to Charlotte, NC (open to remote)`,
     projects: () => {
       document.getElementById('projects').scrollIntoView({behavior:'smooth'});
-      return `1. Terraform — Azure environment factory (modules, remote state)
+      return `1. This site, as code — Terraform + Azure SWA + GitHub Actions (live repo)
 2. Azure DevOps — multi-stage YAML pipelines (versioning + artifact promotion)
 Scrolling you there now...`;
     },
