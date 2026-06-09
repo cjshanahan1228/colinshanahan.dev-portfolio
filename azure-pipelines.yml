@@ -1,0 +1,24 @@
+# Deploys the portfolio to Azure Static Web Apps on every push to main.
+# Prereq: pipeline variable SWA_DEPLOYMENT_TOKEN (mark it secret),
+# value from: az staticwebapp secrets list -n swa-colinshanahan-portfolio --query properties.apiKey -o tsv
+
+trigger:
+  branches:
+    include:
+      - main
+  paths:
+    include:
+      - site/*
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+  - checkout: self
+
+  - task: AzureStaticWebApp@0
+    displayName: Deploy portfolio to Static Web Apps
+    inputs:
+      app_location: "site"     # folder containing index.html + resume files
+      skip_app_build: true      # plain static HTML, nothing to build
+      azure_static_web_apps_api_token: $(SWA_DEPLOYMENT_TOKEN)

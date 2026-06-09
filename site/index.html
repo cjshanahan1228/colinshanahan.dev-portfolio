@@ -1,0 +1,1021 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Colin Shanahan — DevOps Engineer</title>
+<meta name="description" content="Portfolio of Colin Shanahan, DevOps Engineer specializing in Azure DevOps, CI/CD pipelines, and infrastructure as code.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mist:#EEF2F6;
+    --paper:#FFFFFF;
+    --console:#0E1B2A;
+    --slate:#52647A;
+    --line:#D5DEE8;
+    --azure:#1B6DC1;
+    --azure-deep:#11518F;
+    --deploy:#1E9E6A;
+    --deploy-soft:#E2F4EC;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);
+    background:var(--mist);
+    color:var(--console);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--azure);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--azure);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:1060px;margin:0 auto;padding:0 24px}
+
+  /* ---------- top bar ---------- */
+  header.top{
+    position:sticky;top:0;z-index:50;
+    background:rgba(238,242,246,.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .brand{font-family:var(--mono);font-size:.85rem;color:var(--console);letter-spacing:.02em}
+  .brand .dot{color:var(--deploy)}
+  nav.menu{display:flex;gap:26px}
+  nav.menu a{font-family:var(--mono);font-size:.78rem;color:var(--slate);letter-spacing:.04em;text-transform:lowercase}
+  nav.menu a:hover{color:var(--azure);text-decoration:none}
+
+  /* ---------- hero ---------- */
+  .hero{padding:84px 0 64px;border-bottom:1px solid var(--line)}
+  .eyebrow{
+    font-family:var(--mono);font-size:.75rem;letter-spacing:.12em;
+    color:var(--slate);text-transform:uppercase;margin-bottom:18px;
+    display:flex;align-items:center;gap:10px;
+  }
+  .eyebrow::before{content:"";width:34px;height:1px;background:var(--azure)}
+  h1{
+    font-family:var(--display);
+    font-size:clamp(2.5rem,6vw,4.2rem);
+    font-weight:700;line-height:1.04;letter-spacing:-.02em;
+    max-width:14ch;
+  }
+  h1 .accent{color:var(--azure)}
+  .lede{max-width:56ch;margin-top:22px;font-size:1.06rem;color:var(--slate)}
+  .lede strong{color:var(--console);font-weight:600}
+  .hero-contact{margin-top:26px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px;font-family:var(--mono);font-size:.8rem}
+  .hero-contact span{color:var(--slate)}
+  .resume-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    background:var(--azure);color:#fff;
+    padding:10px 18px;border-radius:8px;
+    font-family:var(--mono);font-size:.8rem;
+    transition:background .15s;
+  }
+  .resume-btn:hover{background:var(--azure-deep);text-decoration:none}
+
+  /* signature: pipeline run */
+  .pipeline{
+    margin-top:56px;background:var(--paper);
+    border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;box-shadow:0 1px 2px rgba(14,27,42,.05);
+  }
+  .pipeline-head{
+    display:flex;align-items:center;justify-content:space-between;
+    padding:12px 18px;border-bottom:1px solid var(--line);
+    font-family:var(--mono);font-size:.75rem;color:var(--slate);
+  }
+  .pipeline-head .run{color:var(--console)}
+  .pipeline-stages{
+    display:flex;align-items:stretch;overflow-x:auto;
+    padding:22px 18px;gap:0;
+  }
+  .stage{display:flex;align-items:center;flex:1;min-width:118px}
+  .stage-node{flex:1;text-align:center;padding:0 6px}
+  .stage-check{
+    width:34px;height:34px;border-radius:50%;
+    margin:0 auto 10px;display:flex;align-items:center;justify-content:center;
+    background:var(--deploy-soft);color:var(--deploy);
+    border:1.5px solid var(--deploy);
+    opacity:0;transform:scale(.6);
+  }
+  .stage-check svg{width:16px;height:16px}
+  .stage-name{font-family:var(--mono);font-size:.74rem;color:var(--console);font-weight:500}
+  .stage-sub{font-family:var(--mono);font-size:.66rem;color:var(--slate);margin-top:2px}
+  .stage-link{height:1.5px;background:var(--line);flex:0 0 26px;position:relative;top:-16px}
+  @keyframes pop{to{opacity:1;transform:scale(1)}}
+  .pipeline.play .stage:nth-child(1) .stage-check{animation:pop .35s ease forwards .15s}
+  .pipeline.play .stage:nth-child(3) .stage-check{animation:pop .35s ease forwards .55s}
+  .pipeline.play .stage:nth-child(5) .stage-check{animation:pop .35s ease forwards .95s}
+  .pipeline.play .stage:nth-child(7) .stage-check{animation:pop .35s ease forwards 1.35s}
+  .pipeline.play .stage:nth-child(9) .stage-check{animation:pop .35s ease forwards 1.75s}
+  @media (prefers-reduced-motion:reduce){
+    html{scroll-behavior:auto}
+    .stage-check{opacity:1!important;transform:none!important;animation:none!important}
+  }
+
+  /* ---------- shared section ---------- */
+  section{padding:72px 0;border-bottom:1px solid var(--line)}
+  .sec-label{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--azure);margin-bottom:10px;
+  }
+  h2{font-family:var(--display);font-size:clamp(1.6rem,3.4vw,2.2rem);font-weight:600;letter-spacing:-.01em;margin-bottom:34px}
+
+  /* ---------- highlights ---------- */
+  .stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden}
+  .stat{background:var(--paper);padding:26px 22px}
+  .stat .n{font-family:var(--display);font-size:2rem;font-weight:700;color:var(--console)}
+  .stat .n em{font-style:normal;color:var(--deploy)}
+  .stat .l{font-family:var(--mono);font-size:.74rem;color:var(--slate);margin-top:6px;line-height:1.5}
+
+  /* ---------- experience as pipeline stages ---------- */
+  .job{
+    position:relative;background:var(--paper);
+    border:1px solid var(--line);border-radius:10px;
+    padding:30px 32px;margin-bottom:22px;
+  }
+  .job::before{
+    content:"";position:absolute;left:-1px;top:22px;bottom:22px;
+    width:3px;border-radius:0 3px 3px 0;background:var(--azure);
+  }
+  .job.past::before{background:var(--line)}
+  .job-top{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:space-between;gap:6px 18px}
+  .job h3{font-family:var(--display);font-size:1.25rem;font-weight:600}
+  .job .role{color:var(--azure-deep);font-weight:600;font-size:.95rem;margin-top:2px}
+  .job .meta{font-family:var(--mono);font-size:.74rem;color:var(--slate);text-align:right}
+  .job .status{
+    display:inline-flex;align-items:center;gap:6px;
+    font-family:var(--mono);font-size:.68rem;
+    padding:3px 9px;border-radius:99px;margin-left:10px;vertical-align:middle;
+    background:var(--deploy-soft);color:var(--deploy);
+  }
+  .job .status::before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+  .job ul{margin-top:16px;padding-left:0;list-style:none}
+  .job li{
+    position:relative;padding-left:24px;margin-bottom:10px;
+    color:#2B3D52;font-size:.96rem;
+  }
+  .job li::before{
+    content:"›";position:absolute;left:6px;top:0;
+    color:var(--azure);font-weight:700;
+  }
+  .job li strong{color:var(--console)}
+
+  /* ---------- skills manifest ---------- */
+  .skills-grid{display:grid;grid-template-columns:1.1fr .9fr;gap:26px;align-items:start}
+  .manifest{
+    background:var(--console);color:#C9D6E4;border-radius:10px;
+    font-family:var(--mono);font-size:.8rem;line-height:1.75;
+    padding:24px 26px;overflow-x:auto;
+  }
+  .manifest .k{color:#7FB4E8}
+  .manifest .v{color:#E8EEF5}
+  .manifest .cmt{color:#607B97}
+  .cert-list{display:flex;flex-direction:column;gap:12px}
+  .cert{
+    background:var(--paper);border:1px solid var(--line);border-radius:8px;
+    padding:14px 18px;display:flex;align-items:center;gap:14px;
+  }
+  .cert .badge{
+    width:36px;height:36px;border-radius:8px;flex:0 0 36px;
+    display:flex;align-items:center;justify-content:center;
+    background:#E7F0FA;color:var(--azure);
+  }
+  .cert .badge svg{width:18px;height:18px}
+  .cert .name{font-weight:600;font-size:.92rem}
+  .cert .org{font-family:var(--mono);font-size:.7rem;color:var(--slate)}
+
+  /* ---------- education ---------- */
+  .edu{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:28px 32px;display:flex;flex-wrap:wrap;justify-content:space-between;gap:10px 24px;align-items:baseline;
+  }
+  .edu h3{font-family:var(--display);font-size:1.15rem;font-weight:600}
+  .edu .deg{color:var(--azure-deep);font-weight:600;margin-top:2px}
+  .edu .course{color:var(--slate);font-size:.92rem;margin-top:8px;max-width:60ch}
+  .edu .meta{font-family:var(--mono);font-size:.74rem;color:var(--slate)}
+
+  /* ---------- footer / contact ---------- */
+  footer{background:var(--console);color:#C9D6E4;padding:64px 0 40px}
+  footer .sec-label{color:#7FB4E8}
+  footer h2{color:#fff;margin-bottom:18px}
+  footer p{max-width:52ch;color:#9FB2C6}
+  .contact-row{margin-top:28px;display:flex;flex-wrap:wrap;gap:14px}
+  .btn{
+    display:inline-flex;align-items:center;gap:9px;
+    font-family:var(--mono);font-size:.8rem;
+    padding:11px 20px;border-radius:8px;border:1px solid #2C415A;
+    color:#E8EEF5;transition:border-color .15s,background .15s;
+  }
+  .btn:hover{text-decoration:none;border-color:var(--azure);background:#16283C}
+  .btn.primary{background:var(--azure);border-color:var(--azure);color:#fff}
+  .btn.primary:hover{background:var(--azure-deep)}
+  .foot-note{margin-top:48px;padding-top:20px;border-top:1px solid #22364D;font-family:var(--mono);font-size:.68rem;color:#607B97;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+
+  @media (max-width:760px){
+    nav.menu{display:none}
+    .skills-grid{grid-template-columns:1fr}
+    .job .meta{text-align:left}
+  }
+
+  /* ---------- case studies ---------- */
+  .cases{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:22px}
+  .case{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    padding:28px;display:flex;flex-direction:column;
+    transition:transform .15s ease,box-shadow .15s ease;
+  }
+  .case:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(14,27,42,.08)}
+  .case .tag{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--azure);margin-bottom:12px;
+  }
+  .case h3{font-family:var(--display);font-size:1.15rem;font-weight:600;line-height:1.3;margin-bottom:14px}
+  .case dl{font-size:.92rem;color:#2B3D52;flex:1}
+  .case dt{font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin-top:14px}
+  .case dt:first-child{margin-top:0}
+  .case dd{margin-top:4px}
+  .case .outcome{
+    margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
+    font-family:var(--mono);font-size:.76rem;color:var(--deploy);font-weight:500;
+  }
+
+  /* ---------- principles ---------- */
+  .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px}
+  .principle{padding:4px 0}
+  .principle .num{
+    font-family:var(--mono);font-size:.72rem;color:var(--azure);
+    display:block;margin-bottom:8px;
+  }
+  .principle h3{font-family:var(--display);font-size:1.05rem;font-weight:600;margin-bottom:8px}
+  .principle p{font-size:.93rem;color:var(--slate)}
+
+  /* ---------- interactive terminal ---------- */
+  .term{
+    background:var(--console);border-radius:10px;overflow:hidden;
+    box-shadow:0 10px 30px rgba(14,27,42,.18);
+  }
+  .term-bar{
+    display:flex;align-items:center;gap:8px;
+    padding:11px 16px;border-bottom:1px solid #22364D;
+  }
+  .term-bar i{width:11px;height:11px;border-radius:50%;display:block}
+  .term-bar i:nth-child(1){background:#E2574C}
+  .term-bar i:nth-child(2){background:#E0A93E}
+  .term-bar i:nth-child(3){background:#3CC98B}
+  .term-bar span{font-family:var(--mono);font-size:.7rem;color:#607B97;margin-left:8px}
+  .term-body{
+    font-family:var(--mono);font-size:.82rem;line-height:1.7;
+    color:#C9D6E4;padding:18px 20px;height:300px;overflow-y:auto;cursor:text;
+  }
+  .term-body .ps{color:#3CC98B}
+  .term-body .cmd{color:#E8EEF5}
+  .term-body .out{color:#9FB2C6;white-space:pre-wrap}
+  .term-body .hint{color:#607B97}
+  .term-input-row{display:flex;gap:0;align-items:baseline}
+  .term-input{
+    flex:1;background:transparent;border:none;outline:none;
+    font:inherit;color:#E8EEF5;caret-color:#3CC98B;padding:0;margin-left:8px;
+  }
+
+  /* ---------- projects showcase ---------- */
+  .project{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;margin-bottom:26px;
+    display:grid;grid-template-columns:1fr 1.05fr;
+  }
+  .project-info{padding:30px 32px;display:flex;flex-direction:column}
+  .project .tag{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--azure);margin-bottom:12px;
+  }
+  .project h3{font-family:var(--display);font-size:1.3rem;font-weight:600;line-height:1.25;margin-bottom:12px}
+  .project .desc{font-size:.95rem;color:#2B3D52;flex:1}
+  .project .desc p{margin-bottom:10px}
+  .tech-tags{display:flex;flex-wrap:wrap;gap:8px;margin:16px 0 20px}
+  .tech-tags span{
+    font-family:var(--mono);font-size:.68rem;color:var(--slate);
+    background:var(--mist);border:1px solid var(--line);border-radius:99px;
+    padding:3px 11px;
+  }
+  .project-links{display:flex;flex-wrap:wrap;gap:12px}
+  .repo-btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--mono);font-size:.78rem;
+    padding:9px 16px;border-radius:8px;
+    background:var(--console);color:#fff;transition:background .15s;
+  }
+  .repo-btn:hover{background:#1C3450;text-decoration:none}
+  .repo-btn.ghost{background:transparent;color:var(--azure);border:1px solid var(--line)}
+  .repo-btn.ghost:hover{border-color:var(--azure);background:#F3F8FD}
+  .project-code{
+    background:var(--console);padding:0;display:flex;flex-direction:column;min-width:0;
+  }
+  .code-head{
+    font-family:var(--mono);font-size:.7rem;color:#607B97;
+    padding:11px 18px;border-bottom:1px solid #22364D;
+    display:flex;justify-content:space-between;gap:12px;
+  }
+  .project-code pre{
+    font-family:var(--mono);font-size:.74rem;line-height:1.7;
+    color:#C9D6E4;padding:18px 20px;overflow-x:auto;margin:0;flex:1;
+  }
+  .project-code .k{color:#7FB4E8}
+  .project-code .s{color:#8BD5A8}
+  .project-code .cmt{color:#607B97}
+  .project-code .fn{color:#E0B970}
+  @media (max-width:860px){
+    .project{grid-template-columns:1fr}
+    .project-code pre{max-height:320px;overflow-y:auto}
+  }
+
+  /* ---------- relocation banner ---------- */
+  .banner{
+    background:var(--azure);color:#fff;
+    font-family:var(--mono);font-size:.74rem;letter-spacing:.02em;
+    text-align:center;padding:8px 16px;
+  }
+  .banner a{color:#fff;text-decoration:underline;text-underline-offset:3px}
+  .banner .pin{margin-right:6px}
+
+  /* ---------- multi-cloud rosetta ---------- */
+  .cloud-intro{max-width:62ch;color:var(--slate);font-size:.98rem;margin:-18px 0 30px}
+  .cloud-intro strong{color:var(--console)}
+  .rosetta{
+    background:var(--paper);border:1px solid var(--line);border-radius:10px;
+    overflow:hidden;
+  }
+  .rosetta-scroll{overflow-x:auto}
+  .rosetta table{border-collapse:collapse;width:100%;min-width:680px}
+  .rosetta th,.rosetta td{
+    text-align:left;padding:13px 18px;border-bottom:1px solid var(--line);
+    font-size:.88rem;vertical-align:top;
+  }
+  .rosetta thead th{
+    font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--slate);background:var(--mist);border-bottom:1px solid var(--line);
+  }
+  .rosetta thead th.primary{color:var(--azure)}
+  .rosetta thead th.primary em{
+    font-style:normal;font-size:.6rem;background:#E7F0FA;
+    border-radius:99px;padding:2px 8px;margin-left:8px;vertical-align:middle;
+  }
+  .rosetta tbody th{
+    font-family:var(--mono);font-size:.72rem;color:var(--slate);
+    font-weight:500;white-space:nowrap;
+  }
+  .rosetta td:nth-child(2){color:var(--console);font-weight:500}
+  .rosetta tbody tr:last-child th,.rosetta tbody tr:last-child td{border-bottom:none}
+  .rosetta-foot{
+    border-top:1px solid var(--line);background:var(--mist);
+    padding:13px 18px;font-family:var(--mono);font-size:.74rem;color:var(--slate);
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+  }
+  .rosetta-foot .tf{
+    color:var(--deploy);font-weight:500;display:inline-flex;align-items:center;gap:6px;
+  }
+  .rosetta-foot .tf::before{content:"";width:7px;height:7px;border-radius:50%;background:currentColor}
+  .cloud-proof{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:10px;overflow:hidden;margin-top:22px}
+  .cloud-proof div{background:var(--paper);padding:18px 20px}
+  .cloud-proof .cl{font-family:var(--mono);font-size:.7rem;letter-spacing:.1em;text-transform:uppercase;color:var(--azure);margin-bottom:6px}
+  .cloud-proof p{font-size:.88rem;color:#2B3D52}
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="banner"><span class="pin">📍</span>Relocating to <strong>Charlotte, NC</strong> — actively seeking DevOps &amp; platform roles in the metro area · <a href="#contact">get in touch</a></div>
+  <div class="wrap top-inner">
+    <div class="brand">colin-shanahan<span class="dot">●</span>devops</div>
+    <nav class="menu" aria-label="Sections">
+      <a href="#highlights">highlights</a>
+      <a href="#experience">experience</a>
+      <a href="#projects">projects</a>
+      <a href="#clouds">multi-cloud</a>
+      <a href="#skills">skills</a>
+      <a href="#console">console</a>
+      <a href="#contact">contact</a>
+      <a href="Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
+    </nav>
+  </div>
+</header>
+
+<main>
+  <div class="hero">
+    <div class="wrap">
+      <p class="eyebrow">DevOps Engineer · Relocating to Charlotte, NC</p>
+      <h1>Colin Shanahan ships <span class="accent">reliable pipelines.</span></h1>
+      <p class="lede">
+        Ten-plus years across systems administration, infrastructure engineering, and DevOps —
+        now <strong>architecting Azure DevOps CI/CD and infrastructure as code</strong> that cut release
+        cycles by 40% and keep critical applications at 99.9% uptime.
+      </p>
+      <div class="hero-contact">
+        <a class="resume-btn" href="Colin-Shanahan-Resume.pdf" download>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+          Download résumé
+        </a>
+        <a href="mailto:Colin.shanahan1@gmail.com">Colin.shanahan1@gmail.com</a>
+        <span>(540) 454-1170</span>
+        <span>Remote / Onsite</span>
+      </div>
+
+      <!-- signature: a pipeline run that mirrors how Colin works -->
+      <div class="pipeline" id="pipeline" aria-label="Illustration of a CI/CD pipeline run">
+        <div class="pipeline-head">
+          <span class="run">run #2026.06.09 · main</span>
+          <span>azure-pipelines.yml</span>
+        </div>
+        <div class="pipeline-stages">
+          <div class="stage">
+            <div class="stage-node">
+              <div class="stage-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="stage-name">Plan</div><div class="stage-sub">terraform · bicep</div>
+            </div>
+          </div>
+          <div class="stage-link"></div>
+          <div class="stage">
+            <div class="stage-node">
+              <div class="stage-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="stage-name">Provision</div><div class="stage-sub">container apps · kv</div>
+            </div>
+          </div>
+          <div class="stage-link"></div>
+          <div class="stage">
+            <div class="stage-node">
+              <div class="stage-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="stage-name">Build</div><div class="stage-sub">azure devops ci</div>
+            </div>
+          </div>
+          <div class="stage-link"></div>
+          <div class="stage">
+            <div class="stage-node">
+              <div class="stage-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="stage-name">Release</div><div class="stage-sub">−40% cycle time</div>
+            </div>
+          </div>
+          <div class="stage-link"></div>
+          <div class="stage">
+            <div class="stage-node">
+              <div class="stage-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+              <div class="stage-name">Operate</div><div class="stage-sub">99.9% uptime</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <section id="highlights">
+    <div class="wrap">
+      <p class="sec-label">// highlights</p>
+      <h2>Track record</h2>
+      <div class="stats">
+        <div class="stat"><div class="n"><em>−40%</em></div><div class="l">release cycle time after migrating Octopus Deploy &amp; Jenkins workflows to Azure DevOps</div></div>
+        <div class="stat"><div class="n"><em>99.9%</em></div><div class="l">uptime maintained for restoration-critical infrastructure at American Electric Power</div></div>
+        <div class="stat"><div class="n">10+ yrs</div><div class="l">across systems administration, infrastructure, and DevOps engineering</div></div>
+        <div class="stat"><div class="n">6</div><div class="l">certifications spanning Azure, AWS, security, and service management</div></div>
+      </div>
+    </div>
+  </section>
+
+  <section id="experience">
+    <div class="wrap">
+      <p class="sec-label">// experience</p>
+      <h2>Deployment history</h2>
+
+      <article class="job">
+        <div class="job-top">
+          <div>
+            <h3>RDGFilings <span class="status">running</span></h3>
+            <div class="role">DevOps Engineer</div>
+          </div>
+          <div class="meta">Oct 2022 – Present<br>Remote / Onsite</div>
+        </div>
+        <ul>
+          <li><strong>Architected Azure DevOps CI/CD pipelines</strong>, migrating legacy workflows off Octopus Deploy and Jenkins — cutting release cycles by 40% and improving deployment reliability.</li>
+          <li>Designed and provisioned Azure infrastructure — Container Apps, Function Apps, Virtual Machines, and Key Vault — enabling scalable, secure environments for enterprise applications.</li>
+          <li>Authored <strong>Terraform and Bicep</strong> to automate infrastructure provisioning, replacing GCP-based systems with consistent, repeatable deployments.</li>
+          <li>Partnered with engineering and product teams to define operational requirements, aligning DevOps practice with business needs in an Agile environment.</li>
+          <li>Contributed to <strong>HIPAA compliance</strong> initiatives for a child company — secure configurations, documented processes, regulatory alignment.</li>
+          <li>Mentored junior engineers and dev teams on Azure DevOps best practices, building a culture of knowledge-sharing.</li>
+        </ul>
+      </article>
+
+      <article class="job past">
+        <div class="job-top">
+          <div>
+            <h3>American Electric Power (AEP)</h3>
+            <div class="role">Infrastructure Engineer</div>
+          </div>
+          <div class="meta">Jun 2019 – Oct 2022<br>Roanoke, VA</div>
+        </div>
+        <ul>
+          <li>Led the onsite team managing critical infrastructure — Oracle databases and Windows servers — sustaining <strong>99.9% uptime</strong> for restoration-focused applications.</li>
+          <li>Designed and implemented <strong>failover systems</strong> using Azure DevOps, enabling rapid recovery and minimizing downtime during outages.</li>
+          <li>Documented system configurations and collaborated cross-functionally to troubleshoot issues and keep teams unblocked.</li>
+        </ul>
+      </article>
+
+      <article class="job past">
+        <div class="job-top">
+          <div>
+            <h3>1901 Group</h3>
+            <div class="role">Systems Administrator / Help Desk Lead</div>
+          </div>
+          <div class="meta">May 2015 – Jun 2019<br>Blacksburg, VA / Washington, DC</div>
+        </div>
+        <ul>
+          <li>Deployed <strong>Microsoft Intune</strong> for endpoint management, streamlining device configuration and improving security compliance org-wide.</li>
+          <li>Handled networking operations — firewall maintenance, DNS configuration, switch management — keeping infrastructure secure and reliable.</li>
+          <li>Served as mid-level escalation point for server and system issues, resolving complex problems and mentoring junior team members.</li>
+          <li>Documented processes and configurations to raise operational efficiency and support team knowledge-sharing.</li>
+        </ul>
+      </article>
+    </div>
+  </section>
+
+  <section id="work">
+    <div class="wrap">
+      <p class="sec-label">// selected work</p>
+      <h2>Case studies</h2>
+      <div class="cases">
+        <article class="case">
+          <div class="tag">migration · ci/cd</div>
+          <h3>Retiring Octopus Deploy &amp; Jenkins without breaking release day</h3>
+          <dl>
+            <dt>Problem</dt>
+            <dd>Two legacy deployment systems, fragmented release knowledge, and slow, unreliable release cycles.</dd>
+            <dt>Approach</dt>
+            <dd>Rebuilt the workflows as Azure DevOps multi-stage YAML pipelines, migrating incrementally so teams never lost the ability to ship while cutting over.</dd>
+          </dl>
+          <div class="outcome">✓ release cycles −40% · reliability up · one platform</div>
+        </article>
+
+        <article class="case">
+          <div class="tag">iac · cloud migration</div>
+          <h3>Replacing hand-built GCP systems with Terraform &amp; Bicep on Azure</h3>
+          <dl>
+            <dt>Problem</dt>
+            <dd>Infrastructure provisioned by hand on GCP — inconsistent environments, no repeatable path from dev to production.</dd>
+            <dt>Approach</dt>
+            <dd>Codified the estate in Terraform and Bicep: Container Apps, Function Apps, VMs, and Key Vault, provisioned identically every time from version-controlled templates.</dd>
+          </dl>
+          <div class="outcome">✓ repeatable environments · drift eliminated · auditable infra</div>
+        </article>
+
+        <article class="case">
+          <div class="tag">reliability · failover</div>
+          <h3>Failover for the systems that turn the lights back on</h3>
+          <dl>
+            <dt>Problem</dt>
+            <dd>At AEP, restoration-focused applications backed by Oracle and Windows servers couldn't afford downtime — these are the systems crews depend on during outages.</dd>
+            <dt>Approach</dt>
+            <dd>Designed and implemented failover systems orchestrated through Azure DevOps, enabling rapid, practiced recovery instead of ad-hoc heroics.</dd>
+          </dl>
+          <div class="outcome">✓ 99.9% uptime sustained · rapid recovery during outages</div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="projects">
+    <div class="wrap">
+      <p class="sec-label">// code i've shipped</p>
+      <h2>Project showcase</h2>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           PROJECT 1 — TERRAFORM
+           TODO(Colin): Replace the three YOUR-* placeholders below:
+             1. The repo URL in href="..."
+             2. The project title and description
+             3. Swap the code excerpt for a real snippet from your repo
+           ══════════════════════════════════════════════════════════════ -->
+      <article class="project">
+        <div class="project-info">
+          <div class="tag">infrastructure as code · terraform</div>
+          <h3>YOUR-PROJECT-NAME — Azure environment factory</h3>
+          <div class="desc">
+            <p>Describe the project in 2–3 sentences: what it provisions, why you built it, and what decision it shows off (module structure, remote state, naming conventions, environment promotion).</p>
+            <p>Example framing: "A reusable Terraform module set that stands up a complete Azure environment — Container Apps, Key Vault, networking — from a single tfvars file per environment."</p>
+          </div>
+          <div class="tech-tags">
+            <span>terraform</span><span>azure</span><span>container-apps</span><span>key-vault</span><span>remote-state</span>
+          </div>
+          <div class="project-links">
+            <a class="repo-btn" href="https://github.com/YOUR-USERNAME/YOUR-TERRAFORM-REPO" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.3-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>
+              View repository
+            </a>
+            <a class="repo-btn ghost" href="#console">Try `stack` in the console →</a>
+          </div>
+        </div>
+        <div class="project-code">
+          <div class="code-head"><span>modules/container-app/main.tf</span><span>placeholder — swap for your real code</span></div>
+          <pre><span class="cmt"># Replace this excerpt with ~20 lines of YOUR best Terraform —</span>
+<span class="cmt"># pick the part that shows a decision, not boilerplate.</span>
+
+<span class="k">resource</span> <span class="s">"azurerm_container_app"</span> <span class="s">"app"</span> {
+  <span class="fn">name</span>                = <span class="s">"${var.prefix}-${var.environment}-app"</span>
+  <span class="fn">resource_group_name</span> = azurerm_resource_group.rg.<span class="fn">name</span>
+
+  <span class="k">template</span> {
+    <span class="k">container</span> {
+      <span class="fn">name</span>   = <span class="s">"web"</span>
+      <span class="fn">image</span>  = <span class="s">"${var.acr_login_server}/${var.image}:${var.tag}"</span>
+      <span class="fn">cpu</span>    = var.cpu
+      <span class="fn">memory</span> = var.memory
+    }
+  }
+
+  <span class="k">secret</span> {
+    <span class="fn">name</span>                = <span class="s">"registry-password"</span>
+    <span class="fn">key_vault_secret_id</span> = azurerm_key_vault_secret.acr.<span class="fn">id</span>
+  }
+}</pre>
+        </div>
+      </article>
+
+      <!-- ══════════════════════════════════════════════════════════════
+           PROJECT 2 — AZURE DEVOPS PIPELINES
+           TODO(Colin): Same three swaps — repo/pipeline URL, title +
+           description, and a real excerpt from one of your YAML pipelines.
+           ══════════════════════════════════════════════════════════════ -->
+      <article class="project">
+        <div class="project-info">
+          <div class="tag">ci/cd · azure devops</div>
+          <h3>YOUR-PIPELINE-PROJECT — multi-stage YAML pipelines</h3>
+          <div class="desc">
+            <p>Describe what makes these pipelines yours: templated stages reused across repos? Automated versioning with build-number appending? Artifact promotion through feed views? Approval gates per environment?</p>
+            <p>Example framing: "Reusable pipeline templates that take a shared library from commit to Azure Artifacts — automated versioning, prerelease/release feed promotion, and publish rights locked to service principals."</p>
+          </div>
+          <div class="tech-tags">
+            <span>azure-pipelines</span><span>yaml-templates</span><span>azure-artifacts</span><span>nuget/npm</span><span>versioning</span>
+          </div>
+          <div class="project-links">
+            <a class="repo-btn" href="https://bitbucket.org/YOUR-WORKSPACE/YOUR-PIPELINE-REPO" target="_blank" rel="noopener">
+              <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M4 5h16l-2.4 14H6.4L4 5z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M9.5 9.5h5l-.8 5h-3.4l-.8-5z" fill="currentColor"/></svg>
+              View repository
+            </a>
+            <a class="repo-btn ghost" href="https://github.com/YOUR-USERNAME?tab=repositories" target="_blank" rel="noopener">All projects →</a>
+          </div>
+        </div>
+        <div class="project-code">
+          <div class="code-head"><span>azure-pipelines.yml</span><span>placeholder — swap for your real code</span></div>
+          <pre><span class="cmt"># Replace with an excerpt from a pipeline you actually built —</span>
+<span class="cmt"># the versioning or promotion logic is usually the interesting part.</span>
+
+<span class="k">stages</span>:
+  - <span class="k">stage</span>: <span class="fn">Build</span>
+    <span class="k">jobs</span>:
+      - <span class="k">job</span>: <span class="fn">Pack</span>
+        <span class="k">steps</span>:
+          - <span class="k">script</span>: |
+              <span class="s">echo "##vso[build.updatebuildnumber]$(MajorMinor).$(Build.BuildId)"</span>
+            <span class="k">displayName</span>: <span class="s">Stamp package version</span>
+          - <span class="k">task</span>: <span class="fn">DotNetCoreCLI@2</span>
+            <span class="k">inputs</span>:
+              <span class="k">command</span>: <span class="s">pack</span>
+              <span class="k">versioningScheme</span>: <span class="s">byBuildNumber</span>
+
+  - <span class="k">stage</span>: <span class="fn">Publish</span>
+    <span class="k">dependsOn</span>: <span class="fn">Build</span>
+    <span class="k">jobs</span>:
+      - <span class="k">job</span>: <span class="fn">Push</span>
+        <span class="k">steps</span>:
+          - <span class="k">task</span>: <span class="fn">NuGetCommand@2</span>
+            <span class="k">inputs</span>:
+              <span class="k">command</span>: <span class="s">push</span>
+              <span class="k">publishVstsFeed</span>: <span class="s">shared-libraries@prerelease</span></pre>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <section id="skills">
+    <div class="wrap">
+      <p class="sec-label">// skills &amp; certifications</p>
+      <h2>Stack manifest</h2>
+      <div class="skills-grid">
+        <pre class="manifest" aria-label="Skills listed in YAML format"><span class="cmt"># colin-shanahan/stack.yml</span>
+<span class="k">cloud:</span>        <span class="v">[azure, aws, gcp]</span>
+<span class="k">ci_cd:</span>        <span class="v">[azure-devops, jenkins]</span>
+<span class="k">iac:</span>          <span class="v">[terraform, bicep, cloudformation]</span>
+<span class="k">containers:</span>   <span class="v">[container-apps, docker]</span>
+<span class="k">azure:</span>
+  <span class="k">compute:</span>    <span class="v">[container-apps, function-apps, vms]</span>
+  <span class="k">security:</span>   <span class="v">[key-vault, intune]</span>
+<span class="k">tooling:</span>      <span class="v">[git, jira]</span>
+<span class="k">practices:</span>
+  - <span class="v">strategic-planning</span>
+  - <span class="v">technical-documentation</span>
+  - <span class="v">hiring &amp; mentoring</span>
+  - <span class="v">cross-team collaboration</span></pre>
+        <div class="cert-list">
+          <div class="cert"><div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 12l2.2 2.2 4.2-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="name">Azure Administrator (AZ‑104)</div><div class="org">Microsoft · 2025</div></div></div>
+          <div class="cert"><div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 12l2.2 2.2 4.2-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="name">Azure DevOps Engineer Expert (AZ‑400)</div><div class="org">Microsoft · 2025</div></div></div>
+          <div class="cert"><div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 12l2.2 2.2 4.2-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="name">AWS Solutions Architect</div><div class="org">Amazon Web Services</div></div></div>
+          <div class="cert"><div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 12l2.2 2.2 4.2-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="name">AWS Certified Developer</div><div class="org">Amazon Web Services</div></div></div>
+          <div class="cert"><div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 12l2.2 2.2 4.2-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="name">CompTIA Security+</div><div class="org">CompTIA</div></div></div>
+          <div class="cert"><div class="badge"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2l7 4v6c0 5-3.5 8.5-7 10-3.5-1.5-7-5-7-10V6l7-4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M8.8 12l2.2 2.2 4.2-4.4" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg></div><div><div class="name">ITIL Foundation</div><div class="org">Axelos</div></div></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="clouds">
+    <div class="wrap">
+      <p class="sec-label">// multi-cloud</p>
+      <h2>Fluent in three clouds</h2>
+      <p class="cloud-intro">
+        Same problems, different nouns. <strong>Azure is my daily driver</strong>, I hold two AWS certifications,
+        and I've migrated production systems off GCP — which means I can read your estate
+        whichever console it lives in. Here's how my toolkit translates:
+      </p>
+      <div class="rosetta">
+        <div class="rosetta-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>Capability</th>
+              <th class="primary">Azure <em>primary</em></th>
+              <th>AWS</th>
+              <th>GCP</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <th>containers</th>
+              <td>Container Apps · ACR</td>
+              <td>ECS / Fargate · ECR</td>
+              <td>Cloud Run · Artifact Registry</td>
+            </tr>
+            <tr>
+              <th>serverless</th>
+              <td>Function Apps</td>
+              <td>Lambda</td>
+              <td>Cloud Functions</td>
+            </tr>
+            <tr>
+              <th>secrets</th>
+              <td>Key Vault</td>
+              <td>Secrets Manager</td>
+              <td>Secret Manager</td>
+            </tr>
+            <tr>
+              <th>compute</th>
+              <td>Virtual Machines</td>
+              <td>EC2</td>
+              <td>Compute Engine</td>
+            </tr>
+            <tr>
+              <th>iac (native)</th>
+              <td>Bicep / ARM</td>
+              <td>CloudFormation</td>
+              <td>Deployment Manager</td>
+            </tr>
+            <tr>
+              <th>ci/cd</th>
+              <td>Azure Pipelines</td>
+              <td>CodePipeline</td>
+              <td>Cloud Build</td>
+            </tr>
+          </tbody>
+        </table>
+        </div>
+        <div class="rosetta-foot">
+          <span class="tf">terraform</span>
+          <span>one language across all three columns — which is why it's my default for anything portable</span>
+        </div>
+      </div>
+      <div class="cloud-proof">
+        <div>
+          <div class="cl">azure — production daily</div>
+          <p>Architecting CI/CD and provisioning Container Apps, Function Apps, VMs, and Key Vault at RDGFilings. AZ-104 + AZ-400 certified.</p>
+        </div>
+        <div>
+          <div class="cl">aws — certified ×2</div>
+          <p>AWS Solutions Architect and AWS Certified Developer — fluent in the EC2/Lambda/IAM model and how it maps to Azure equivalents.</p>
+        </div>
+        <div>
+          <div class="cl">gcp — migrated from</div>
+          <p>Replaced GCP-based systems with Terraform- and Bicep-provisioned Azure infrastructure — you learn a cloud thoroughly when you carefully move off it.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="principles">
+    <div class="wrap">
+      <p class="sec-label">// how i work</p>
+      <h2>Operating principles</h2>
+      <div class="principles">
+        <div class="principle">
+          <span class="num">$ cat principles/01</span>
+          <h3>Boring deploys are the goal</h3>
+          <p>A release should be an uneventful Tuesday afternoon, not a war room. If shipping requires courage, the pipeline isn't finished.</p>
+        </div>
+        <div class="principle">
+          <span class="num">$ cat principles/02</span>
+          <h3>If it isn't in code, it doesn't exist</h3>
+          <p>Hand-built infrastructure is a liability with an expiration date. Terraform and Bicep aren't extra work — they're the work.</p>
+        </div>
+        <div class="principle">
+          <span class="num">$ cat principles/03</span>
+          <h3>Documentation is a deployment artifact</h3>
+          <p>A system only one person understands is a single point of failure wearing a badge. I write things down so teams scale past me.</p>
+        </div>
+        <div class="principle">
+          <span class="num">$ cat principles/04</span>
+          <h3>Mentoring compounds</h3>
+          <p>The highest-leverage thing I've shipped isn't a pipeline — it's engineers who no longer need me to run one.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="console">
+    <div class="wrap">
+      <p class="sec-label">// console</p>
+      <h2>Don't take my word for it — query me</h2>
+      <p style="color:var(--slate);margin:-18px 0 26px;max-width:56ch">This portfolio ships with a working shell. Type <code style="font-family:var(--mono);background:var(--paper);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:.85em">help</code> to see what it knows.</p>
+      <div class="term" id="term">
+        <div class="term-bar"><i></i><i></i><i></i><span>colin@portfolio: ~</span></div>
+        <div class="term-body" id="term-body">
+          <div><span class="hint">Welcome. This is a real, working terminal. Try: help, whoami, stack, uptime, certs, contact</span></div>
+          <div class="term-input-row"><span class="ps">colin@portfolio:~$</span><input class="term-input" id="term-input" autocomplete="off" spellcheck="false" aria-label="Terminal input"></div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="education">
+    <div class="wrap">
+      <p class="sec-label">// education</p>
+      <h2>Education</h2>
+      <div class="edu">
+        <div>
+          <h3>Ferrum College</h3>
+          <div class="deg">B.S. Computer Science</div>
+          <div class="course">Relevant coursework: Cloud Computing, Cybersecurity, Networking, Software Engineering</div>
+        </div>
+        <div class="meta">May 2015 · Ferrum, VA</div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer id="contact">
+  <div class="wrap">
+    <p class="sec-label">// contact</p>
+    <h2>Let's build something reliable.</h2>
+    <p>Relocating to <strong style="color:#E8EEF5">Charlotte, NC</strong> and actively seeking DevOps and platform engineering roles in the metro area — also open to remote. The fastest way to reach me is email.</p>
+    <div class="contact-row">
+      <a class="btn primary" href="mailto:Colin.shanahan1@gmail.com">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18v12H3z" stroke="currentColor" stroke-width="1.8"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="1.8"/></svg>
+        Colin.shanahan1@gmail.com
+      </a>
+      <a class="btn" href="tel:+15404541170">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 4h4l1.5 4.5L8 10c1 2.5 3.5 5 6 6l1.5-2.5L20 15v4c0 .6-.4 1-1 1C10.5 19.5 4.5 13.5 4 5c0-.6.4-1 1-1z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        (540) 454-1170
+      </a>
+      <a class="btn" href="Colin-Shanahan-Resume.pdf" download>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Résumé (PDF)
+      </a>
+      <a class="btn" href="Colin-Shanahan-Resume.docx" download>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Résumé (Word)
+      </a>
+    </div>
+    <div class="foot-note">
+      <span>© 2026 Colin Shanahan</span>
+      <span>relocating → charlotte, nc · status: <span style="color:#3CC98B">available</span></span>
+    </div>
+  </div>
+</footer>
+
+<script>
+  // play pipeline animation when hero is in view
+  const p = document.getElementById('pipeline');
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    p.classList.add('play');
+  } else {
+    new IntersectionObserver((e, o) => {
+      if (e[0].isIntersecting) { p.classList.add('play'); o.disconnect(); }
+    }, { threshold: .3 }).observe(p);
+  }
+
+  // ---------- interactive terminal ----------
+  const termBody = document.getElementById('term-body');
+  const termInput = document.getElementById('term-input');
+  const inputRow = termBody.querySelector('.term-input-row');
+
+  const commands = {
+    help: () =>
+`Available commands:
+  whoami      who is this guy
+  stack       technologies & tooling
+  clouds      azure vs aws vs gcp fluency
+  uptime      career history
+  certs       certifications
+  contact     how to reach me
+  projects    terraform & pipeline showcase
+  resume      download the résumé
+  principles  how I work
+  clear       clear the terminal
+  sudo        try it and see`,
+    whoami: () =>
+`Colin Shanahan — DevOps Engineer
+Relocating to Charlotte, NC — open to metro-area & remote roles.
+10+ years from help desk → infrastructure → DevOps.
+Currently architecting Azure DevOps CI/CD and IaC at RDGFilings.
+Believes deploys should be boring and docs are a deliverable.`,
+    clouds: () =>
+`azure   ████████████  primary — production daily (AZ-104, AZ-400)
+aws     ████████      certified ×2 (Solutions Architect, Developer)
+gcp     ██████        migrated production systems off it
+terraform: one language across all three.`,
+    stack: () =>
+`cloud:      azure (primary), aws, gcp
+ci_cd:      azure-devops, jenkins (migrated away from)
+iac:        terraform, bicep, cloudformation
+azure:      container apps, function apps, vms, key vault
+endpoints:  microsoft intune
+tooling:    git, jira`,
+    uptime: () =>
+`2022 → now    RDGFilings — DevOps Engineer          [running]
+2019 → 2022   American Electric Power — Infra Eng    [99.9% uptime]
+2015 → 2019   1901 Group — SysAdmin / Help Desk Lead [origin story]
+total: ~11 years, zero unplanned career outages`,
+    certs: () =>
+`[✓] Microsoft Azure Administrator (AZ-104) — 2025
+[✓] Microsoft Azure DevOps Engineer (AZ-400) — 2025
+[✓] AWS Solutions Architect
+[✓] AWS Certified Developer
+[✓] CompTIA Security+
+[✓] ITIL Foundation`,
+    contact: () =>
+`email:  Colin.shanahan1@gmail.com
+phone:  (540) 454-1170
+status: available — relocating to Charlotte, NC (open to remote)`,
+    projects: () => {
+      document.getElementById('projects').scrollIntoView({behavior:'smooth'});
+      return `1. Terraform — Azure environment factory (modules, remote state)
+2. Azure DevOps — multi-stage YAML pipelines (versioning + artifact promotion)
+Scrolling you there now...`;
+    },
+    principles: () =>
+`01. Boring deploys are the goal
+02. If it isn't in code, it doesn't exist
+03. Documentation is a deployment artifact
+04. Mentoring compounds`,
+    resume: () => {
+      const a = document.createElement('a');
+      a.href = 'Colin-Shanahan-Resume.pdf'; a.download = '';
+      document.body.appendChild(a); a.click(); a.remove();
+      return 'Downloading Colin-Shanahan-Resume.pdf ...';
+    },
+    sudo: () => `colin is not in the sudoers file. This incident will be reported.
+(Just kidding — least privilege applies to visitors too.)`,
+    clear: () => { 
+      termBody.querySelectorAll('div:not(.term-input-row)').forEach(d => d.remove());
+      return null;
+    },
+    ls: () => `experience/  skills/  certs/  principles/  resume.pdf`,
+    pwd: () => `/home/colin/portfolio`,
+  };
+
+  function print(html) {
+    const d = document.createElement('div');
+    d.innerHTML = html;
+    termBody.insertBefore(d, inputRow);
+  }
+
+  function runCommand(raw) {
+    const cmd = raw.trim().toLowerCase();
+    print(`<span class="ps">colin@portfolio:~$</span> <span class="cmd">${raw.replace(/</g,'&lt;')}</span>`);
+    if (!cmd) return;
+    const fn = commands[cmd];
+    if (fn) {
+      const out = fn();
+      if (out) print(`<span class="out">${out}</span>`);
+    } else {
+      print(`<span class="out">command not found: ${cmd.replace(/</g,'&lt;')} — try 'help'</span>`);
+    }
+    termBody.scrollTop = termBody.scrollHeight;
+  }
+
+  termInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter') { runCommand(termInput.value); termInput.value = ''; }
+  });
+  termBody.addEventListener('click', () => termInput.focus());
+</script>
+</body>
+</html>
