@@ -1,26 +1,11 @@
-# Go up one level to the repo root (where .git lives)
-cd ..
-
-# Create or edit .gitignore at the root
-# (this will append if the file already exists)
-@"
 # Terraform
 **/.terraform/
-
-# State files
 *.tfstate
 *.tfstate.*
-
-# Crash logs
 crash.log
 crash.*.log
-
-# Local override files
 override.tf
 override.tf.json
 *_override.tf
 *_override.tf.json
-
-# Plan output files
 *tfplan*
-"@ | Out-File -FilePath .gitignore -Encoding utf8 -Append
