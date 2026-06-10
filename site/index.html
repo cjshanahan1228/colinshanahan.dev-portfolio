@@ -401,7 +401,7 @@
       <a href="#skills">skills</a>
       <a href="#console">console</a>
       <a href="#contact">contact</a>
-      <a href="Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
+      <a href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
     </nav>
   </div>
 </header>
@@ -417,14 +417,16 @@
         cycles by 40% and keep critical applications at 99.9% uptime.
       </p>
       <div class="hero-contact">
-        <a class="resume-btn" href="Colin-Shanahan-Resume.pdf" download>
+        <a class="resume-btn" href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           Download résumé
         </a>
         <a href="mailto:Colin.shanahan1@gmail.com">Colin.shanahan1@gmail.com</a>
+        <a href="https://www.linkedin.com/in/colin-shanahan-devops-engineer" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://github.com/cjshanahan1228" target="_blank" rel="noopener">GitHub</a>
         <span>(540) 454-1170</span>
-        <span>Remote / Onsite</span>
       </div>
+      <p style="font-family:var(--mono);font-size:.68rem;color:var(--slate);margin-top:10px">↑ resume served live from Azure Blob Storage, published by this site's own pipeline</p>
 
       <!-- signature: a pipeline run that mirrors how Colin works -->
       <div class="pipeline" id="pipeline" aria-label="Illustration of a CI/CD pipeline run">
@@ -599,14 +601,14 @@
            ══════════════════════════════════════════════════════════════ -->
       <article class="project">
         <div class="project-info">
-          <div class="tag">infrastructure as code · terraform · github actions</div>
+          <div class="tag">infrastructure as code · terraform · github actions · oidc</div>
           <h3>This site, as code</h3>
           <div class="desc">
-            <p>The portfolio you're reading is its own demo: Terraform provisions the Azure Static Web App hosting it, and a GitHub Actions workflow redeploys it on every push to main — token-scoped, no cloud credentials in CI.</p>
+            <p>The portfolio you're reading is its own demo: Terraform provisions the Azure Static Web App hosting it plus the Blob Storage serving the resume, and GitHub Actions redeploys both on every push — authenticating to Azure via <strong>OIDC federation, with zero cloud credentials stored in CI</strong>.</p>
             <p>The repo is public. Clone it, read the Terraform, check the workflow runs — everything claimed here is verifiable.</p>
           </div>
           <div class="tech-tags">
-            <span>terraform</span><span>azure-static-web-apps</span><span>github-actions</span><span>azurerm</span>
+            <span>terraform</span><span>azure-static-web-apps</span><span>blob-storage</span><span>github-oidc</span><span>least-privilege</span>
           </div>
           <div class="project-links">
             <a class="repo-btn" href="https://github.com/cjshanahan1228/portfolio-project-alpha" target="_blank" rel="noopener">
@@ -617,19 +619,21 @@
           </div>
         </div>
         <div class="project-code">
-          <div class="code-head"><span>infra/main.tf</span><span>the actual code hosting this page</span></div>
-          <pre><span class="k">resource</span> <span class="s">"azurerm_static_web_app"</span> <span class="s">"portfolio"</span> {
-  <span class="fn">name</span>                = var.swa_name
-  <span class="fn">resource_group_name</span> = azurerm_resource_group.portfolio.<span class="fn">name</span>
-  <span class="fn">location</span>            = azurerm_resource_group.portfolio.<span class="fn">location</span>
-
-  <span class="fn">sku_tier</span> = <span class="s">"Free"</span> <span class="cmt"># 100 GB bandwidth/mo, custom domains, free SSL</span>
-  <span class="fn">sku_size</span> = <span class="s">"Free"</span>
+          <div class="code-head"><span>infra/main.tf</span><span>the actual code running this page</span></div>
+          <pre><span class="cmt"># GitHub Actions logs into Azure with a federated token —</span>
+<span class="cmt"># no client secrets, nothing to rotate, nothing to leak.</span>
+<span class="k">resource</span> <span class="s">"azurerm_federated_identity_credential"</span> <span class="s">"github_main"</span> {
+  <span class="fn">parent_id</span> = azurerm_user_assigned_identity.github.<span class="fn">id</span>
+  <span class="fn">issuer</span>    = <span class="s">"https://token.actions.githubusercontent.com"</span>
+  <span class="fn">subject</span>   = <span class="s">"repo:cjshanahan1228/portfolio-project-alpha:ref:refs/heads/main"</span>
+  <span class="fn">audience</span>  = [<span class="s">"api://AzureADTokenExchange"</span>]
 }
 
-<span class="k">output</span> <span class="s">"deployment_token"</span> {
-  <span class="fn">value</span>     = azurerm_static_web_app.portfolio.<span class="fn">api_key</span>
-  <span class="fn">sensitive</span> = <span class="k">true</span> <span class="cmt"># lives only in a GitHub Actions secret</span>
+<span class="cmt"># Least privilege: identity can only write blobs in one account.</span>
+<span class="k">resource</span> <span class="s">"azurerm_role_assignment"</span> <span class="s">"github_blob_writer"</span> {
+  <span class="fn">scope</span>                = azurerm_storage_account.resume.<span class="fn">id</span>
+  <span class="fn">role_definition_name</span> = <span class="s">"Storage Blob Data Contributor"</span>
+  <span class="fn">principal_id</span>         = azurerm_user_assigned_identity.github.<span class="fn">principal_id</span>
 }</pre>
         </div>
       </article>
@@ -877,11 +881,19 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 4h4l1.5 4.5L8 10c1 2.5 3.5 5 6 6l1.5-2.5L20 15v4c0 .6-.4 1-1 1C10.5 19.5 4.5 13.5 4 5c0-.6.4-1 1-1z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         (540) 454-1170
       </a>
-      <a class="btn" href="Colin-Shanahan-Resume.pdf" download>
+      <a class="btn" href="https://www.linkedin.com/in/colin-shanahan-devops-engineer" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.4 8.1h4.2V23H.4V8.1zM8.2 8.1h4v2h.1c.6-1.1 2-2.3 4.1-2.3 4.4 0 5.2 2.9 5.2 6.6V23h-4.2v-7.4c0-1.8 0-4-2.5-4s-2.8 1.9-2.8 3.9V23H8.2V8.1z"/></svg>
+        LinkedIn
+      </a>
+      <a class="btn" href="https://github.com/cjshanahan1228" target="_blank" rel="noopener">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.3-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>
+        GitHub
+      </a>
+      <a class="btn" href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Résumé (PDF)
       </a>
-      <a class="btn" href="Colin-Shanahan-Resume.docx" download>
+      <a class="btn" href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.docx" download>
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
         Résumé (Word)
       </a>
@@ -957,9 +969,11 @@ total: ~11 years, zero unplanned career outages`,
 [✓] CompTIA Security+
 [✓] ITIL Foundation`,
     contact: () =>
-`email:  Colin.shanahan1@gmail.com
-phone:  (540) 454-1170
-status: available — relocating to Charlotte, NC (open to remote)`,
+`email:    Colin.shanahan1@gmail.com
+phone:    (540) 454-1170
+linkedin: https://www.linkedin.com/in/colin-shanahan-devops-engineer
+github:   github.com/cjshanahan1228
+status:   available — relocating to Charlotte, NC (open to remote)`,
     projects: () => {
       document.getElementById('projects').scrollIntoView({behavior:'smooth'});
       return `1. This site, as code — Terraform + Azure SWA + GitHub Actions (live repo)
@@ -972,10 +986,8 @@ Scrolling you there now...`;
 03. Documentation is a deployment artifact
 04. Mentoring compounds`,
     resume: () => {
-      const a = document.createElement('a');
-      a.href = 'Colin-Shanahan-Resume.pdf'; a.download = '';
-      document.body.appendChild(a); a.click(); a.remove();
-      return 'Downloading Colin-Shanahan-Resume.pdf ...';
+      window.open('https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf', '_blank');
+      return 'Fetching resume from Azure Blob Storage ...';
     },
     sudo: () => `colin is not in the sudoers file. This incident will be reported.
 (Just kidding — least privilege applies to visitors too.)`,

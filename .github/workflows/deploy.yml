@@ -1,9 +1,11 @@
-# Deploys the portfolio to Azure Static Web Apps on every push to main
-# that touches site/. Can also be run manually from the Actions tab.
+# Two-job deployment:
+#   deploy-site     → pushes /site to Azure Static Web Apps (token-based)
+#   publish-resume  → uploads /resume to Azure Blob Storage via GitHub OIDC
+#                     federation — NO cloud credentials stored in GitHub.
 #
-# Prereq: repo secret SWA_DEPLOYMENT_TOKEN
-#   (Settings → Secrets and variables → Actions → New repository secret)
-#   Value from: az staticwebapp secrets list -n swa-colinshanahan-portfolio --query properties.apiKey -o tsv
+# Prereqs (values from `terraform output` in infra/):
+#   Secret:    SWA_DEPLOYMENT_TOKEN
+#   Variables: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
 
 name: Deploy portfolio
 
@@ -12,20 +14,59 @@ on:
     branches: [main]
     paths:
       - "site/**"
-  workflow_dispatch: # manual "Run workflow" button
+      - "resume/**"
+  workflow_dispatch:
+
+permissions:
+  id-token: write # required for OIDC token exchange with Azure
+  contents: read
 
 jobs:
-  deploy:
+  deploy-site:
     runs-on: ubuntu-latest
-    name: Deploy to Azure Static Web Apps
+    name: Deploy site to Static Web Apps
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
           azure_static_web_apps_api_token: ${{ secrets.SWA_DEPLOYMENT_TOKEN }}
           action: upload
-          app_location: site # folder containing index.html + resume files
-          skip_app_build: true # plain static HTML, nothing to build
+          app_location: site
+          skip_app_build: true
+
+  publish-resume:
+    runs-on: ubuntu-latest
+    name: Publish resume to Blob Storage (OIDC)
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Azure login via OIDC federation
+        uses: azure/login@v2
+        with:
+          client-id: ${{ vars.AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+
+      - name: Upload resume PDF
+        run: |
+          az storage blob upload \
+            --account-name stcolinshanahanresume \
+            --container-name resume \
+            --name Colin-Shanahan-Resume.pdf \
+            --file resume/Colin-Shanahan-Resume.pdf \
+            --content-type application/pdf \
+            --auth-mode login \
+            --overwrite
+
+      - name: Upload resume DOCX
+        run: |
+          az storage blob upload \
+            --account-name stcolinshanahanresume \
+            --container-name resume \
+            --name Colin-Shanahan-Resume.docx \
+            --file resume/Colin-Shanahan-Resume.docx \
+            --content-type application/vnd.openxmlformats-officedocument.wordprocessingml.document \
+            --auth-mode login \
+            --overwrite

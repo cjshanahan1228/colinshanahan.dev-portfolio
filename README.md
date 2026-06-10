@@ -6,17 +6,18 @@ tier) + ~$12/year for an optional custom domain.
 
 ```
 portfolio-deploy/
-├── .github/
-│   └── workflows/
-│       └── deploy.yml         # GitHub Actions: pushes /site to Static Web Apps
-├── infra/
-│   └── main.tf                # Terraform: resource group + Static Web App (Free)
-└── site/
-    ├── index.html             # the portfolio
-    ├── staticwebapp.config.json
-    ├── Colin-Shanahan-Resume.pdf
-    └── Colin-Shanahan-Resume.docx
+├── .github/workflows/deploy.yml  # Actions: deploy site (SWA) + publish resume (Blob/OIDC)
+├── infra/main.tf                 # Terraform: SWA + storage account + GitHub OIDC identity
+├── resume/                       # resume source files → published to Blob Storage by CI
+└── site/                         # the portfolio → deployed to Static Web Apps
 ```
+
+**Architecture:** the site is served by Azure Static Web Apps; the resume is
+served from a public-read Blob Storage container. GitHub Actions deploys the
+site with the SWA token and uploads the resume by logging into Azure via
+**OIDC federation** (a user-assigned managed identity with a federated
+credential scoped to `main`) — no cloud credentials are stored in GitHub, and
+the identity can only write blobs in that one storage account.
 
 ---
 
@@ -63,8 +64,23 @@ exist yet. That's expected; fix it in Step 3.
 2. Name: `SWA_DEPLOYMENT_TOKEN`
 3. Value: the token from Step 1 (or fetch anytime with
    `az staticwebapp secrets list -n swa-colinshanahan-portfolio --query properties.apiKey -o tsv`)
-4. Go to the **Actions** tab → select the failed run → **Re-run all jobs**
+4. Still in **Secrets and variables → Actions**, switch to the **Variables**
+   tab and add three repository variables (values from `terraform output`):
+   - `AZURE_CLIENT_ID` ← `terraform output -raw azure_client_id`
+   - `AZURE_TENANT_ID` ← `terraform output -raw azure_tenant_id`
+   - `AZURE_SUBSCRIPTION_ID` ← `terraform output -raw azure_subscription_id`
+   These are identifiers, not secrets — OIDC means there is no secret to store.
+5. Go to the **Actions** tab → select the failed run → **Re-run all jobs**
    (or use the "Run workflow" button on the Deploy portfolio workflow).
+
+> **If you rename the repo:** the OIDC trust is bound to
+> `repo:cjshanahan1228/portfolio-project-alpha:ref:refs/heads/main`. Update
+> `github_repo` in `infra/main.tf` and `terraform apply` again.
+>
+> **If the storage account name is taken:** `stcolinshanahanresume` must be
+> globally unique. If `terraform apply` fails on it, pick a new name in
+> `infra/main.tf` AND update the two blob URLs in `site/index.html` and the
+> two `--account-name` flags in the workflow.
 
 When it goes green, the site is live at the URL from `terraform output
 default_hostname`. From now on, any push to `main` touching `site/` redeploys
