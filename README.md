@@ -16,7 +16,7 @@ portfolio-deploy/
 ## Setup
 
 1. `cd infra && terraform init && terraform apply`
-2. Push to `github.com/cjshanahan1228/portfolio-project-alpha` (OIDC trust is
+2. Push to `github.com/cjshanahan1228/colinshanahan.dev-portfolio` (OIDC trust is
    bound to that exact name — change `github_repo` + re-apply if renamed)
 3. Repo → Settings → Secrets and variables → Actions:
    - Secret `SWA_DEPLOYMENT_TOKEN` ← `terraform output -raw deployment_token`

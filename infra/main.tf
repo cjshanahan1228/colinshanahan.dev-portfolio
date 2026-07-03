@@ -39,7 +39,7 @@ variable "storage_account_name" {
 variable "github_repo" {
   description = "owner/repo allowed to deploy via OIDC. Renaming the repo requires re-apply."
   type        = string
-  default     = "cjshanahan1228/portfolio-project-alpha"
+  default     = "cjshanahan1228/colinshanahan.dev-portfolio"
 }
 
 resource "azurerm_resource_group" "portfolio" {
