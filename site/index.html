@@ -78,6 +78,18 @@
     transition:background .15s;
   }
   .resume-btn:hover{background:var(--azure-deep);text-decoration:none}
+  .status-btn{
+    display:inline-flex;align-items:center;gap:9px;
+    background:var(--paper);color:var(--console);
+    padding:10px 18px;border-radius:8px;border:1px solid var(--line);
+    font-family:var(--mono);font-size:.8rem;
+    transition:border-color .15s;
+  }
+  .status-btn:hover{border-color:var(--deploy);text-decoration:none}
+  .live-dot{width:9px;height:9px;border-radius:50%;background:var(--deploy);position:relative;flex:0 0 9px}
+  .live-dot::after{content:"";position:absolute;inset:-4px;border-radius:50%;border:2px solid var(--deploy);opacity:.4;animation:livepulse 2s infinite}
+  @keyframes livepulse{0%{transform:scale(.7);opacity:.5}100%{transform:scale(1.4);opacity:0}}
+  @media (prefers-reduced-motion:reduce){.live-dot::after{animation:none}}
 
   /* signature: pipeline run */
   .pipeline{
@@ -400,6 +412,7 @@
       <a href="#clouds">multi-cloud</a>
       <a href="#skills">skills</a>
       <a href="#console">console</a>
+      <a href="status.html" style="color:var(--deploy)">status ●</a>
       <a href="#contact">contact</a>
       <a href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
     </nav>
@@ -420,6 +433,10 @@
         <a class="resume-btn" href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           Download résumé
+        </a>
+        <a class="status-btn" href="status.html">
+          <span class="live-dot"></span>
+          Live status
         </a>
         <a href="mailto:Colin.shanahan1@gmail.com">Colin.shanahan1@gmail.com</a>
         <a href="https://www.linkedin.com/in/YOUR-LINKEDIN" target="_blank" rel="noopener">LinkedIn</a>
@@ -591,14 +608,6 @@
     <div class="wrap">
       <p class="sec-label">// code i've shipped</p>
       <h2>Project showcase</h2>
-
-      <!-- ══════════════════════════════════════════════════════════════
-           PROJECT 1 — TERRAFORM
-           TODO(Colin): Replace the three YOUR-* placeholders below:
-             1. The repo URL in href="..."
-             2. The project title and description
-             3. Swap the code excerpt for a real snippet from your repo
-           ══════════════════════════════════════════════════════════════ -->
       <article class="project">
         <div class="project-info">
           <div class="tag">infrastructure as code · terraform · github actions · oidc</div>
@@ -638,57 +647,44 @@
         </div>
       </article>
 
-      <!-- ══════════════════════════════════════════════════════════════
-           PROJECT 2 — AZURE DEVOPS PIPELINES
-           TODO(Colin): Same three swaps — repo/pipeline URL, title +
-           description, and a real excerpt from one of your YAML pipelines.
-           ══════════════════════════════════════════════════════════════ -->
       <article class="project">
         <div class="project-info">
-          <div class="tag">ci/cd · azure devops</div>
-          <h3>YOUR-PIPELINE-PROJECT — multi-stage YAML pipelines</h3>
+          <div class="tag">observability · serverless · managed identity</div>
+          <h3>Monitor it like production</h3>
           <div class="desc">
-            <p>Describe what makes these pipelines yours: templated stages reused across repos? Automated versioning with build-number appending? Artifact promotion through feed views? Approval gates per environment?</p>
-            <p>Example framing: "Reusable pipeline templates that take a shared library from commit to Azure Artifacts — automated versioning, prerelease/release feed promotion, and publish rights locked to service principals."</p>
+            <p>A live ops dashboard for this site: Application Insights pings it every 5 minutes from three US regions (with SSL-expiry checks), and an Azure Function queries that telemetry through a <strong>managed identity — KQL over the Log Analytics API, zero keys anywhere</strong> — plus the deploy history from GitHub.</p>
+            <p>It's not a badge, it's telemetry: open the dashboard, or type <code style="font-family:var(--mono);background:var(--mist);border:1px solid var(--line);border-radius:4px;padding:1px 6px;font-size:.85em">status</code> in the console below to query it live.</p>
           </div>
           <div class="tech-tags">
-            <span>azure-pipelines</span><span>yaml-templates</span><span>azure-artifacts</span><span>nuget/npm</span><span>versioning</span>
+            <span>app-insights</span><span>azure-functions</span><span>kql</span><span>managed-identity</span><span>synthetic-monitoring</span>
           </div>
           <div class="project-links">
-            <a class="repo-btn" href="https://github.com/cjshanahan1228/YOUR-PIPELINE-REPO" target="_blank" rel="noopener">
-              <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.3-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>
-              View repository
+            <a class="repo-btn" href="status.html">
+              <span class="live-dot" style="margin-right:2px"></span>
+              View live dashboard
             </a>
-            <a class="repo-btn ghost" href="https://github.com/cjshanahan1228?tab=repositories" target="_blank" rel="noopener">All projects →</a>
+            <a class="repo-btn ghost" href="https://github.com/cjshanahan1228/portfolio-status" target="_blank" rel="noopener">Source on GitHub →</a>
           </div>
         </div>
         <div class="project-code">
-          <div class="code-head"><span>azure-pipelines.yml</span><span>placeholder — swap for your real code</span></div>
-          <pre><span class="cmt"># Replace with an excerpt from a pipeline you actually built —</span>
-<span class="cmt"># the versioning or promotion logic is usually the interesting part.</span>
+          <div class="code-head"><span>api/src/functions/status.js</span><span>the code answering `status` right now</span></div>
+          <pre><span class="cmt">// DefaultAzureCredential → system-assigned managed identity.</span>
+<span class="cmt">// No instrumentation keys, no API keys, nothing to rotate.</span>
+<span class="k">const</span> logsClient = <span class="k">new</span> <span class="fn">LogsQueryClient</span>(<span class="k">new</span> <span class="fn">DefaultAzureCredential</span>());
 
-<span class="k">stages</span>:
-  - <span class="k">stage</span>: <span class="fn">Build</span>
-    <span class="k">jobs</span>:
-      - <span class="k">job</span>: <span class="fn">Pack</span>
-        <span class="k">steps</span>:
-          - <span class="k">script</span>: |
-              <span class="s">echo "##vso[build.updatebuildnumber]$(MajorMinor).$(Build.BuildId)"</span>
-            <span class="k">displayName</span>: <span class="s">Stamp package version</span>
-          - <span class="k">task</span>: <span class="fn">DotNetCoreCLI@2</span>
-            <span class="k">inputs</span>:
-              <span class="k">command</span>: <span class="s">pack</span>
-              <span class="k">versioningScheme</span>: <span class="s">byBuildNumber</span>
+<span class="k">const</span> summaryKql = <span class="s">`
+  availabilityResults
+  | where timestamp > ago(24h)
+  | summarize total = count(),
+              passed = countif(success == true),
+              avgMs = round(avg(duration), 0)`</span>;
 
-  - <span class="k">stage</span>: <span class="fn">Publish</span>
-    <span class="k">dependsOn</span>: <span class="fn">Build</span>
-    <span class="k">jobs</span>:
-      - <span class="k">job</span>: <span class="fn">Push</span>
-        <span class="k">steps</span>:
-          - <span class="k">task</span>: <span class="fn">NuGetCommand@2</span>
-            <span class="k">inputs</span>:
-              <span class="k">command</span>: <span class="s">push</span>
-              <span class="k">publishVstsFeed</span>: <span class="s">shared-libraries@prerelease</span></pre>
+<span class="cmt">// Partial-failure tolerance: a GitHub hiccup can't blank</span>
+<span class="cmt">// the uptime numbers, and vice versa.</span>
+<span class="k">const</span> [avail, deploys] = <span class="k">await</span> Promise.<span class="fn">allSettled</span>([
+  <span class="fn">queryAvailability</span>(),
+  <span class="fn">queryDeploys</span>(),
+]);</pre>
         </div>
       </article>
     </div>
@@ -992,8 +988,8 @@ github:   github.com/cjshanahan1228
 status:   available — relocating to Charlotte, NC (open to remote)`,
     projects: () => {
       document.getElementById('projects').scrollIntoView({behavior:'smooth'});
-      return `1. This site, as code — Terraform + Azure SWA + GitHub Actions (live repo)
-2. Azure DevOps — multi-stage YAML pipelines (versioning + artifact promotion)
+      return `1. This site, as code — Terraform + Azure SWA + GitHub Actions OIDC (live repo)
+2. Monitor it like production — live ops dashboard (try the 'status' command)
 Scrolling you there now...`;
     },
     principles: () =>
