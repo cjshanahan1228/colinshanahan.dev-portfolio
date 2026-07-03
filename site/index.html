@@ -422,7 +422,7 @@
           Download résumé
         </a>
         <a href="mailto:Colin.shanahan1@gmail.com">Colin.shanahan1@gmail.com</a>
-        <a href="https://www.linkedin.com/in/colin-shanahan-devops-engineer" target="_blank" rel="noopener">LinkedIn</a>
+        <a href="https://www.linkedin.com/in/YOUR-LINKEDIN" target="_blank" rel="noopener">LinkedIn</a>
         <a href="https://github.com/cjshanahan1228" target="_blank" rel="noopener">GitHub</a>
         <span>(540) 454-1170</span>
       </div>
@@ -881,7 +881,7 @@
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M5 4h4l1.5 4.5L8 10c1 2.5 3.5 5 6 6l1.5-2.5L20 15v4c0 .6-.4 1-1 1C10.5 19.5 4.5 13.5 4 5c0-.6.4-1 1-1z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
         (540) 454-1170
       </a>
-      <a class="btn" href="https://www.linkedin.com/in/colin-shanahan-devops-engineer" target="_blank" rel="noopener">
+      <a class="btn" href="https://www.linkedin.com/in/YOUR-LINKEDIN" target="_blank" rel="noopener">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M4.98 3.5C4.98 4.88 3.87 6 2.5 6S0 4.88 0 3.5 1.12 1 2.5 1s2.48 1.12 2.48 2.5zM.4 8.1h4.2V23H.4V8.1zM8.2 8.1h4v2h.1c.6-1.1 2-2.3 4.1-2.3 4.4 0 5.2 2.9 5.2 6.6V23h-4.2v-7.4c0-1.8 0-4-2.5-4s-2.8 1.9-2.8 3.9V23H8.2V8.1z"/></svg>
         LinkedIn
       </a>
@@ -902,6 +902,7 @@
       <span>© 2026 Colin Shanahan · <a href="https://github.com/cjshanahan1228" style="color:#7FB4E8">github.com/cjshanahan1228</a></span>
       <span style="display:inline-flex;align-items:center;gap:10px">
         <a href="https://github.com/cjshanahan1228/portfolio-project-alpha/actions/workflows/deploy.yml" title="This site deploys itself — view the pipeline"><img src="https://github.com/cjshanahan1228/portfolio-project-alpha/actions/workflows/deploy.yml/badge.svg" alt="Deploy pipeline status" style="vertical-align:middle;height:18px"></a>
+        <a href="status.html" style="color:#7FB4E8">live status →</a>
         relocating → charlotte, nc · status: <span style="color:#3CC98B">available</span>
       </span>
     </div>
@@ -930,6 +931,7 @@
   whoami      who is this guy
   stack       technologies & tooling
   clouds      azure vs aws vs gcp fluency
+  status      LIVE site telemetry (app insights)
   uptime      career history
   certs       certifications
   contact     how to reach me
@@ -949,6 +951,20 @@ Believes deploys should be boring and docs are a deliverable.`,
 aws     ████████      certified ×2 (Solutions Architect, Developer)
 gcp     ██████        migrated production systems off it
 terraform: one language across all three.`,
+    status: () =>
+      fetch('https://func-colinshanahan-status.azurewebsites.net/api/status')
+        .then(r => r.json())
+        .then(d => {
+          const s = d.site || {};
+          const dep = (d.deploys || [])[0];
+          return `── live telemetry (app insights) ──
+site:        ${s.status || 'unknown'}
+uptime 24h:  ${s.uptime24h ?? '–'}%  (${s.checksLast24h ?? 0} checks from 3 regions)
+response:    ${s.avgResponseMs ?? '–'} ms avg
+last deploy: ${dep ? dep.status + ' · ' + dep.sha : '–'}
+full dashboard: /status.html`;
+        })
+        .catch(() => 'status api unreachable — provisioning, or telemetry offline'),
     stack: () =>
 `cloud:      azure (primary), aws, gcp
 ci_cd:      azure-devops, jenkins (migrated away from)
@@ -971,7 +987,7 @@ total: ~11 years, zero unplanned career outages`,
     contact: () =>
 `email:    Colin.shanahan1@gmail.com
 phone:    (540) 454-1170
-linkedin: https://www.linkedin.com/in/colin-shanahan-devops-engineer
+linkedin: linkedin.com/in/YOUR-LINKEDIN
 github:   github.com/cjshanahan1228
 status:   available — relocating to Charlotte, NC (open to remote)`,
     projects: () => {
@@ -1012,7 +1028,18 @@ Scrolling you there now...`;
     const fn = commands[cmd];
     if (fn) {
       const out = fn();
-      if (out) print(`<span class="out">${out}</span>`);
+      if (out && typeof out.then === 'function') {
+        const pending = document.createElement('div');
+        pending.innerHTML = '<span class="out">querying ...</span>';
+        termBody.insertBefore(pending, inputRow);
+        termBody.scrollTop = termBody.scrollHeight;
+        out.then(t => {
+          pending.innerHTML = `<span class="out">${t}</span>`;
+          termBody.scrollTop = termBody.scrollHeight;
+        });
+      } else if (out) {
+        print(`<span class="out">${out}</span>`);
+      }
     } else {
       print(`<span class="out">command not found: ${cmd.replace(/</g,'&lt;')} — try 'help'</span>`);
     }

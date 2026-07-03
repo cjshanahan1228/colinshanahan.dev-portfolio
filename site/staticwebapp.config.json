@@ -1,23 +1,10 @@
 {
-  "navigationFallback": {
-    "rewrite": "/index.html"
-  },
+  "navigationFallback": { "rewrite": "/index.html" },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY"
   },
   "routes": [
-    {
-      "route": "/Colin-Shanahan-Resume.pdf",
-      "headers": {
-        "Cache-Control": "public, max-age=3600"
-      }
-    },
-    {
-      "route": "/*",
-      "headers": {
-        "Cache-Control": "public, max-age=300"
-      }
-    }
+    { "route": "/*", "headers": { "Cache-Control": "public, max-age=300" } }
   ]
 }

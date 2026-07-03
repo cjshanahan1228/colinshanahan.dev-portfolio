@@ -15,7 +15,7 @@ provider "azurerm" {
 data "azurerm_client_config" "current" {}
 
 variable "location" {
-  description = "Region for the Static Web App. SWA Free tier regions: westus2, centralus, eastus2, westeurope, eastasia."
+  description = "SWA Free tier regions: westus2, centralus, eastus2, westeurope, eastasia."
   type        = string
   default     = "eastus2"
 }
@@ -31,13 +31,13 @@ variable "swa_name" {
 }
 
 variable "storage_account_name" {
-  description = "Globally unique, 3-24 lowercase alphanumeric. If taken, change here AND in the site's resume URLs."
+  description = "Globally unique. If taken, change here AND in site/index.html resume URLs AND the workflow."
   type        = string
   default     = "stcolinshanahanresume"
 }
 
 variable "github_repo" {
-  description = "owner/repo allowed to deploy via OIDC. If you rename the repo, update this and re-apply."
+  description = "owner/repo allowed to deploy via OIDC. Renaming the repo requires re-apply."
   type        = string
   default     = "cjshanahan1228/portfolio-project-alpha"
 }
@@ -52,9 +52,8 @@ resource "azurerm_static_web_app" "portfolio" {
   name                = var.swa_name
   resource_group_name = azurerm_resource_group.portfolio.name
   location            = azurerm_resource_group.portfolio.location
-
-  sku_tier = "Free"
-  sku_size = "Free"
+  sku_tier            = "Free"
+  sku_size            = "Free"
 }
 
 # ── Resume storage ─────────────────────────────────────────────────────────
@@ -66,13 +65,13 @@ resource "azurerm_storage_account" "resume" {
   account_replication_type        = "LRS"
   https_traffic_only_enabled      = true
   min_tls_version                 = "TLS1_2"
-  allow_nested_items_to_be_public = true # container below is public-read by design
+  allow_nested_items_to_be_public = true # resume container is public-read by design
 }
 
 resource "azurerm_storage_container" "resume" {
   name                  = "resume"
   storage_account_id    = azurerm_storage_account.resume.id
-  container_access_type = "blob" # anonymous read on blobs only — it's a public resume
+  container_access_type = "blob"
 }
 
 # ── GitHub Actions → Azure via OIDC (no stored cloud secrets) ──────────────
@@ -91,7 +90,6 @@ resource "azurerm_federated_identity_credential" "github_main" {
   subject             = "repo:${var.github_repo}:ref:refs/heads/main"
 }
 
-# Identity may only write blobs in the resume account — least privilege.
 resource "azurerm_role_assignment" "github_blob_writer" {
   scope                = azurerm_storage_account.resume.id
   role_definition_name = "Storage Blob Data Contributor"
