@@ -47,9 +47,17 @@
   .top-inner{display:flex;align-items:center;justify-content:space-between;height:60px}
   .brand{font-family:var(--mono);font-size:.85rem;color:var(--console);letter-spacing:.02em}
   .brand .dot{color:var(--deploy)}
-  nav.menu{display:flex;gap:26px}
-  nav.menu a{font-family:var(--mono);font-size:.78rem;color:var(--slate);letter-spacing:.04em;text-transform:lowercase}
+  nav.menu{display:flex;gap:22px;align-items:center;white-space:nowrap}
+  nav.menu a{font-family:var(--mono);font-size:.76rem;color:var(--slate);letter-spacing:.03em;text-transform:lowercase}
   nav.menu a:hover{color:var(--azure);text-decoration:none}
+  @media (max-width:1040px){
+    nav.menu{gap:15px}
+    nav.menu a{font-size:.72rem;letter-spacing:.01em}
+  }
+  @media (max-width:900px){
+    .nav-sec{display:none} /* console + architecture reachable from page content */
+    .brand{font-size:.78rem}
+  }
 
   /* ---------- hero ---------- */
   .hero{padding:84px 0 64px;border-bottom:1px solid var(--line)}
@@ -403,9 +411,14 @@
 <script>
 // ═══════════════════ EDIT ME ═══════════════════
 // One place to control the job-search messaging site-wide.
+//   seeking: true  → relocation banner + "relocating to {target}" copy everywhere
+//            false → banner hidden, copy reads "based in {home}"
+//   home:    where you actually are right now
+//   target:  the metro you're relocating to (only used while seeking)
+//   roles:   what you're looking for (only used while seeking)
 window.SITE = {
   seeking: true,
-  home: "Roanoke, VA",       
+  home: "Roanoke, VA",
   target: "Charlotte, NC",
   roles: "DevOps & platform roles",
 };
@@ -418,21 +431,19 @@ window.SITE = {
     (function () {
       var b = document.getElementById('reloBanner'), s = window.SITE;
       if (!s.seeking) { b.remove(); return; }
-      b.innerHTML = '<span class="pin">📍</span>Relocating to <strong>' + s.location +
+      b.innerHTML = '<span class="pin">📍</span>Relocating to <strong>' + s.target +
         '</strong> — actively seeking ' + s.roles + ' in the metro area · <a href="#contact">get in touch</a>';
     })();
   </script>
   <div class="wrap top-inner">
     <div class="brand">colin-shanahan<span class="dot">●</span>devops</div>
     <nav class="menu" aria-label="Sections">
-      <a href="#highlights">highlights</a>
       <a href="#experience">experience</a>
       <a href="#projects">projects</a>
-      <a href="#clouds">multi-cloud</a>
       <a href="#skills">skills</a>
-      <a href="#console">console</a>
+      <a href="#console" class="nav-sec">console</a>
+      <a href="/architecture" class="nav-sec">architecture</a>
       <a href="/status" style="color:var(--deploy)">status ●</a>
-      <a href="/architecture">architecture</a>
       <a href="#contact">contact</a>
       <a href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
     </nav>
@@ -933,16 +944,16 @@ window.SITE = {
     const fp = document.getElementById('footerPitch');
     const fs = document.getElementById('footStatus');
     if (SITE.seeking) {
-      eb.textContent = 'DevOps Engineer · Relocating to ' + SITE.location;
-      fp.innerHTML = 'Relocating to <strong style="color:#E8EEF5">' + SITE.location +
+      eb.textContent = 'DevOps Engineer · Relocating to ' + SITE.target;
+      fp.innerHTML = 'Relocating to <strong style="color:#E8EEF5">' + SITE.target +
         '</strong> and actively seeking ' + SITE.roles.replace('&', '&amp;') +
         ' in the metro area — also open to remote. The fastest way to reach me is email.';
-      fs.textContent = 'relocating → ' + SITE.location.toLowerCase();
+      fs.textContent = 'relocating → ' + SITE.target.toLowerCase();
     } else {
-      eb.textContent = 'DevOps Engineer · ' + SITE.location;
-      fp.innerHTML = 'Based in <strong style="color:#E8EEF5">' + SITE.location +
+      eb.textContent = 'DevOps Engineer · ' + SITE.home;
+      fp.innerHTML = 'Based in <strong style="color:#E8EEF5">' + SITE.home +
         '</strong>. Always open to hearing about interesting DevOps and platform engineering problems — the fastest way to reach me is email.';
-      fs.textContent = SITE.location.toLowerCase();
+      fs.textContent = SITE.home.toLowerCase();
     }
   })();
 
@@ -979,7 +990,7 @@ window.SITE = {
   sudo        try it and see`,
     whoami: () =>
 `Colin Shanahan — DevOps Engineer
-${SITE.seeking ? 'Relocating to ' + SITE.location + ' — open to metro-area & remote roles.' : 'Based in ' + SITE.location + '.'}
+${SITE.seeking ? 'Relocating to ' + SITE.target + ' — open to metro-area & remote roles.' : 'Based in ' + SITE.home + '.'}
 10+ years from help desk → infrastructure → DevOps.
 Currently architecting Azure DevOps CI/CD and IaC at RDGFilings.
 Believes deploys should be boring and docs are a deliverable.`,
@@ -1033,7 +1044,7 @@ total: ~11 years, zero unplanned career outages`,
 phone:    (540) 454-1170
 linkedin: linkedin.com/in/YOUR-LINKEDIN
 github:   github.com/cjshanahan1228
-status:   ${SITE.seeking ? 'available — relocating to ' + SITE.location + ' (open to remote)' : 'based in ' + SITE.location}`,
+status:   ${SITE.seeking ? 'available — relocating to ' + SITE.target + ' (open to remote)' : 'based in ' + SITE.home}`,
     projects: () => {
       document.getElementById('projects').scrollIntoView({behavior:'smooth'});
       return `1. This site, as code — Terraform + Azure SWA + GitHub Actions OIDC (live repo)
