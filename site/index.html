@@ -400,9 +400,31 @@
 </style>
 </head>
 <body>
+<script>
+// ═══════════════════ EDIT ME ═══════════════════
+// One place to control the job-search messaging site-wide.
+//   seeking:  true  → relocation banner + seeking copy everywhere
+//             false → banner hidden, copy softens to "based in {location}"
+//   location: the metro you're targeting (or where you're based, if not seeking)
+//   roles:    what you're looking for (only used while seeking)
+window.SITE = {
+  seeking: false,
+  location: "Charlotte, NC",
+  roles: "DevOps & platform roles",
+};
+// ═══════════════════════════════════════════════
+</script>
 
 <header class="top">
-  <div class="banner"><span class="pin">📍</span>Relocating to <strong>Charlotte, NC</strong> — actively seeking DevOps &amp; platform roles in the metro area · <a href="#contact">get in touch</a></div>
+  <div class="banner" id="reloBanner"></div>
+  <script>
+    (function () {
+      var b = document.getElementById('reloBanner'), s = window.SITE;
+      if (!s.seeking) { b.remove(); return; }
+      b.innerHTML = '<span class="pin">📍</span>Relocating to <strong>' + s.location +
+        '</strong> — actively seeking ' + s.roles + ' in the metro area · <a href="#contact">get in touch</a>';
+    })();
+  </script>
   <div class="wrap top-inner">
     <div class="brand">colin-shanahan<span class="dot">●</span>devops</div>
     <nav class="menu" aria-label="Sections">
@@ -412,8 +434,8 @@
       <a href="#clouds">multi-cloud</a>
       <a href="#skills">skills</a>
       <a href="#console">console</a>
-      <a href="status.html" style="color:var(--deploy)">status ●</a>
-      <a href="architecture.html">architecture</a>
+      <a href="/status" style="color:var(--deploy)">status ●</a>
+      <a href="/architecture">architecture</a>
       <a href="#contact">contact</a>
       <a href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
     </nav>
@@ -423,7 +445,7 @@
 <main>
   <div class="hero">
     <div class="wrap">
-      <p class="eyebrow">DevOps Engineer · Relocating to Charlotte, NC</p>
+      <p class="eyebrow" id="eyebrow">DevOps Engineer</p>
       <h1>Colin Shanahan ships <span class="accent">reliable pipelines.</span></h1>
       <p class="lede">
         Ten-plus years across systems administration, infrastructure engineering, and DevOps —
@@ -435,7 +457,7 @@
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
           Download résumé
         </a>
-        <a class="status-btn" href="status.html">
+        <a class="status-btn" href="/status">
           <span class="live-dot"></span>
           Live status
         </a>
@@ -615,7 +637,7 @@
           <h3>This site, as code</h3>
           <div class="desc">
             <p>The portfolio you're reading is its own demo: Terraform provisions the Azure Static Web App hosting it plus the Blob Storage serving the resume, and GitHub Actions redeploys both on every push — authenticating to Azure via <strong>OIDC federation, with zero cloud credentials stored in CI</strong>.</p>
-            <p>The repo is public. Clone it, read the Terraform, check the workflow runs — everything claimed here is verifiable. Or take the guided tour: <a href="architecture.html">the animated architecture →</a></p>
+            <p>The repo is public. Clone it, read the Terraform, check the workflow runs — everything claimed here is verifiable. Or take the guided tour: <a href="/architecture">the animated architecture →</a></p>
           </div>
           <div class="tech-tags">
             <span>terraform</span><span>azure-static-web-apps</span><span>blob-storage</span><span>github-oidc</span><span>least-privilege</span>
@@ -660,7 +682,7 @@
             <span>app-insights</span><span>azure-functions</span><span>kql</span><span>managed-identity</span><span>synthetic-monitoring</span>
           </div>
           <div class="project-links">
-            <a class="repo-btn" href="status.html">
+            <a class="repo-btn" href="/status">
               <span class="live-dot" style="margin-right:2px"></span>
               View live dashboard
             </a>
@@ -868,7 +890,7 @@
   <div class="wrap">
     <p class="sec-label">// contact</p>
     <h2>Let's build something reliable.</h2>
-    <p>Relocating to <strong style="color:#E8EEF5">Charlotte, NC</strong> and actively seeking DevOps and platform engineering roles in the metro area — also open to remote. The fastest way to reach me is email.</p>
+    <p id="footerPitch"></p>
     <div class="contact-row">
       <a class="btn primary" href="mailto:Colin.shanahan1@gmail.com">
         <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18v12H3z" stroke="currentColor" stroke-width="1.8"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="1.8"/></svg>
@@ -899,14 +921,34 @@
       <span>© 2026 Colin Shanahan · <a href="https://github.com/cjshanahan1228" style="color:#7FB4E8">github.com/cjshanahan1228</a></span>
       <span style="display:inline-flex;align-items:center;gap:10px">
         <a href="https://github.com/cjshanahan1228/colinshanahan.dev-portfolio/actions/workflows/deploy.yml" title="This site deploys itself — view the pipeline"><img src="https://github.com/cjshanahan1228/colinshanahan.dev-portfolio/actions/workflows/deploy.yml/badge.svg" alt="Deploy pipeline status" style="vertical-align:middle;height:18px"></a>
-        <a href="status.html" style="color:#7FB4E8">live status →</a>
-        relocating → charlotte, nc · status: <span style="color:#3CC98B">available</span>
+        <a href="/status" style="color:#7FB4E8">live status →</a>
+        <span id="footStatus"></span> · status: <span style="color:#3CC98B">available</span>
       </span>
     </div>
   </div>
 </footer>
 
 <script>
+  // ---------- apply SITE config to the page ----------
+  const SITE = window.SITE;
+  (function () {
+    const eb = document.getElementById('eyebrow');
+    const fp = document.getElementById('footerPitch');
+    const fs = document.getElementById('footStatus');
+    if (SITE.seeking) {
+      eb.textContent = 'DevOps Engineer · Relocating to ' + SITE.location;
+      fp.innerHTML = 'Relocating to <strong style="color:#E8EEF5">' + SITE.location +
+        '</strong> and actively seeking ' + SITE.roles.replace('&', '&amp;') +
+        ' in the metro area — also open to remote. The fastest way to reach me is email.';
+      fs.textContent = 'relocating → ' + SITE.location.toLowerCase();
+    } else {
+      eb.textContent = 'DevOps Engineer · ' + SITE.location;
+      fp.innerHTML = 'Based in <strong style="color:#E8EEF5">' + SITE.location +
+        '</strong>. Always open to hearing about interesting DevOps and platform engineering problems — the fastest way to reach me is email.';
+      fs.textContent = SITE.location.toLowerCase();
+    }
+  })();
+
   // play pipeline animation when hero is in view
   const p = document.getElementById('pipeline');
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
@@ -940,7 +982,7 @@
   sudo        try it and see`,
     whoami: () =>
 `Colin Shanahan — DevOps Engineer
-Relocating to Charlotte, NC — open to metro-area & remote roles.
+${SITE.seeking ? 'Relocating to ' + SITE.location + ' — open to metro-area & remote roles.' : 'Based in ' + SITE.location + '.'}
 10+ years from help desk → infrastructure → DevOps.
 Currently architecting Azure DevOps CI/CD and IaC at RDGFilings.
 Believes deploys should be boring and docs are a deliverable.`,
@@ -960,11 +1002,11 @@ site:        ${s.status || 'unknown'}
 uptime 24h:  ${s.uptime24h ?? '–'}%  (${s.checksLast24h ?? 0} checks from 3 regions)
 response:    ${s.avgResponseMs ?? '–'} ms avg
 last deploy: ${dep ? dep.status + ' · ' + dep.sha : '–'}
-full dashboard: /status.html`;
+full dashboard: /status`;
         })
         .catch(() => 'status api unreachable — provisioning, or telemetry offline'),
     arch: () => {
-      setTimeout(() => { window.location.href = 'architecture.html'; }, 600);
+      setTimeout(() => { window.location.href = '/architecture'; }, 600);
       return `visitor → dns → static web apps → you
 git push → actions → oidc → azure
 web test → app insights ← kql ← function
@@ -994,7 +1036,7 @@ total: ~11 years, zero unplanned career outages`,
 phone:    (540) 454-1170
 linkedin: linkedin.com/in/YOUR-LINKEDIN
 github:   github.com/cjshanahan1228
-status:   available — relocating to Charlotte, NC (open to remote)`,
+status:   ${SITE.seeking ? 'available — relocating to ' + SITE.location + ' (open to remote)' : 'based in ' + SITE.location}`,
     projects: () => {
       document.getElementById('projects').scrollIntoView({behavior:'smooth'});
       return `1. This site, as code — Terraform + Azure SWA + GitHub Actions OIDC (live repo)
