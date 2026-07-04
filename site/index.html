@@ -413,6 +413,7 @@
       <a href="#skills">skills</a>
       <a href="#console">console</a>
       <a href="status.html" style="color:var(--deploy)">status ●</a>
+      <a href="architecture.html">architecture</a>
       <a href="#contact">contact</a>
       <a href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
     </nav>
@@ -614,7 +615,7 @@
           <h3>This site, as code</h3>
           <div class="desc">
             <p>The portfolio you're reading is its own demo: Terraform provisions the Azure Static Web App hosting it plus the Blob Storage serving the resume, and GitHub Actions redeploys both on every push — authenticating to Azure via <strong>OIDC federation, with zero cloud credentials stored in CI</strong>.</p>
-            <p>The repo is public. Clone it, read the Terraform, check the workflow runs — everything claimed here is verifiable.</p>
+            <p>The repo is public. Clone it, read the Terraform, check the workflow runs — everything claimed here is verifiable. Or take the guided tour: <a href="architecture.html">the animated architecture →</a></p>
           </div>
           <div class="tech-tags">
             <span>terraform</span><span>azure-static-web-apps</span><span>blob-storage</span><span>github-oidc</span><span>least-privilege</span>
@@ -928,6 +929,7 @@
   stack       technologies & tooling
   clouds      azure vs aws vs gcp fluency
   status      LIVE site telemetry (app insights)
+  arch        animated architecture diagram
   uptime      career history
   certs       certifications
   contact     how to reach me
@@ -961,6 +963,13 @@ last deploy: ${dep ? dep.status + ' · ' + dep.sha : '–'}
 full dashboard: /status.html`;
         })
         .catch(() => 'status api unreachable — provisioning, or telemetry offline'),
+    arch: () => {
+      setTimeout(() => { window.location.href = 'architecture.html'; }, 600);
+      return `visitor → dns → static web apps → you
+git push → actions → oidc → azure
+web test → app insights ← kql ← function
+opening the animated version ...`;
+    },
     stack: () =>
 `cloud:      azure (primary), aws, gcp
 ci_cd:      azure-devops, jenkins (migrated away from)

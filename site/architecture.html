@@ -1,0 +1,354 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Architecture — colinshanahan.dev</title>
+<meta name="description" content="Animated architecture of colinshanahan.dev — how the site is served, deployed, and monitored.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mist:#EEF2F6;--paper:#FFF;--console:#0E1B2A;--slate:#52647A;--line:#D5DEE8;
+    --azure:#1B6DC1;--deploy:#1E9E6A;--warn:#D97E2B;
+    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Space Grotesk',sans-serif;
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);background:var(--mist);color:var(--console);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--azure);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
+  header{padding:52px 0 6px}
+  .crumb{font-family:var(--mono);font-size:.75rem;color:var(--slate)}
+  h1{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.5rem);font-weight:700;letter-spacing:-.01em;margin-top:10px}
+  .sub{color:var(--slate);font-size:.95rem;margin-top:6px;max-width:64ch}
+
+  .filters{display:flex;flex-wrap:wrap;gap:10px;margin:24px 0 16px}
+  .chip{
+    font-family:var(--mono);font-size:.74rem;padding:8px 16px;border-radius:99px;
+    border:1px solid var(--line);background:var(--paper);color:var(--slate);cursor:pointer;
+    display:inline-flex;align-items:center;gap:8px;transition:border-color .15s,color .15s;
+  }
+  .chip:hover{border-color:var(--slate)}
+  .chip .sw{width:9px;height:9px;border-radius:50%}
+  .chip[data-f="user"] .sw{background:var(--azure)}
+  .chip[data-f="deploy"] .sw{background:var(--deploy)}
+  .chip[data-f="monitor"] .sw{background:var(--warn)}
+  .chip[data-f="identity"] .sw{background:var(--slate)}
+  .chip.active{border-color:var(--console);color:var(--console)}
+
+  .board{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;overflow-x:auto}
+  svg{display:block;min-width:900px;width:100%;height:auto}
+
+  /* node + zone styling */
+  .zone{fill:none;stroke:var(--line);stroke-dasharray:5 5;rx:12}
+  .zlabel{font-family:var(--mono);font-size:11px;fill:var(--slate);letter-spacing:.1em;text-transform:uppercase}
+  .node rect{fill:var(--mist);stroke:var(--line);rx:9}
+  .node.hot rect{fill:#fff;stroke:var(--azure)}
+  .node text{font-family:var(--mono);fill:var(--console)}
+  .nt{font-size:12.5px;font-weight:600}
+  .ns{font-size:10.5px;fill:var(--slate)}
+
+  /* flows */
+  .flow path{fill:none;stroke-width:2}
+  .f-user path{stroke:var(--azure)}
+  .f-deploy path{stroke:var(--deploy)}
+  .f-monitor path{stroke:var(--warn)}
+  .f-identity path{stroke:var(--slate);stroke-dasharray:4 5}
+  .flow .lbl{font-family:var(--mono);font-size:10px;fill:var(--slate)}
+  .march{stroke-dasharray:7 6;animation:march 1.2s linear infinite}
+  @keyframes march{to{stroke-dashoffset:-13}}
+  .packet{r:4}
+  .f-user .packet{fill:var(--azure)}
+  .f-deploy .packet{fill:var(--deploy)}
+  .f-monitor .packet{fill:var(--warn)}
+  .f-identity .packet{fill:var(--slate)}
+  .livedot{fill:var(--deploy)}
+  .livedot-pulse{fill:none;stroke:var(--deploy);opacity:.4;animation:lp 2s infinite}
+  @keyframes lp{0%{r:5;opacity:.5}100%{r:13;opacity:0}}
+  @media (prefers-reduced-motion:reduce){
+    .march{animation:none}
+    .packet,.livedot-pulse{display:none}
+  }
+
+  /* focus filtering */
+  .flow,.node{transition:opacity .25s}
+  [data-focus="user"] .flow:not(.f-user){opacity:.1}
+  [data-focus="deploy"] .flow:not(.f-deploy){opacity:.1}
+  [data-focus="monitor"] .flow:not(.f-monitor){opacity:.1}
+  [data-focus="identity"] .flow:not(.f-identity){opacity:.1}
+
+  .steps{margin:26px 0 60px;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .step{background:var(--paper);padding:20px 22px}
+  .step .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
+  .step .k i{width:9px;height:9px;border-radius:50%;display:inline-block}
+  .step p{font-size:.88rem;color:#2B3D52}
+  .note{font-family:var(--mono);font-size:.7rem;color:var(--slate);margin:0 0 50px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb"><a href="/">← colinshanahan.dev</a> / architecture</div>
+    <h1>How this site actually works</h1>
+    <p class="sub">Every box below is a real, running resource. Traffic, deploys, and monitoring are animated as they flow — click a filter to isolate one story.</p>
+  </header>
+
+  <div class="filters" id="filters">
+    <button class="chip active" data-f="all">all flows</button>
+    <button class="chip" data-f="user"><span class="sw"></span>visitor traffic</button>
+    <button class="chip" data-f="deploy"><span class="sw"></span>ci/cd (oidc)</button>
+    <button class="chip" data-f="monitor"><span class="sw"></span>monitoring</button>
+    <button class="chip" data-f="identity"><span class="sw"></span>identity &amp; queries</button>
+  </div>
+
+  <div class="board" id="board">
+  <svg viewBox="0 0 1240 880" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Architecture diagram of colinshanahan.dev">
+
+    <!-- ═══ zones ═══ -->
+    <rect class="zone" x="530" y="52" width="686" height="332" rx="12"/>
+    <text class="zlabel" x="548" y="76">azure · rg-portfolio</text>
+    <rect class="zone" x="530" y="416" width="686" height="330" rx="12"/>
+    <text class="zlabel" x="548" y="440">azure · rg-portfolio-status</text>
+    <rect class="zone" x="24" y="560" width="440" height="240" rx="12"/>
+    <text class="zlabel" x="42" y="584">github</text>
+
+    <!-- ═══ FLOWS (paths first, under nodes) ═══ -->
+
+    <!-- visitor -> DNS -->
+    <g class="flow f-user">
+      <path id="p-v-dns" class="march" d="M196,140 L268,140"/>
+      <circle class="packet"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#p-v-dns"/></animateMotion></circle>
+    </g>
+    <!-- DNS -> SWA -->
+    <g class="flow f-user">
+      <path id="p-dns-swa" class="march" d="M448,140 C500,140 520,150 566,158"/>
+      <text class="lbl" x="452" y="128">apex + www · https</text>
+      <circle class="packet"><animateMotion dur="2.2s" begin="0.7s" repeatCount="indefinite"><mpath href="#p-dns-swa"/></animateMotion></circle>
+    </g>
+    <!-- SWA serves back to visitor -->
+    <g class="flow f-user">
+      <path id="p-swa-v" d="M566,196 C420,240 260,200 190,166"/>
+      <text class="lbl" x="300" y="238">index.html · status.html</text>
+      <circle class="packet"><animateMotion dur="2.4s" begin="1.4s" repeatCount="indefinite"><mpath href="#p-swa-v"/></animateMotion></circle>
+    </g>
+    <!-- visitor resume download from blob -->
+    <g class="flow f-user">
+      <path id="p-v-blob" d="M160,176 C240,420 700,330 928,268"/>
+      <text class="lbl" x="330" y="352">resume download (public blob)</text>
+      <circle class="packet"><animateMotion dur="3.4s" begin="0.4s" repeatCount="indefinite"><mpath href="#p-v-blob"/></animateMotion></circle>
+    </g>
+    <!-- visitor status page fetch -> function -->
+    <g class="flow f-user">
+      <path id="p-v-func" d="M140,176 C120,430 340,560 566,588"/>
+      <text class="lbl" x="188" y="470">fetch /api/status (CORS)</text>
+      <circle class="packet"><animateMotion dur="2.8s" repeatCount="indefinite"><mpath href="#p-v-func"/></animateMotion></circle>
+      <circle class="packet"><animateMotion dur="2.8s" begin="1.4s" keyPoints="1;0" keyTimes="0;1" repeatCount="indefinite"><mpath href="#p-v-func"/></animateMotion></circle>
+    </g>
+
+    <!-- dev -> repos -->
+    <g class="flow f-deploy">
+      <path id="p-dev-repo" class="march" d="M120,506 L120,596"/>
+      <text class="lbl" x="132" y="548">git push</text>
+      <circle class="packet"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#p-dev-repo"/></animateMotion></circle>
+    </g>
+    <!-- repos -> actions -->
+    <g class="flow f-deploy">
+      <path id="p-repo-act" class="march" d="M212,660 L268,660"/>
+      <circle class="packet"><animateMotion dur="1.6s" repeatCount="indefinite"><mpath href="#p-repo-act"/></animateMotion></circle>
+    </g>
+    <!-- actions -> SWA deploy -->
+    <g class="flow f-deploy">
+      <path id="p-act-swa" d="M370,624 C420,420 500,260 588,204"/>
+      <text class="lbl" x="404" y="392">deploy site (SWA token)</text>
+      <circle class="packet"><animateMotion dur="3s" repeatCount="indefinite"><mpath href="#p-act-swa"/></animateMotion></circle>
+    </g>
+    <!-- actions -> blob upload -->
+    <g class="flow f-deploy">
+      <path id="p-act-blob" d="M440,640 C640,560 850,380 960,276"/>
+      <text class="lbl" x="640" y="500">publish resume (OIDC)</text>
+      <circle class="packet"><animateMotion dur="3.2s" begin="0.8s" repeatCount="indefinite"><mpath href="#p-act-blob"/></animateMotion></circle>
+    </g>
+    <!-- actions -> function deploy -->
+    <g class="flow f-deploy">
+      <path id="p-act-func" d="M440,676 C500,672 530,650 566,628"/>
+      <text class="lbl" x="452" y="700">deploy api (OIDC)</text>
+      <circle class="packet"><animateMotion dur="2.4s" begin="1.5s" repeatCount="indefinite"><mpath href="#p-act-func"/></animateMotion></circle>
+    </g>
+    <!-- actions <-> entra (oidc token exchange) -->
+    <g class="flow f-identity">
+      <path id="p-act-entra" d="M370,700 C420,742 450,760 496,768"/>
+      <text class="lbl" x="376" y="762">OIDC token exchange</text>
+      <circle class="packet"><animateMotion dur="2s" repeatCount="indefinite"><mpath href="#p-act-entra"/></animateMotion></circle>
+      <circle class="packet"><animateMotion dur="2s" begin="1s" keyPoints="1;0" keyTimes="0;1" repeatCount="indefinite"><mpath href="#p-act-entra"/></animateMotion></circle>
+    </g>
+    <!-- entra -> federated identities -->
+    <g class="flow f-identity">
+      <path id="p-entra-id" d="M640,768 C760,772 880,760 986,716"/>
+      <text class="lbl" x="700" y="790">federated credentials · repo:main only</text>
+    </g>
+
+    <!-- web test -> site (probe) -->
+    <g class="flow f-monitor">
+      <path id="p-probe-swa" d="M660,470 C660,400 650,300 650,208"/>
+      <text class="lbl" x="668" y="330">HTTPS ping · 5 min · SSL check</text>
+      <circle class="packet"><animateMotion dur="2.6s" repeatCount="indefinite"><mpath href="#p-probe-swa"/></animateMotion></circle>
+    </g>
+    <!-- web test -> app insights (results) -->
+    <g class="flow f-monitor">
+      <path id="p-probe-ai" class="march" d="M776,504 L872,504"/>
+      <text class="lbl" x="784" y="492">results</text>
+      <circle class="packet"><animateMotion dur="1.8s" repeatCount="indefinite"><mpath href="#p-probe-ai"/></animateMotion></circle>
+    </g>
+    <!-- function -> app insights (KQL) -->
+    <g class="flow f-identity">
+      <path id="p-func-ai" d="M786,604 C860,596 920,560 972,540"/>
+      <text class="lbl" x="800" y="632">KQL via queryResource (managed identity)</text>
+      <circle class="packet"><animateMotion dur="2.2s" repeatCount="indefinite"><mpath href="#p-func-ai"/></animateMotion></circle>
+    </g>
+    <!-- function -> github api (deploy feed) -->
+    <g class="flow f-identity">
+      <path id="p-func-gh" d="M566,616 C500,632 460,644 448,650"/>
+      <text class="lbl" x="466" y="618">deploy history (REST)</text>
+      <circle class="packet"><animateMotion dur="2s" begin=".6s" repeatCount="indefinite"><mpath href="#p-func-gh"/></animateMotion></circle>
+    </g>
+
+    <!-- ═══ NODES ═══ -->
+
+    <g class="node hot">
+      <rect x="40" y="104" width="156" height="72"/>
+      <text class="nt" x="58" y="134">Visitor</text>
+      <text class="ns" x="58" y="152">browser · any device</text>
+      <circle class="livedot" cx="176" cy="122" r="5"/>
+      <circle class="livedot-pulse" cx="176" cy="122" r="5"/>
+    </g>
+
+    <g class="node">
+      <rect x="268" y="110" width="180" height="60"/>
+      <text class="nt" x="284" y="136">DNS</text>
+      <text class="ns" x="284" y="154">colinshanahan.dev · ALIAS + CNAME</text>
+    </g>
+
+    <g class="node hot">
+      <rect x="566" y="150" width="230" height="82"/>
+      <text class="nt" x="582" y="176">Azure Static Web Apps</text>
+      <text class="ns" x="582" y="194">index.html · status.html</text>
+      <text class="ns" x="582" y="210">free tier · managed SSL · global edge</text>
+    </g>
+
+    <g class="node">
+      <rect x="928" y="150" width="252" height="82"/>
+      <text class="nt" x="944" y="176">Blob Storage</text>
+      <text class="ns" x="944" y="194">resume container · public read</text>
+      <text class="ns" x="944" y="210">stcolinshanahanresume</text>
+    </g>
+
+    <g class="node">
+      <rect x="566" y="470" width="210" height="68"/>
+      <text class="nt" x="582" y="496">Availability test</text>
+      <text class="ns" x="582" y="514">3 US regions · every 5 min</text>
+    </g>
+
+    <g class="node">
+      <rect x="872" y="470" width="308" height="68"/>
+      <text class="nt" x="888" y="496">Application Insights + Log Analytics</text>
+      <text class="ns" x="888" y="514">availabilityResults · 30-day retention</text>
+    </g>
+
+    <g class="node hot">
+      <rect x="566" y="576" width="220" height="88"/>
+      <text class="nt" x="582" y="602">Azure Function</text>
+      <text class="ns" x="582" y="620">/api/status · Node 20</text>
+      <text class="ns" x="582" y="636">managed identity · 60s cache</text>
+      <circle class="livedot" cx="766" cy="594" r="5"/>
+      <circle class="livedot-pulse" cx="766" cy="594" r="5"/>
+    </g>
+
+    <g class="node">
+      <rect x="986" y="576" width="194" height="140"/>
+      <text class="nt" x="1002" y="602">Deploy identities</text>
+      <text class="ns" x="1002" y="622">id-github-portfolio-deploy</text>
+      <text class="ns" x="1002" y="638">→ blob writer only</text>
+      <text class="ns" x="1002" y="660">id-github-status-deploy</text>
+      <text class="ns" x="1002" y="676">→ rg-status only</text>
+      <text class="ns" x="1002" y="700">least privilege · no secrets</text>
+    </g>
+
+    <g class="node">
+      <rect x="44" y="446" width="156" height="60"/>
+      <text class="nt" x="60" y="472">Developer</text>
+      <text class="ns" x="60" y="490">VS Code · Terraform · git</text>
+    </g>
+
+    <g class="node">
+      <rect x="44" y="596" width="168" height="128"/>
+      <text class="nt" x="60" y="622">Repos (public)</text>
+      <text class="ns" x="60" y="642">colinshanahan.dev-portfolio</text>
+      <text class="ns" x="60" y="658">portfolio-status</text>
+      <text class="ns" x="60" y="680">site + resume + IaC + api</text>
+      <text class="ns" x="60" y="702">the code IS the exhibit</text>
+    </g>
+
+    <g class="node hot">
+      <rect x="268" y="624" width="172" height="76"/>
+      <text class="nt" x="284" y="650">GitHub Actions</text>
+      <text class="ns" x="284" y="668">deploy workflows</text>
+      <text class="ns" x="284" y="684">zero stored cloud secrets</text>
+    </g>
+
+    <g class="node">
+      <rect x="496" y="744" width="144" height="48"/>
+      <text class="nt" x="512" y="766">Entra ID</text>
+      <text class="ns" x="512" y="782">token issuer</text>
+    </g>
+
+    <!-- terraform note -->
+    <g class="flow f-deploy">
+      <path id="p-tf" class="march" d="M200,470 C360,440 480,420 540,400" opacity=".55"/>
+      <text class="lbl" x="300" y="428">terraform apply (provisions everything in both RGs)</text>
+    </g>
+  </svg>
+  </div>
+
+  <div class="steps">
+    <div class="step">
+      <div class="k"><i style="background:var(--azure)"></i>visitor traffic</div>
+      <p>DNS (apex + www) resolves to Azure Static Web Apps, which serves the site from a global edge with managed SSL. The resume downloads straight from public-read Blob Storage, and the status page calls the Function API cross-origin — CORS locked to this domain.</p>
+    </div>
+    <div class="step">
+      <div class="k"><i style="background:var(--deploy)"></i>ci/cd</div>
+      <p>A git push triggers GitHub Actions, which exchanges a short-lived OIDC token with Entra ID for access — no cloud credentials are stored anywhere. Each workflow deploys its own piece: site to SWA, resume to Blob, API to the Function.</p>
+    </div>
+    <div class="step">
+      <div class="k"><i style="background:var(--warn)"></i>monitoring</div>
+      <p>An Application Insights availability test pings the site every 5 minutes from three US regions, validating the response and the SSL certificate. Results land in the telemetry store — the monitoring caught a real unbound-apex-domain defect on day one.</p>
+    </div>
+    <div class="step">
+      <div class="k"><i style="background:var(--slate)"></i>identity &amp; queries</div>
+      <p>The Function reads telemetry as itself: a system-assigned managed identity with read-only rights on one resource, querying with KQL. Deploy identities are federated to exact repo + branch and scoped to the minimum they deploy. Zero keys, zero rotation.</p>
+    </div>
+  </div>
+
+  <p class="note">
+    provisioned by terraform · deployed by github actions (oidc) · monitored by itself ·
+    <a href="https://github.com/cjshanahan1228/colinshanahan.dev-portfolio">site source</a> ·
+    <a href="https://github.com/cjshanahan1228/portfolio-status">status source</a> ·
+    <a href="status.html">live status →</a>
+  </p>
+</div>
+
+<script>
+const board = document.getElementById('board');
+document.getElementById('filters').addEventListener('click', e => {
+  const chip = e.target.closest('.chip');
+  if (!chip) return;
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  chip.classList.add('active');
+  const f = chip.dataset.f;
+  if (f === 'all') board.removeAttribute('data-focus');
+  else board.setAttribute('data-focus', f);
+});
+</script>
+</body>
+</html>
