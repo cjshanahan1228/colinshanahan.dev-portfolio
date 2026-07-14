@@ -26,6 +26,15 @@ portfolio-deploy/
 5. Custom domain: CNAME `www` → the SWA hostname, then
    `az staticwebapp hostname set -n swa-colinshanahan-portfolio --hostname www.colinshanahan.dev`
 
+## Development workflow
+
+Every change is tracked end-to-end: GitHub issue → linked branch
+(`gh issue develop N --checkout`) → PR (title is a conventional commit) →
+squash-merge to protected `main`. Merging deploys via the workflow above and
+auto-publishes a semver tag + GitHub Release
+(`.github/workflows/release.yml`) — `feat:` bumps minor, `fix:` bumps patch,
+`!`/`BREAKING CHANGE` bumps major.
+
 ## Related
 
 `site/status.html` is the front-end of the live ops dashboard —
