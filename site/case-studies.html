@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case studies — Colin Shanahan</title>
+<meta name="description" content="Sanitized production war stories: real problems Colin Shanahan diagnosed and fixed, with the systems generalized and the reasoning intact.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --mist:#EEF2F6;
+    --paper:#FFFFFF;
+    --console:#0E1B2A;
+    --slate:#52647A;
+    --line:#D5DEE8;
+    --azure:#1B6DC1;
+    --azure-deep:#11518F;
+    --deploy:#1E9E6A;
+    --deploy-soft:#E2F4EC;
+    --mono:'IBM Plex Mono',ui-monospace,monospace;
+    --sans:'IBM Plex Sans',system-ui,sans-serif;
+    --display:'Space Grotesk',var(--sans);
+  }
+  *{margin:0;padding:0;box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    font-family:var(--sans);
+    background:var(--mist);
+    color:var(--console);
+    line-height:1.6;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:var(--azure);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible{outline:2px solid var(--azure);outline-offset:3px;border-radius:2px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+
+  header.top{
+    position:sticky;top:0;z-index:50;
+    background:rgba(238,242,246,.88);
+    backdrop-filter:blur(10px);
+    border-bottom:1px solid var(--line);
+  }
+  .top-inner{display:flex;align-items:center;justify-content:space-between;height:60px}
+  .brand{font-family:var(--mono);font-size:.85rem;color:var(--console);letter-spacing:.02em}
+  .brand .dot{color:var(--deploy)}
+  nav.menu{display:flex;gap:22px;align-items:center;white-space:nowrap}
+  nav.menu a{font-family:var(--mono);font-size:.76rem;color:var(--slate);letter-spacing:.03em;text-transform:lowercase}
+  nav.menu a:hover{color:var(--azure);text-decoration:none}
+
+  .page-head{padding:72px 0 46px;border-bottom:1px solid var(--line)}
+  .sec-label{
+    font-family:var(--mono);font-size:.72rem;letter-spacing:.14em;
+    text-transform:uppercase;color:var(--azure);margin-bottom:10px;
+  }
+  h1{
+    font-family:var(--display);
+    font-size:clamp(2rem,5vw,3rem);
+    font-weight:700;line-height:1.08;letter-spacing:-.02em;
+  }
+  .lede{max-width:58ch;margin-top:18px;font-size:1.02rem;color:var(--slate)}
+  .lede strong{color:var(--console);font-weight:600}
+  .disclaimer{
+    margin-top:22px;display:inline-flex;flex-wrap:wrap;gap:6px 10px;align-items:center;
+    font-family:var(--mono);font-size:.7rem;color:var(--slate);
+    background:var(--paper);border:1px solid var(--line);border-radius:99px;
+    padding:7px 16px;
+  }
+  .disclaimer i{font-style:normal;color:var(--deploy)}
+
+  main{padding:56px 0 72px}
+  .study{
+    position:relative;background:var(--paper);
+    border:1px solid var(--line);border-radius:10px;
+    padding:34px 36px;margin-bottom:28px;
+    scroll-margin-top:84px;
+  }
+  .study::before{
+    content:"";position:absolute;left:-1px;top:26px;bottom:26px;
+    width:3px;border-radius:0 3px 3px 0;background:var(--azure);
+  }
+  .study .tag{
+    font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--azure);margin-bottom:12px;
+  }
+  .study h2{font-family:var(--display);font-size:1.45rem;font-weight:600;line-height:1.25;max-width:30ch}
+  .study dl{margin-top:20px;font-size:.96rem;color:#2B3D52}
+  .study dt{
+    font-family:var(--mono);font-size:.68rem;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--slate);margin-top:18px;
+  }
+  .study dt:first-child{margin-top:0}
+  .study dd{margin-top:5px;max-width:70ch}
+  .study dd p{margin-bottom:8px}
+  .study dd p:last-child{margin-bottom:0}
+  .lessons{margin-top:6px;padding-left:0;list-style:none;max-width:70ch}
+  .lessons li{position:relative;padding-left:24px;margin-bottom:8px;color:#2B3D52;font-size:.95rem}
+  .lessons li::before{content:"›";position:absolute;left:6px;top:0;color:var(--azure);font-weight:700}
+  .study code{font-family:var(--mono);background:var(--mist);border:1px solid var(--line);border-radius:4px;padding:0 5px;font-size:.85em}
+  .wip{
+    margin-top:18px;font-family:var(--mono);font-size:.76rem;color:var(--slate);
+    background:var(--mist);border:1px dashed var(--line);border-radius:8px;padding:10px 14px;
+  }
+  .study .outcome{
+    margin-top:22px;padding-top:16px;border-top:1px dashed var(--line);
+    font-family:var(--mono);font-size:.78rem;color:var(--deploy);font-weight:500;
+  }
+  .tech-tags{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+  .tech-tags span{
+    font-family:var(--mono);font-size:.68rem;color:var(--slate);
+    background:var(--mist);border:1px solid var(--line);border-radius:99px;
+    padding:3px 11px;
+  }
+
+  footer{background:var(--console);color:#9FB2C6;padding:36px 0}
+  footer .wrap{display:flex;justify-content:space-between;flex-wrap:wrap;gap:10px;font-family:var(--mono);font-size:.7rem}
+  footer a{color:#7FB4E8}
+
+  @media (max-width:600px){
+    .study{padding:26px 22px}
+    nav.menu{gap:14px}
+  }
+</style>
+</head>
+<body>
+
+<header class="top">
+  <div class="wrap top-inner">
+    <div class="brand"><a href="/" style="color:inherit">colin-shanahan<span class="dot">●</span>devops</a></div>
+    <nav class="menu" aria-label="Sections">
+      <a href="/#work">← back to portfolio</a>
+      <a href="/status" style="color:var(--deploy)">status ●</a>
+      <a href="/#contact">contact</a>
+    </nav>
+  </div>
+</header>
+
+<div class="page-head">
+  <div class="wrap">
+    <p class="sec-label">// case studies</p>
+    <h1>Production war stories, sanitized.</h1>
+    <p class="lede">
+      Real problems from real jobs — what broke, how I reasoned through it, what I changed,
+      and what got better. <strong>The systems are generalized; the diagnosis is the story.</strong>
+    </p>
+    <p class="disclaimer"><i>✓</i> details generalized · no confidential information · relative metrics only</p>
+  </div>
+</div>
+
+<main>
+  <div class="wrap" id="studies"></div>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© 2026 Colin Shanahan · <a href="/">colinshanahan.dev</a></span>
+    <span>add a story: <a href="https://github.com/cjshanahan1228/colinshanahan.dev-portfolio" target="_blank" rel="noopener">one JSON entry + a PR</a></span>
+  </div>
+</footer>
+
+<script src="/case-studies.js"></script>
+<script>
+  (function () {
+    const host = document.getElementById('studies');
+    host.innerHTML = (window.CASE_STUDIES || []).map(c => {
+      const d = c.detail;
+      const body = d ? `
+        <dl>
+          <dt>Context</dt><dd>${d.context}</dd>
+          <dt>Problem</dt><dd>${c.problem}</dd>
+          <dt>Diagnosis</dt><dd>${d.diagnosis}</dd>
+          <dt>The fix</dt><dd>${d.fix}</dd>
+          <dt>Impact</dt><dd>${d.impact}</dd>
+          ${d.lessons && d.lessons.length ? `<dt>Lessons</dt><dd><ul class="lessons">${d.lessons.map(l => `<li>${l}</li>`).join('')}</ul></dd>` : ''}
+        </dl>` : `
+        <dl>
+          <dt>Problem</dt><dd>${c.problem}</dd>
+          <dt>Approach</dt><dd>${c.approach}</dd>
+        </dl>
+        <p class="wip">full writeup in progress — the summary above is the shape of it</p>`;
+      return `
+      <article class="study" id="${c.slug}">
+        <div class="tag">${c.tag}</div>
+        <h2>${c.title}</h2>
+        ${body}
+        <div class="outcome">${c.outcome}</div>
+        <div class="tech-tags">${(c.stack || []).map(s => `<span>${s}</span>`).join('')}</div>
+      </article>`;
+    }).join('');
+  })();
+</script>
+</body>
+</html>

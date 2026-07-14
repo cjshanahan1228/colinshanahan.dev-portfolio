@@ -2,8 +2,10 @@
   "routes": [
     { "route": "/architecture", "rewrite": "/architecture.html" },
     { "route": "/status", "rewrite": "/status.html" },
+    { "route": "/case-studies", "rewrite": "/case-studies.html" },
     { "route": "/architecture.html", "redirect": "/architecture", "statusCode": 301 },
     { "route": "/status.html", "redirect": "/status", "statusCode": 301 },
+    { "route": "/case-studies.html", "redirect": "/case-studies", "statusCode": 301 },
     { "route": "/*", "headers": { "Cache-Control": "public, max-age=300" } }
   ],
   "navigationFallback": { "rewrite": "/index.html" },

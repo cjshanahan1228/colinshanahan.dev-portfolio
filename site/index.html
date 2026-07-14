@@ -265,6 +265,11 @@
     margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);
     font-family:var(--mono);font-size:.76rem;color:var(--deploy);font-weight:500;
   }
+  .cases-intro{max-width:62ch;color:var(--slate);font-size:.98rem;margin:-18px 0 30px}
+  .cases-intro strong{color:var(--console)}
+  .case h3 a{color:inherit}
+  .case h3 a:hover{color:var(--azure);text-decoration:none}
+  .case .more{margin-top:14px;font-family:var(--mono);font-size:.74rem}
 
   /* ---------- principles ---------- */
   .principles{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:22px}
@@ -439,6 +444,7 @@ window.SITE = {
     <div class="brand">colin-shanahan<span class="dot">●</span>devops</div>
     <nav class="menu" aria-label="Sections">
       <a href="#experience">experience</a>
+      <a href="#work" class="nav-sec">case studies</a>
       <a href="#projects">projects</a>
       <a href="#skills">skills</a>
       <a href="#console" class="nav-sec">console</a>
@@ -595,43 +601,12 @@ window.SITE = {
     <div class="wrap">
       <p class="sec-label">// selected work</p>
       <h2>Case studies</h2>
-      <div class="cases">
-        <article class="case">
-          <div class="tag">migration · ci/cd</div>
-          <h3>Retiring Octopus Deploy &amp; Jenkins without breaking release day</h3>
-          <dl>
-            <dt>Problem</dt>
-            <dd>Two legacy deployment systems, fragmented release knowledge, and slow, unreliable release cycles.</dd>
-            <dt>Approach</dt>
-            <dd>Rebuilt the workflows as Azure DevOps multi-stage YAML pipelines, migrating incrementally so teams never lost the ability to ship while cutting over.</dd>
-          </dl>
-          <div class="outcome">✓ release cycles −40% · reliability up · one platform</div>
-        </article>
-
-        <article class="case">
-          <div class="tag">iac · cloud migration</div>
-          <h3>Replacing hand-built GCP systems with Terraform &amp; Bicep on Azure</h3>
-          <dl>
-            <dt>Problem</dt>
-            <dd>Infrastructure provisioned by hand on GCP — inconsistent environments, no repeatable path from dev to production.</dd>
-            <dt>Approach</dt>
-            <dd>Codified the estate in Terraform and Bicep: Container Apps, Function Apps, VMs, and Key Vault, provisioned identically every time from version-controlled templates.</dd>
-          </dl>
-          <div class="outcome">✓ repeatable environments · drift eliminated · auditable infra</div>
-        </article>
-
-        <article class="case">
-          <div class="tag">reliability · failover</div>
-          <h3>Failover for the systems that turn the lights back on</h3>
-          <dl>
-            <dt>Problem</dt>
-            <dd>At AEP, restoration-focused applications backed by Oracle and Windows servers couldn't afford downtime — these are the systems crews depend on during outages.</dd>
-            <dt>Approach</dt>
-            <dd>Designed and implemented failover systems orchestrated through Azure DevOps, enabling rapid, practiced recovery instead of ad-hoc heroics.</dd>
-          </dl>
-          <div class="outcome">✓ 99.9% uptime sustained · rapid recovery during outages</div>
-        </article>
-      </div>
+      <p class="cases-intro">
+        Real production problems, sanitized: <strong>systems generalized, no confidential
+        details</strong> — the diagnosis and the reasoning are the story.
+        <a href="/case-studies">Read the full writeups →</a>
+      </p>
+      <div class="cases" id="caseGrid"></div>
     </div>
   </section>
 
@@ -936,9 +911,28 @@ window.SITE = {
   </div>
 </footer>
 
+<script src="/case-studies.js"></script>
 <script>
   // ---------- apply SITE config to the page ----------
   const SITE = window.SITE;
+
+  // ---------- case-study cards (data: case-studies.js) ----------
+  (function () {
+    const grid = document.getElementById('caseGrid');
+    grid.innerHTML = (window.CASE_STUDIES || []).map(c => `
+      <article class="case">
+        <div class="tag">${c.tag}</div>
+        <h3><a href="/case-studies#${c.slug}">${c.title}</a></h3>
+        <dl>
+          <dt>Problem</dt>
+          <dd>${c.problem}</dd>
+          <dt>Approach</dt>
+          <dd>${c.approach}</dd>
+        </dl>
+        <div class="outcome">${c.outcome}</div>
+        <a class="more" href="/case-studies#${c.slug}">${c.detail ? 'full writeup →' : 'writeup in progress →'}</a>
+      </article>`).join('');
+  })();
   (function () {
     const eb = document.getElementById('eyebrow');
     const fp = document.getElementById('footerPitch');
@@ -976,6 +970,7 @@ window.SITE = {
     help: () =>
 `Available commands:
   whoami      who is this guy
+  cases       sanitized war stories from work
   stack       technologies & tooling
   clouds      azure vs aws vs gcp fluency
   status      LIVE site telemetry (app insights)
@@ -994,6 +989,11 @@ ${SITE.seeking ? 'Relocating to ' + SITE.target + ' — open to metro-area & rem
 10+ years from help desk → infrastructure → DevOps.
 Currently architecting Azure DevOps CI/CD and IaC at RDGFilings.
 Believes deploys should be boring and docs are a deliverable.`,
+    cases: () => {
+      document.getElementById('work').scrollIntoView({ behavior: 'smooth' });
+      return (window.CASE_STUDIES || []).map((c, i) => `${i + 1}. ${c.title}`).join('\n') +
+        `\nsanitized — no confidential details. full writeups: /case-studies`;
+    },
     clouds: () =>
 `azure   ████████████  primary — production daily (AZ-104, AZ-400)
 aws     ████████      certified ×2 (Solutions Architect, Developer)
@@ -1066,7 +1066,7 @@ Scrolling you there now...`;
       termBody.querySelectorAll('div:not(.term-input-row)').forEach(d => d.remove());
       return null;
     },
-    ls: () => `experience/  skills/  certs/  principles/  resume.pdf`,
+    ls: () => `experience/  case-studies/  skills/  certs/  principles/  resume.pdf`,
     pwd: () => `/home/colin/portfolio`,
   };
 
