@@ -2,7 +2,7 @@
 // One object per study. The homepage card grid and /case-studies
 // both render from this file — add an entry, open a PR, done.
 //
-// SANITIZATION RULES — every entry must pass all five:
+// SANITIZATION RULES — every entry must pass all six:
 //   1. No internal system names, hostnames, repo names, or vendor
 //      contracts. Describe the CLASS of system: "a nightly
 //      document-processing pipeline", not what it's really called.
@@ -15,6 +15,9 @@
 //      decided, and learned — that part of the story is yours.
 //   5. Litmus test: comfortable if your manager and their legal
 //      team read it with your name on it? They can — it's public.
+//   6. Deep detail never names the employer. Resume-level claims
+//      (what the resume already says) may carry a name; a diagnosis
+//      narrative is always just "the company".
 //
 // Fields: slug/tag/title/problem/approach/outcome/stack are required
 // and drive the homepage card. `detail` is the full writeup (set null
@@ -26,16 +29,16 @@ window.CASE_STUDIES = [
     slug: "identity-server-modernization",
     tag: "identity · secrets · scale",
     title: "Inheriting the company's identity server — and teaching it to scale",
-    problem: "Every login ran through one hand-managed, end-of-support IdentityServer4 instance: secrets in plaintext config files, a restart to rotate anything, and no way to scale past a single replica.",
+    problem: "Every login ran through one hand-managed, end-of-support IdentityServer4 instance: secrets in local config files, a restart to rotate anything, and no way to scale past a single replica.",
     approach: "Moved it to Duende and modernized in shippable steps — containerize with EF migrations, externalize secrets to Key Vault, automate rotation, share the signing key ring — proving each cutover before trusting it.",
     outcome: "✓ sessions survive deploys · zero-restart rotation · horizontally scaled",
     stack: ["duende-identityserver", "asp.net-core", "docker", "ef-migrations", "key-vault", "blob-storage", "container-apps"],
     detail: {
       context:
-        "<p>Shortly after I joined RDG Filings as a DevOps engineer, the company's identity server needed an owner. It ran IdentityServer4, which was approaching end of support, and the engineers who knew it had no bandwidth — so despite having little application-code experience at the time, I took it on out of necessity. My first contributions were unglamorous: fixing dead links and pages that routed incorrectly.</p>" +
-        "<p>What followed was a year of Duende documentation, trial and error in local and dev environments, and progressively bigger swings at the service every user of the platform logs in through.</p>",
+        "<p>Not long after stepping into a DevOps role, I inherited the company's identity server: the IdentityServer4 (ASP.NET Core) instance that authenticated every user of the platform. The version it ran was approaching end of support, the engineers who knew it had no bandwidth, and I had little application-code experience — so ownership arrived out of necessity, not seniority. My first contributions were unglamorous: fixing dead links and pages that routed incorrectly.</p>" +
+        "<p>What followed was a year of Duende documentation, trial and error in local and dev environments, and progressively bigger swings at the service every login depends on.</p>",
       diagnosis:
-        "<p>Two things made the risk concrete. Client secrets and connection strings sat in plaintext appsettings files — that bothered me before anything else did. And in a regulatory-filing business, deadline windows are unforgiving: identity downtime during one doesn't just pause work, it costs clients and the trust that brings them back.</p>" +
+        "<p>Two things made the risk concrete. Secrets handling predated centralized tooling — connection strings and client secrets lived in local configuration files, which bothered me before anything else did. And when clients depend on the platform to meet hard external deadlines, identity downtime doesn't just pause work — it costs trust, and the repeat business that trust brings.</p>" +
         "<p>The blockers formed a dependency chain, not a list. You can't scale horizontally until every replica signs tokens with the same keys. You can't rotate secrets safely until configuration is externalized. You can't deploy repeatably until the app and its schema are self-contained. That ordering became the roadmap — portability, then secrets, then rotation, then the key ring — with each step shipping on its own instead of waiting on a big-bang rewrite.</p>",
       fix:
         "<p><strong>Portability first (about a week).</strong> Dockerized the service, with EF Core migrations standing up the new Duende configuration database from code, so a fresh environment builds from the repo alone. It became one of the first workloads in the Azure Container Apps environment I'd built for the company — a story of its own.</p>" +
