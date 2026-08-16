@@ -31,6 +31,11 @@ Industry-standard gated-content flow — nobody downloads the resume anonymously
 
 ## Setup
 
+State is remote: `stcolinshanahanresume/tfstate/portfolio.tfstate` (azurerm
+backend) — on any machine, `az login` + `terraform init` connects to it.
+(From-scratch bootstrap only: comment out the backend block, apply locally,
+create the `tfstate` container, restore the block, `terraform init -migrate-state`.)
+
 1. `cd infra && terraform init && terraform apply`
 2. Push to `github.com/cjshanahan1228/colinshanahan.dev-portfolio` (OIDC trust is
    bound to that exact name — change `github_repo` + re-apply if renamed)
