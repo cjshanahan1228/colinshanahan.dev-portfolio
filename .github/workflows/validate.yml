@@ -1,0 +1,64 @@
+# Runs on every PR — proves a branch can't break the deploy before it merges.
+# Deliberately credential-free (terraform init -backend=false), so it needs no
+# secrets and runs on any fork or branch.
+
+name: Validate
+
+on:
+  pull_request:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  terraform:
+    runs-on: ubuntu-latest
+    name: Terraform
+    defaults:
+      run:
+        working-directory: infra
+    steps:
+      - uses: actions/checkout@v4
+      - uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: "1.15.5"
+      - name: Formatting
+        run: terraform fmt -check -recursive
+      - name: Init (no backend — no cloud access needed to validate)
+        run: terraform init -backend=false -input=false
+      - name: Validate
+        run: terraform validate
+
+  api:
+    runs-on: ubuntu-latest
+    name: API
+    defaults:
+      run:
+        working-directory: api
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Dependencies resolve
+        run: npm install --no-audit --no-fund
+      - name: Functions parse and load
+        run: |
+          for f in src/functions/*.js; do
+            node --check "$f"
+            echo "  ok   $f"
+          done
+          node -e "require('@azure/functions')"
+
+  site:
+    runs-on: ubuntu-latest
+    name: Site
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Config, inline scripts, gated-resume invariants
+        run: node .github/scripts/check-site.mjs
