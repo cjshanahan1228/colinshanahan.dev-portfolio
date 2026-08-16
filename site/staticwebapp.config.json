@@ -1,5 +1,7 @@
 {
+  "platform": { "apiRuntime": "node:20" },
   "routes": [
+    { "route": "/api/*", "headers": { "Cache-Control": "no-store" } },
     { "route": "/architecture", "rewrite": "/architecture.html" },
     { "route": "/status", "rewrite": "/status.html" },
     { "route": "/case-studies", "rewrite": "/case-studies.html" },

@@ -238,6 +238,22 @@
   .btn.primary:hover{background:var(--azure-deep)}
   .foot-note{margin-top:48px;padding-top:20px;border-top:1px solid #22364D;font-family:var(--mono);font-size:.68rem;color:#607B97;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 
+  /* ---------- gated resume request modal ---------- */
+  button.resume-btn{border:0;cursor:pointer}
+  button.btn{background:transparent;cursor:pointer}
+  .modal-backdrop{position:fixed;inset:0;z-index:100;background:rgba(14,27,42,.55);display:grid;place-items:center;padding:24px}
+  .modal{background:var(--paper);border:1px solid var(--line);border-radius:10px;max-width:30rem;width:100%;max-height:90vh;overflow-y:auto;padding:30px 32px;position:relative;color:var(--console)}
+  .modal h3{font-family:var(--display);font-size:1.25rem;margin-bottom:6px}
+  .modal .modal-sub{color:var(--slate);font-size:.9rem;margin-bottom:6px}
+  .modal label{display:block;font-family:var(--mono);font-size:.72rem;color:var(--slate);margin:14px 0 4px}
+  .modal input,.modal textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font:inherit;font-size:.9rem;background:var(--mist);color:var(--console)}
+  .modal input:focus,.modal textarea:focus{outline:2px solid var(--azure);outline-offset:0;background:var(--paper)}
+  .modal textarea{resize:vertical;min-height:70px}
+  .modal-close{position:absolute;top:14px;right:16px;background:none;border:0;font-size:1.05rem;color:var(--slate);cursor:pointer}
+  .modal .resume-btn{margin-top:20px}
+  .modal .form-msg{font-size:.78rem;color:var(--slate);margin-top:10px;font-family:var(--mono)}
+  .hp{position:absolute;left:-9999px;opacity:0;height:0;overflow:hidden}
+
   @media (max-width:760px){
     nav.menu{display:none}
     .skills-grid{grid-template-columns:1fr}
@@ -451,7 +467,7 @@ window.SITE = {
       <a href="/architecture" class="nav-sec">architecture</a>
       <a href="/status" style="color:var(--deploy)">status ●</a>
       <a href="#contact">contact</a>
-      <a href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download style="color:var(--azure)">résumé ↓</a>
+      <a href="#" data-resume-request style="color:var(--azure)">résumé ✉</a>
     </nav>
   </div>
 </header>
@@ -467,10 +483,10 @@ window.SITE = {
         cycles by 40% and keep critical applications at 99.9% uptime.
       </p>
       <div class="hero-contact">
-        <a class="resume-btn" href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download>
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
-          Download résumé
-        </a>
+        <button class="resume-btn" type="button" data-resume-request>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18v12H3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          Request résumé
+        </button>
         <a class="status-btn" href="/status">
           <span class="live-dot"></span>
           Live status
@@ -480,7 +496,7 @@ window.SITE = {
         <a href="https://github.com/cjshanahan1228" target="_blank" rel="noopener">GitHub</a>
         <span>(540) 454-1170</span>
       </div>
-      <p style="font-family:var(--mono);font-size:.68rem;color:var(--slate);margin-top:10px">↑ resume served live from Azure Blob Storage, published by this site's own pipeline</p>
+      <p style="font-family:var(--mono);font-size:.68rem;color:var(--slate);margin-top:10px">↑ resume is gated: request → email approval → time-limited SAS link, issued by this site's own API</p>
 
       <!-- signature: a pipeline run that mirrors how Colin works -->
       <div class="pipeline" id="pipeline" aria-label="Illustration of a CI/CD pipeline run">
@@ -891,14 +907,10 @@ window.SITE = {
         <svg width="15" height="15" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.5 2 2 6.6 2 12.2c0 4.5 2.9 8.3 6.8 9.7.5.1.7-.2.7-.5v-1.8c-2.8.6-3.4-1.2-3.4-1.2-.4-1.2-1.1-1.5-1.1-1.5-.9-.6.1-.6.1-.6 1 .1 1.5 1 1.5 1 .9 1.6 2.4 1.1 3 .9.1-.7.3-1.1.6-1.4-2.2-.3-4.6-1.1-4.6-5 0-1.1.4-2 1-2.7-.1-.3-.4-1.3.1-2.7 0 0 .8-.3 2.7 1a9.3 9.3 0 0 1 5 0c1.9-1.3 2.7-1 2.7-1 .5 1.4.2 2.4.1 2.7.6.7 1 1.6 1 2.7 0 3.9-2.4 4.7-4.6 5 .4.3.7.9.7 1.9v2.8c0 .3.2.6.7.5 4-1.4 6.8-5.2 6.8-9.7C22 6.6 17.5 2 12 2z"/></svg>
         GitHub
       </a>
-      <a class="btn" href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf" download>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        Résumé (PDF)
-      </a>
-      <a class="btn" href="https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.docx" download>
-        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M12 3v12m0 0l-4.5-4.5M12 15l4.5-4.5" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 19h16" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
-        Résumé (Word)
-      </a>
+      <button class="btn" type="button" data-resume-request>
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none"><path d="M3 6h18v12H3z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Request résumé (PDF · Word)
+      </button>
     </div>
     <div class="foot-note">
       <span>© 2026 Colin Shanahan · <a href="https://github.com/cjshanahan1228" style="color:#7FB4E8">github.com/cjshanahan1228</a></span>
@@ -910,6 +922,33 @@ window.SITE = {
     </div>
   </div>
 </footer>
+
+<!-- gated resume request: POST /api/resume-request → owner approval → 7-day SAS link -->
+<div class="modal-backdrop" id="resumeModal" hidden>
+  <div class="modal" role="dialog" aria-modal="true" aria-labelledby="resumeTitle">
+    <button class="modal-close" id="resumeClose" aria-label="Close">✕</button>
+    <form id="resumeForm">
+      <h3 id="resumeTitle">Request the résumé</h3>
+      <p class="modal-sub">Access is gated — each request gets a personal approval, then download links (PDF + Word) land in your inbox, valid for 7 days.</p>
+      <label for="rq-name">name *</label>
+      <input id="rq-name" name="name" required maxlength="120" autocomplete="name">
+      <label for="rq-email">email *</label>
+      <input id="rq-email" name="email" type="email" required maxlength="254" autocomplete="email">
+      <label for="rq-company">company / role</label>
+      <input id="rq-company" name="company" maxlength="120" autocomplete="organization">
+      <label for="rq-note">note</label>
+      <textarea id="rq-note" name="note" maxlength="1000" placeholder="optional — what role or team is this for?"></textarea>
+      <div class="hp" aria-hidden="true"><label for="rq-website">website</label><input id="rq-website" name="website" tabindex="-1" autocomplete="off"></div>
+      <button class="resume-btn" type="submit" id="resumeSubmit">Send request</button>
+      <p class="form-msg" id="resumeMsg" role="status"></p>
+      <p class="form-msg" style="margin-top:14px">request → approval → time-limited SAS link · <a href="/architecture">how this works</a></p>
+    </form>
+    <div id="resumeDone" hidden>
+      <h3>Request sent ✓</h3>
+      <p class="modal-sub">Once approved, download links arrive by email — usually within a day. In a hurry? <a href="mailto:Colin.shanahan1@gmail.com">Email me directly</a>.</p>
+    </div>
+  </div>
+</div>
 
 <script src="/case-studies.js"></script>
 <script>
@@ -979,7 +1018,7 @@ window.SITE = {
   certs       certifications
   contact     how to reach me
   projects    terraform & pipeline showcase
-  resume      download the résumé
+  resume      request the résumé (gated — email approval)
   principles  how I work
   clear       clear the terminal
   sudo        try it and see`,
@@ -1057,8 +1096,9 @@ Scrolling you there now...`;
 03. Documentation is a deployment artifact
 04. Mentoring compounds`,
     resume: () => {
-      window.open('https://stcolinshanahanresume.blob.core.windows.net/resume/Colin-Shanahan-Resume.pdf', '_blank');
-      return 'Fetching resume from Azure Blob Storage ...';
+      openResumeModal();
+      return `resume access is gated: request → email approval → 7-day SAS link
+opening the request form ...`;
     },
     sudo: () => `colin is not in the sudoers file. This incident will be reported.
 (Just kidding — least privilege applies to visitors too.)`,
@@ -1105,6 +1145,46 @@ Scrolling you there now...`;
     if (e.key === 'Enter') { runCommand(termInput.value); termInput.value = ''; }
   });
   termBody.addEventListener('click', () => termInput.focus());
+
+  // ---------- gated resume request ----------
+  const resumeModal = document.getElementById('resumeModal');
+  const resumeForm = document.getElementById('resumeForm');
+  const resumeMsg = document.getElementById('resumeMsg');
+
+  function openResumeModal() {
+    resumeModal.hidden = false;
+    document.body.style.overflow = 'hidden';
+    document.getElementById('rq-name').focus();
+  }
+  function closeResumeModal() {
+    resumeModal.hidden = true;
+    document.body.style.overflow = '';
+  }
+  document.querySelectorAll('[data-resume-request]').forEach(el =>
+    el.addEventListener('click', e => { e.preventDefault(); openResumeModal(); }));
+  document.getElementById('resumeClose').addEventListener('click', closeResumeModal);
+  resumeModal.addEventListener('click', e => { if (e.target === resumeModal) closeResumeModal(); });
+  document.addEventListener('keydown', e => { if (e.key === 'Escape' && !resumeModal.hidden) closeResumeModal(); });
+
+  resumeForm.addEventListener('submit', async e => {
+    e.preventDefault();
+    const btn = document.getElementById('resumeSubmit');
+    btn.disabled = true; btn.textContent = 'Sending ...';
+    resumeMsg.textContent = '';
+    try {
+      const r = await fetch('/api/resume-request', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(Object.fromEntries(new FormData(resumeForm))),
+      });
+      if (!r.ok) throw new Error(r.status);
+      resumeForm.hidden = true;
+      document.getElementById('resumeDone').hidden = false;
+    } catch {
+      resumeMsg.innerHTML = 'Couldn\'t send right now — email me at <a href="mailto:Colin.shanahan1@gmail.com">Colin.shanahan1@gmail.com</a> instead.';
+      btn.disabled = false; btn.textContent = 'Send request';
+    }
+  });
 </script>
 </body>
 </html>

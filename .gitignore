@@ -10,6 +10,10 @@ override.tf.json
 *_override.tf.json
 *tfplan*
 
+# Node (api local installs — CI builds its own via Oryx)
+node_modules/
+package-lock.json
+
 # OS junk
 .DS_Store
 Thumbs.db

@@ -133,10 +133,10 @@
       <text class="lbl" x="300" y="238">index.html · status.html</text>
       <circle class="packet"><animateMotion dur="2.4s" begin="1.4s" repeatCount="indefinite"><mpath href="#p-swa-v"/></animateMotion></circle>
     </g>
-    <!-- visitor resume download from blob -->
+    <!-- visitor resume download from blob (approval-issued SAS) -->
     <g class="flow f-user">
       <path id="p-v-blob" d="M160,176 C240,420 700,330 928,268"/>
-      <text class="lbl" x="330" y="352">resume download (public blob)</text>
+      <text class="lbl" x="330" y="352">resume download (7-day SAS, approval-gated)</text>
       <circle class="packet"><animateMotion dur="3.4s" begin="0.4s" repeatCount="indefinite"><mpath href="#p-v-blob"/></animateMotion></circle>
     </g>
     <!-- visitor status page fetch -> function -->
@@ -240,7 +240,7 @@
     <g class="node">
       <rect x="928" y="150" width="252" height="82"/>
       <text class="nt" x="944" y="176">Blob Storage</text>
-      <text class="ns" x="944" y="194">resume container · public read</text>
+      <text class="ns" x="944" y="194">resume container · private · SAS only</text>
       <text class="ns" x="944" y="210">stcolinshanahanresume</text>
     </g>
 
@@ -314,7 +314,7 @@
   <div class="steps">
     <div class="step">
       <div class="k"><i style="background:var(--azure)"></i>visitor traffic</div>
-      <p>DNS (apex + www) resolves to Azure Static Web Apps, which serves the site from a global edge with managed SSL. The resume downloads straight from public-read Blob Storage, and the status page calls the Function API cross-origin — CORS locked to this domain.</p>
+      <p>DNS (apex + www) resolves to Azure Static Web Apps, which serves the site from a global edge with managed SSL. The resume is gated: a request form hits a managed Function, approval issues a 7-day SAS link to a private blob — no anonymous downloads. The status page calls the Function API cross-origin — CORS locked to this domain.</p>
     </div>
     <div class="step">
       <div class="k"><i style="background:var(--deploy)"></i>ci/cd</div>
