@@ -1,17 +1,33 @@
 # colinshanahan.dev — portfolio as working infrastructure
 
-Site on Azure Static Web Apps · resume on public-read Blob Storage · both
-deployed by GitHub Actions — the resume job authenticates via **OIDC
-federation** (user-assigned managed identity, federated credential pinned to
-`main`), so no cloud credentials are stored in GitHub.
+Site on Azure Static Web Apps · resume on **private** Blob Storage behind a
+request/approval flow · both deployed by GitHub Actions — the resume job
+authenticates via **OIDC federation** (user-assigned managed identity,
+federated credential pinned to `main`), so no cloud credentials are stored in
+GitHub.
 
 ```
 portfolio-deploy/
-├── .github/workflows/deploy.yml  # deploy site (SWA) + publish resume (Blob/OIDC)
-├── infra/main.tf                 # SWA + storage + GitHub OIDC identity
-├── resume/                       # source files → Blob Storage via CI
+├── .github/workflows/deploy.yml  # deploy site + api (SWA) + publish resume (Blob/OIDC)
+├── api/                          # SWA managed functions: gated resume request/approval
+├── infra/main.tf                 # SWA + storage + ACS email + GitHub OIDC identity
+├── resume/                       # source files → private Blob Storage via CI
 └── site/                         # index.html, status.html → Static Web Apps
 ```
+
+## Gated resume access
+
+Industry-standard gated-content flow — nobody downloads the resume anonymously:
+
+1. Visitor submits the request form → `POST /api/resume-request` stores it in
+   Table Storage and emails me (Azure Communication Services) with
+   approve/deny capability links.
+2. I click approve → `GET /api/resume-decision` mints **7-day read-only SAS
+   URLs** for the PDF/DOCX and emails them to the requester. Deny closes the
+   request silently.
+3. The blob container is private — an approval-issued SAS link is the only
+   way in. All settings (storage key, ACS connection string, sender/owner
+   addresses) are Terraform-managed SWA app settings; nothing lives in CI.
 
 ## Setup
 

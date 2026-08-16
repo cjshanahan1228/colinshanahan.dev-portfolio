@@ -1,5 +1,6 @@
-# deploy-site    → /site to Azure Static Web Apps (token-based)
-# publish-resume → /resume to Blob Storage via GitHub OIDC (no stored secrets)
+# deploy-site    → /site + /api (managed functions) to Azure Static Web Apps (token-based)
+# publish-resume → /resume to private Blob Storage via GitHub OIDC (no stored secrets)
+#                  visitors get access via the gated request/approval flow in /api
 #
 # Prereqs (values from `terraform output` in infra/):
 #   Secret:    SWA_DEPLOYMENT_TOKEN
@@ -12,6 +13,7 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - "api/**"
       - "resume/**"
   workflow_dispatch:
 
@@ -31,6 +33,7 @@ jobs:
           azure_static_web_apps_api_token: ${{ secrets.SWA_DEPLOYMENT_TOKEN }}
           action: upload
           app_location: site
+          api_location: api
           skip_app_build: true
 
   publish-resume:

@@ -1,0 +1,13 @@
+{
+  "name": "portfolio-resume-api",
+  "version": "1.0.0",
+  "description": "Gated resume access for colinshanahan.dev — request + approval flow issuing time-limited SAS links",
+  "main": "src/functions/*.js",
+  "engines": { "node": ">=20" },
+  "dependencies": {
+    "@azure/communication-email": "^1.0.0",
+    "@azure/data-tables": "^13.2.2",
+    "@azure/functions": "^4.5.0",
+    "@azure/storage-blob": "^12.24.0"
+  }
+}
