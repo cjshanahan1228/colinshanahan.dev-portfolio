@@ -1,5 +1,16 @@
 terraform {
   required_version = ">= 1.5"
+
+  # State rides in the same storage account the resume/table use — deliberate
+  # reuse for a solo project. Consequence: never `terraform destroy` this
+  # config wholesale; the state's own container is inside it.
+  backend "azurerm" {
+    resource_group_name  = "rg-portfolio"
+    storage_account_name = "stcolinshanahanresume"
+    container_name       = "tfstate"
+    key                  = "portfolio.tfstate"
+  }
+
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
@@ -89,6 +100,10 @@ resource "azurerm_storage_account" "resume" {
   https_traffic_only_enabled      = true
   min_tls_version                 = "TLS1_2"
   allow_nested_items_to_be_public = false # gated: access only via approval-issued SAS links
+
+  blob_properties {
+    versioning_enabled = true # tfstate lives here too — versioning is the rollback story
+  }
 }
 
 resource "azurerm_storage_container" "resume" {
