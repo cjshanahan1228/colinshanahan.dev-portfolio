@@ -185,6 +185,69 @@ test.describe("status page", () => {
   });
 });
 
+// The real gate is Static Web Apps auth plus the login check in the API,
+// neither of which exists locally — these cover what the page does with the
+// answers it gets back.
+test.describe("admin view", () => {
+  const API = "**/api/resume-admin*";
+  const REQUESTS = {
+    ok: true,
+    counts: { pending: 1, approved: 1, denied: 0 },
+    requests: [
+      {
+        id: "r1", name: "Dana Recruiter", email: "dana@example.com", company: "Acme",
+        note: "Hiring for a platform role", status: "pending",
+        createdAt: "2026-08-16T12:00:00Z", decidedAt: null, token: "tok-1",
+      },
+      {
+        id: "r2", name: "Sam Manager", email: "sam@example.com", company: "",
+        note: "", status: "approved",
+        createdAt: "2026-08-10T09:00:00Z", decidedAt: "2026-08-10T10:00:00Z",
+      },
+    ],
+  };
+
+  test("lists requests with counts, and only pending rows are actionable", async ({ page }) => {
+    await page.route(API, (r) => r.fulfill({ json: REQUESTS }));
+    await page.goto("/admin");
+
+    await expect(page.locator(".counts")).toContainText("1 pending");
+    await expect(page.locator(".req")).toHaveCount(2);
+    await expect(page.locator(".req").first()).toContainText("Dana Recruiter");
+    await expect(page.locator(".req").first()).toContainText("dana@example.com");
+    await expect(page.locator(".req").first().locator(".badge")).toHaveText("pending");
+
+    // Decided requests must not offer approve/deny again.
+    await expect(page.locator(".req").first().locator(".act")).toHaveCount(2);
+    await expect(page.locator(".req").nth(1).locator(".act")).toHaveCount(0);
+  });
+
+  test("approving calls the decision endpoint with the row's token", async ({ page }) => {
+    await page.route(API, (r) => r.fulfill({ json: REQUESTS }));
+    let called = null;
+    await page.route("**/api/resume-decision*", (r) => {
+      called = r.request().url();
+      return r.fulfill({ status: 200, body: "ok" });
+    });
+
+    await page.goto("/admin");
+    await page.locator(".act.approve").first().click();
+
+    await expect.poll(() => called, { message: "decision endpoint should be called" }).not.toBeNull();
+    expect(called).toContain("id=r1");
+    expect(called).toContain("token=tok-1");
+    expect(called).toContain("action=approve");
+  });
+
+  test("a non-admin identity is told plainly, not shown an empty list", async ({ page }) => {
+    await page.route(API, (r) => r.fulfill({ status: 403, json: { ok: false, error: "forbidden" } }));
+    await page.goto("/admin");
+
+    await expect(page.locator(".err")).toContainText("not as the configured admin");
+    await expect(page.locator(".req")).toHaveCount(0);
+  });
+});
+
 test.describe("accessibility", () => {
   test("skip link is reachable and jumps to main", async ({ page }) => {
     await page.goto("/");

@@ -1,6 +1,9 @@
 {
   "platform": { "apiRuntime": "node:20" },
   "routes": [
+    { "route": "/api/resume-admin", "allowedRoles": ["authenticated"], "headers": { "Cache-Control": "no-store" } },
+    { "route": "/admin", "rewrite": "/admin.html", "allowedRoles": ["authenticated"], "headers": { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } },
+    { "route": "/admin.html", "redirect": "/admin", "statusCode": 301 },
     { "route": "/api/*", "headers": { "Cache-Control": "no-store" } },
     { "route": "/architecture", "rewrite": "/architecture.html" },
     { "route": "/status", "rewrite": "/status.html" },
@@ -10,7 +13,10 @@
     { "route": "/case-studies.html", "redirect": "/case-studies", "statusCode": 301 },
     { "route": "/*", "headers": { "Cache-Control": "public, max-age=300" } }
   ],
-  "navigationFallback": { "rewrite": "/index.html" },
+  "navigationFallback": { "rewrite": "/index.html", "exclude": ["/api/*"] },
+  "responseOverrides": {
+    "401": { "redirect": "/.auth/login/github?post_login_redirect_uri=/admin", "statusCode": 302 }
+  },
   "globalHeaders": {
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY"
