@@ -1,6 +1,6 @@
 const crypto = require("node:crypto");
 const { app } = require("@azure/functions");
-const { TableClient, AzureNamedKeyCredential } = require("@azure/data-tables");
+const { PARTITION, config, tableClient, esc } = require("../shared/resume-store");
 const {
   BlobSASPermissions,
   StorageSharedKeyCredential,
@@ -24,34 +24,6 @@ const FILES = [
   { blob: "Colin-Shanahan-Resume.docx", label: "Word" },
 ];
 const LINK_TTL_DAYS = 7;
-const PARTITION = "request";
-
-// All of these are Terraform-managed SWA app settings. Missing settings mean
-// infra hasn't been applied yet — endpoints answer 503 and the site's form
-// falls back to a mailto link, so a half-deployed state degrades politely.
-function config() {
-  const { RESUME_STORAGE_ACCOUNT, RESUME_STORAGE_KEY, ACS_CONNECTION_STRING, EMAIL_SENDER, OWNER_EMAIL } = process.env;
-  if (!RESUME_STORAGE_ACCOUNT || !RESUME_STORAGE_KEY || !ACS_CONNECTION_STRING || !EMAIL_SENDER || !OWNER_EMAIL) {
-    return null;
-  }
-  return {
-    account: RESUME_STORAGE_ACCOUNT,
-    key: RESUME_STORAGE_KEY,
-    table: process.env.RESUME_TABLE || "resumerequests",
-    acs: ACS_CONNECTION_STRING,
-    sender: EMAIL_SENDER,
-    owner: OWNER_EMAIL,
-    baseUrl: (process.env.SITE_BASE_URL || "https://www.colinshanahan.dev").replace(/\/+$/, ""),
-  };
-}
-
-function tableClient(cfg) {
-  return new TableClient(
-    `https://${cfg.account}.table.core.windows.net`,
-    cfg.table,
-    new AzureNamedKeyCredential(cfg.account, cfg.key)
-  );
-}
 
 async function sendEmail(cfg, to, subject, html, plainText) {
   const poller = await new EmailClient(cfg.acs).beginSend({
@@ -62,9 +34,6 @@ async function sendEmail(cfg, to, subject, html, plainText) {
   const result = await poller.pollUntilDone();
   if (result.status !== "Succeeded") throw new Error(`email send ${result.status}`);
 }
-
-const esc = (s) =>
-  String(s ?? "").replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
 
 // Constant-time token check; sha256 first so lengths always match.
 function tokenMatches(expected, given) {

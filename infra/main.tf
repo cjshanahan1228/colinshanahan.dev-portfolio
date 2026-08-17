@@ -53,6 +53,12 @@ variable "owner_email" {
   default     = "Colin.shanahan1@gmail.com"
 }
 
+variable "admin_github_login" {
+  description = "GitHub login allowed to read /admin. The `authenticated` role alone is any GitHub user, so the API checks this too."
+  type        = string
+  default     = "cjshanahan1228"
+}
+
 variable "site_base_url" {
   description = "Public origin of the site — approve/deny links in notification emails point here."
   type        = string
@@ -87,6 +93,7 @@ resource "azurerm_static_web_app" "portfolio" {
     EMAIL_SENDER           = "DoNotReply@${azurerm_email_communication_service_domain.portfolio.mail_from_sender_domain}"
     OWNER_EMAIL            = var.owner_email
     SITE_BASE_URL          = var.site_base_url
+    ADMIN_GITHUB_LOGIN     = var.admin_github_login
   }
 }
 
