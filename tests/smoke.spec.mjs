@@ -63,6 +63,52 @@ test.describe("gated resume modal", () => {
   });
 });
 
+// Theme is easy to half-ship: a toggle that works but does not persist, or a
+// palette that only responds to the OS. Both are checked here.
+test.describe("theme", () => {
+  const PAGES = ["/", "/architecture", "/case-studies", "/status"];
+  const bg = (page) => page.evaluate(() => getComputedStyle(document.body).backgroundColor);
+
+  for (const path of PAGES) {
+    test(`${path} offers a toggle and honours the OS preference`, async ({ browser }, testInfo) => {
+      const dark = await browser.newContext({ colorScheme: "dark" });
+      const light = await browser.newContext({ colorScheme: "light" });
+
+      const dp = await dark.newPage();
+      await dp.goto(testInfo.project.use.baseURL + path);
+      await expect(dp.locator(".theme-toggle")).toBeVisible();
+      const darkBg = await bg(dp);
+
+      const lp = await light.newPage();
+      await lp.goto(testInfo.project.use.baseURL + path);
+      const lightBg = await bg(lp);
+
+      expect(darkBg, `${path} should not paint the same background in both schemes`).not.toBe(lightBg);
+
+      await dark.close();
+      await light.close();
+    });
+  }
+
+  test("an explicit choice overrides the OS and survives reload", async ({ browser }) => {
+    const ctx = await browser.newContext({ colorScheme: "dark" });
+    const page = await ctx.newPage();
+    await page.goto("http://127.0.0.1:4173/");
+
+    const osDark = await bg(page);
+    await page.locator(".theme-toggle").click();
+    const chosenLight = await bg(page);
+    expect(chosenLight, "clicking should leave the OS dark background").not.toBe(osDark);
+
+    // The choice must outlive the page, and still beat the dark OS setting.
+    await page.reload();
+    expect(await bg(page), "choice should persist across reload").toBe(chosenLight);
+    expect(await page.locator("html").getAttribute("data-theme")).toBe("light");
+
+    await ctx.close();
+  });
+});
+
 test.describe("pages render", () => {
   for (const path of ["/", "/architecture", "/case-studies", "/status"]) {
     test(`${path} loads without uncaught errors`, async ({ page }) => {

@@ -1,0 +1,132 @@
+/* Shared design tokens for colinshanahan.dev — the single source of colour
+   for every page. Previously each page carried its own near-identical :root.
+
+   Two rules worth knowing before editing:
+
+   1. --ink is text, --console is a surface. They start identical in light
+      mode but are NOT the same thing: --console is the dark background of
+      the terminal, footer and code panes, so it stays dark in both themes
+      while --ink flips. Never use --console for text.
+   2. Dark is declared twice on purpose — once under prefers-color-scheme for
+      visitors who have not chosen, once under [data-theme] so an explicit
+      choice beats the OS setting in either direction. */
+
+:root {
+  /* surfaces */
+  --mist: #EEF2F6;
+  --paper: #FFFFFF;
+  --console: #0E1B2A;
+  --header-bg: rgba(238, 242, 246, .88);
+
+  /* text */
+  --ink: #0E1B2A;
+  --body: #2B3D52;
+  --slate: #52647A;
+
+  /* lines + accents */
+  --line: #D5DEE8;
+  --azure: #1B6DC1;
+  --azure-deep: #11518F;
+  --azure-soft: #E7F0FA;
+  --azure-wash: #F3F8FD;
+  --deploy: #1E9E6A;
+  --deploy-soft: #E2F4EC;
+  --warn: #D97E2B;
+  --down: #C4453B;
+  --down-soft: #FBE9E7;
+  --down-line: #F0C4BF;
+
+  --mono: 'IBM Plex Mono', ui-monospace, monospace;
+  --sans: 'IBM Plex Sans', system-ui, sans-serif;
+  --display: 'Space Grotesk', var(--sans);
+
+  color-scheme: light;
+}
+
+/* OS preference — skipped when the visitor explicitly picked light. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --mist: #0B1420;
+    --paper: #141F2E;
+    --console: #070E17;
+    --header-bg: rgba(11, 20, 32, .9);
+    --ink: #E8EEF5;
+    --body: #B7C6D6;
+    --slate: #92A6BC;
+    --line: #26384E;
+    --azure: #61A6EA;
+    --azure-deep: #8FC4F4;
+    --azure-soft: #15304C;
+    --azure-wash: #12283F;
+    --deploy: #3CC98B;
+    --deploy-soft: #10352A;
+    --warn: #E0A63E;
+    --down: #E2574C;
+    --down-soft: #3A1714;
+    --down-line: #63241E;
+
+    color-scheme: dark;
+  }
+}
+
+/* Explicit choice always wins, including dark-on-a-light-OS. */
+:root[data-theme="dark"] {
+  --mist: #0B1420;
+  --paper: #141F2E;
+  --console: #070E17;
+  --header-bg: rgba(11, 20, 32, .9);
+  --ink: #E8EEF5;
+  --body: #B7C6D6;
+  --slate: #92A6BC;
+  --line: #26384E;
+  --azure: #61A6EA;
+  --azure-deep: #8FC4F4;
+  --azure-soft: #15304C;
+  --azure-wash: #12283F;
+  --deploy: #3CC98B;
+  --deploy-soft: #10352A;
+  --warn: #E0A63E;
+  --down: #E2574C;
+  --down-soft: #3A1714;
+  --down-line: #63241E;
+
+  color-scheme: dark;
+}
+
+/* ---------- theme toggle (injected by theme.js) ---------- */
+.theme-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  margin-left: 16px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--slate);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+
+/* Pages without a nav bar: pin to the header's top-right instead of
+   stacking under the intro copy. */
+.theme-toggle--float {
+  position: absolute;
+  top: 0;
+  right: 24px;
+  margin-left: 0;
+}
+
+.theme-toggle:hover {
+  border-color: var(--azure);
+  color: var(--azure);
+}
+
+.theme-toggle svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}

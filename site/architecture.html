@@ -8,14 +8,11 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<script src="/theme.js"></script>
 <style>
-  :root{
-    --mist:#EEF2F6;--paper:#FFF;--console:#0E1B2A;--slate:#52647A;--line:#D5DEE8;
-    --azure:#1B6DC1;--deploy:#1E9E6A;--warn:#D97E2B;
-    --mono:'IBM Plex Mono',monospace;--sans:'IBM Plex Sans',sans-serif;--display:'Space Grotesk',sans-serif;
-  }
   *{margin:0;padding:0;box-sizing:border-box}
-  body{font-family:var(--sans);background:var(--mist);color:var(--console);line-height:1.6;-webkit-font-smoothing:antialiased}
+  body{font-family:var(--sans);background:var(--mist);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
   a{color:var(--azure);text-decoration:none}
   a:hover{text-decoration:underline}
   .wrap{max-width:1180px;margin:0 auto;padding:0 24px}
@@ -36,7 +33,7 @@
   .chip[data-f="deploy"] .sw{background:var(--deploy)}
   .chip[data-f="monitor"] .sw{background:var(--warn)}
   .chip[data-f="identity"] .sw{background:var(--slate)}
-  .chip.active{border-color:var(--console);color:var(--console)}
+  .chip.active{border-color:var(--ink);color:var(--ink)}
 
   .board{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;overflow-x:auto}
   svg{display:block;min-width:900px;width:100%;height:auto}
@@ -45,8 +42,8 @@
   .zone{fill:none;stroke:var(--line);stroke-dasharray:5 5;rx:12}
   .zlabel{font-family:var(--mono);font-size:11px;fill:var(--slate);letter-spacing:.1em;text-transform:uppercase}
   .node rect{fill:var(--mist);stroke:var(--line);rx:9}
-  .node.hot rect{fill:#fff;stroke:var(--azure)}
-  .node text{font-family:var(--mono);fill:var(--console)}
+  .node.hot rect{fill:var(--paper);stroke:var(--azure)}
+  .node text{font-family:var(--mono);fill:var(--ink)}
   .nt{font-size:12.5px;font-weight:600}
   .ns{font-size:10.5px;fill:var(--slate)}
 
@@ -83,7 +80,7 @@
   .step{background:var(--paper);padding:20px 22px}
   .step .k{font-family:var(--mono);font-size:.68rem;letter-spacing:.1em;text-transform:uppercase;margin-bottom:6px;display:flex;align-items:center;gap:8px}
   .step .k i{width:9px;height:9px;border-radius:50%;display:inline-block}
-  .step p{font-size:.88rem;color:#2B3D52}
+  .step p{font-size:.88rem;color:var(--body)}
   .note{font-family:var(--mono);font-size:.7rem;color:var(--slate);margin:0 0 50px}
 </style>
 </head>
