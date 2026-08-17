@@ -37,6 +37,23 @@ for (const page of pages) {
   });
 }
 
+// Scaffold placeholders that reached production once (issue #15: the hero
+// LinkedIn link 404'd for every recruiter who clicked it).
+// Uppercase-only on PLACEHOLDER: the lowercase form is a real HTML attribute.
+const PLACEHOLDERS = [/YOUR-[A-Z]/, /\bPLACEHOLDER\b/, /\bTODO:/, /lorem ipsum/i];
+let placeholders = 0;
+for (const page of pages) {
+  const html = readFileSync(join(SITE, page), "utf8");
+  for (const rx of PLACEHOLDERS) {
+    const hit = html.match(rx);
+    if (hit) {
+      fail(`${page} contains the placeholder "${hit[0]}" — replace it with a real value`);
+      placeholders++;
+    }
+  }
+}
+if (!placeholders) pass("no scaffold placeholders");
+
 // Resume access is gated (issue #5): the container is private, so a direct
 // blob link is now a dead download AND a hole in the approval flow.
 let directLinks = 0;
