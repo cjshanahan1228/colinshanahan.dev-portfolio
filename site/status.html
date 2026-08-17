@@ -38,6 +38,7 @@
   .cell{background:var(--paper);padding:22px}
   .cell .n{font-family:var(--display);font-size:1.7rem;font-weight:700}
   .cell .n em{font-style:normal;color:var(--deploy)}
+  .cell .n em.bad{color:var(--down)} /* a failure rate above zero must not read as green */
   .cell .l{font-family:var(--mono);font-size:.7rem;color:var(--slate);margin-top:4px}
 
   section{margin:26px 0}
@@ -108,6 +109,18 @@ fetch(API).then(r => r.json()).then(d => {
             : s.status === "degraded" ? "Partial degradation"
             : s.status === "down" ? "Site down" : "Telemetry unavailable";
 
+  // Delivery metrics: absent whenever the GitHub half of the API degraded,
+  // so every figure has to tolerate a missing block rather than print undefined.
+  const dl = d.delivery || {};
+  const dur = m => m == null ? "–" : m < 60 ? `${m} min` : `${(m / 60).toFixed(1)} hr`;
+  const delivery = dl.sample
+    ? `<div class="grid" style="border:0;border-radius:0">
+         <div class="cell"><div class="n">${dl.deploysPerWeek ?? "–"}</div><div class="l">deploys · per week</div></div>
+         <div class="cell"><div class="n">${dur(dl.leadTimeMinutes)}</div><div class="l">merge → live · median</div></div>
+         <div class="cell"><div class="n"><em class="${dl.changeFailureRate ? "bad" : ""}">${dl.changeFailureRate ?? "–"}%</em></div><div class="l">change failure rate</div></div>
+       </div>`
+    : '<p class="skel">delivery metrics unavailable — the GitHub query degraded</p>';
+
   const deploys = (d.deploys || []).map(x => `
     <div class="deploy-row">
       <span class="st ${x.status}">${x.status}</span>
@@ -133,6 +146,16 @@ fetch(API).then(r => r.json()).then(d => {
       <div class="panel">
         ${sparkline(d.responseSeries || []) || '<p class="skel">series not available yet — availability data appears ~30 min after provisioning</p>'}
         <div class="spark-cap"><span>24h ago</span><span>now</span></div>
+      </div>
+    </section>
+    <section>
+      <h2>Delivery — last ${dl.windowDays ?? 30} days</h2>
+      <div class="panel">
+        ${delivery}
+        <p class="spark-cap" style="margin-top:14px">
+          <span>measured from this repo's own deploy workflow runs</span>
+          <span>${dl.sample ? dl.sample + " runs sampled" : ""}</span>
+        </p>
       </div>
     </section>
     <section>

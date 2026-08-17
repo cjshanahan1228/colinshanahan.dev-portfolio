@@ -130,6 +130,61 @@ test.describe("recruiter skim", () => {
   });
 });
 
+// The status page is the one page whose content comes from a live API, so it
+// is stubbed here — the point is that the page renders the payload correctly
+// and degrades when fields are missing, not that Azure is reachable from CI.
+test.describe("status page", () => {
+  const API = "**/api/status";
+  const BASE = {
+    generatedAt: "2026-08-17T00:00:00Z",
+    site: { status: "operational", uptime24h: 100, avgResponseMs: 212, checksLast24h: 288 },
+    responseSeries: [{ t: "2026-08-16T00:00:00Z", ms: 200 }, { t: "2026-08-16T01:00:00Z", ms: 220 }],
+    deploys: [{ sha: "abc1234", status: "success", branch: "main", when: "2026-08-16T23:00:00Z", url: "#" }],
+  };
+
+  test("renders delivery metrics from the API", async ({ page }) => {
+    await page.route(API, (r) =>
+      r.fulfill({
+        json: { ...BASE, delivery: { windowDays: 30, sample: 6, deploysPerWeek: 1.4, changeFailureRate: 0, leadTimeMinutes: 1 } },
+      })
+    );
+    await page.goto("/status");
+
+    const panel = page.locator("section", { hasText: "Delivery" });
+    await expect(panel).toContainText("1.4");
+    await expect(panel).toContainText("deploys · per week");
+    await expect(panel).toContainText("1 min");
+    await expect(panel).toContainText("merge → live");
+    await expect(panel).toContainText("0%");
+    await expect(panel).toContainText("6 runs sampled");
+    // Zero failures should read as good, not as an alarm.
+    await expect(panel.locator("em.bad")).toHaveCount(0);
+  });
+
+  test("shows a non-zero failure rate as a problem, and hours for long lead times", async ({ page }) => {
+    await page.route(API, (r) =>
+      r.fulfill({
+        json: { ...BASE, delivery: { windowDays: 30, sample: 8, deploysPerWeek: 2, changeFailureRate: 12.5, leadTimeMinutes: 195 } },
+      })
+    );
+    await page.goto("/status");
+
+    const panel = page.locator("section", { hasText: "Delivery" });
+    await expect(panel).toContainText("12.5%");
+    await expect(panel).toContainText("3.3 hr");
+    await expect(panel.locator("em.bad")).toHaveCount(1);
+  });
+
+  test("degrades when the API omits delivery entirely", async ({ page }) => {
+    await page.route(API, (r) => r.fulfill({ json: { ...BASE, delivery: null } }));
+    await page.goto("/status");
+
+    await expect(page.locator("section", { hasText: "Delivery" })).toContainText("unavailable");
+    // Uptime must still render — the two halves fail independently.
+    await expect(page.locator(".hero-status")).toContainText("All systems operational");
+  });
+});
+
 test.describe("accessibility", () => {
   test("skip link is reachable and jumps to main", async ({ page }) => {
     await page.goto("/");
