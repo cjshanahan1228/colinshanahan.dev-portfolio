@@ -1,0 +1,15 @@
+{
+  "name": "portfolio-smoke-tests",
+  "version": "1.0.0",
+  "description": "Browser smoke tests for colinshanahan.dev — guards the gated-resume modal and page rendering",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "playwright test",
+    "serve": "node serve.mjs"
+  },
+  "engines": { "node": ">=20" },
+  "devDependencies": {
+    "@playwright/test": "^1.49.0"
+  }
+}
