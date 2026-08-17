@@ -12,8 +12,26 @@ portfolio-deploy/
 ├── api/                          # SWA managed functions: gated resume request/approval
 ├── infra/main.tf                 # SWA + storage + ACS email + GitHub OIDC identity
 ├── resume/                       # source files → private Blob Storage via CI
+│   ├── resume-content.mjs        # the resume as data (single source of truth)
+│   └── build-docx.mjs            # renders that content → .docx
 └── site/                         # index.html, status.html → Static Web Apps
 ```
+
+## Resume artifacts
+
+The PDF is authored externally and committed as-is. The **Word version is
+generated**, not hand-maintained: `resume/resume-content.mjs` holds the resume
+as structured data and `build-docx.mjs` renders it with real Word constructs
+(tab-stopped dates, native bullet lists, a live portfolio hyperlink), so it
+stays editable by whoever receives it.
+
+```bash
+cd resume && npm install && npm run build   # → Colin-Shanahan-Resume.docx
+```
+
+Converting the PDF instead would reconstruct layout from glyph positions and
+produce text boxes and broken lists — worse than useless for the one document
+a recruiter is likely to edit. Edit the content file, rebuild, commit both.
 
 ## Gated resume access
 
