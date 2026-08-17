@@ -62,3 +62,29 @@ jobs:
           node-version: "20"
       - name: Config, inline scripts, gated-resume invariants
         run: node .github/scripts/check-site.mjs
+
+  smoke:
+    runs-on: ubuntu-latest
+    name: Smoke
+    defaults:
+      run:
+        working-directory: tests
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      - name: Dependencies
+        run: npm install --no-audit --no-fund
+      # Both targets: `install chromium` alone can leave the headless shell
+      # missing, which fails every test with "Executable doesn't exist".
+      - name: Browser
+        run: npx playwright install --with-deps chromium chromium-headless-shell
+      - name: Smoke tests
+        run: npx playwright test
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: playwright-report
+          path: tests/playwright-report/
+          retention-days: 7
