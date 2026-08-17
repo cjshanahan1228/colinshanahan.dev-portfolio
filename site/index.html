@@ -64,6 +64,15 @@
   h1 .accent{color:var(--azure)}
   .lede{max-width:56ch;margin-top:22px;font-size:1.06rem;color:var(--slate)}
   .lede strong{color:var(--ink);font-weight:600}
+  /* proof strip: the skim-level evidence, above the fold */
+  .proof{
+    margin-top:24px;padding:0;list-style:none;
+    display:flex;flex-wrap:wrap;gap:8px 30px;
+    font-family:var(--mono);font-size:.76rem;color:var(--slate);
+  }
+  .proof li{display:inline-flex;align-items:baseline;gap:8px}
+  .proof b{font-family:var(--display);font-size:1.08rem;font-weight:700;color:var(--ink)}
+  .proof em{font-style:normal;color:var(--deploy)}
   .hero-contact{margin-top:26px;display:flex;flex-wrap:wrap;align-items:center;gap:14px 28px;font-family:var(--mono);font-size:.8rem}
   .hero-contact span{color:var(--slate)}
   .resume-btn{
@@ -469,9 +478,16 @@ window.SITE = {
       <h1>Colin Shanahan ships <span class="accent">reliable pipelines.</span></h1>
       <p class="lede">
         Ten-plus years across systems administration, infrastructure engineering, and DevOps —
-        now <strong>architecting Azure DevOps CI/CD and infrastructure as code</strong> that cut release
-        cycles by 40% and keep critical applications at 99.9% uptime.
+        now <strong>architecting Azure DevOps CI/CD and infrastructure as code</strong>.
       </p>
+      <!-- the numbers a recruiter needs in the first few seconds; the full
+           context for each lives in #highlights below -->
+      <ul class="proof" aria-label="Career highlights">
+        <li><b><em>−40%</em></b> release cycle time</li>
+        <li><b><em>99.9%</em></b> uptime</li>
+        <li><b>10+ yrs</b> infrastructure &amp; DevOps</li>
+        <li><b>6</b> cloud &amp; security certs</li>
+      </ul>
       <div class="hero-contact">
         <button class="resume-btn" type="button" data-resume-request>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><path d="M3 6h18v12H3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>

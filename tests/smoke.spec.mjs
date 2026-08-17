@@ -109,6 +109,27 @@ test.describe("theme", () => {
   });
 });
 
+// The whole point of the proof strip is that a recruiter sees it without
+// scrolling — so the fold position is the thing worth asserting, not just
+// that the markup exists.
+test.describe("recruiter skim", () => {
+  test("proof points and the résumé CTA sit above the fold on a laptop", async ({ browser }, testInfo) => {
+    const ctx = await browser.newContext({ viewport: { width: 1366, height: 768 } });
+    const page = await ctx.newPage();
+    await page.goto(testInfo.project.use.baseURL + "/");
+
+    for (const sel of [".proof", ".resume-btn"]) {
+      const box = await page.locator(sel).first().boundingBox();
+      expect(box, `${sel} should be rendered`).not.toBeNull();
+      expect(box.y + box.height, `${sel} should be fully above the 768px fold`).toBeLessThanOrEqual(768);
+    }
+
+    // Four figures, each pairing a number with what it means.
+    await expect(page.locator(".proof li")).toHaveCount(4);
+    await ctx.close();
+  });
+});
+
 test.describe("accessibility", () => {
   test("skip link is reachable and jumps to main", async ({ page }) => {
     await page.goto("/");
