@@ -418,6 +418,7 @@
 </style>
 </head>
 <body>
+<a class="skip-link" href="#main">Skip to content</a>
 <script>
 // ═══════════════════ EDIT ME ═══════════════════
 // One place to control the job-search messaging site-wide.
@@ -461,7 +462,7 @@ window.SITE = {
   </div>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
   <div class="hero">
     <div class="wrap">
       <p class="eyebrow" id="eyebrow">DevOps Engineer</p>
@@ -1140,7 +1141,17 @@ opening the request form ...`;
   const resumeForm = document.getElementById('resumeForm');
   const resumeMsg = document.getElementById('resumeMsg');
 
-  function openResumeModal() {
+  // Focus management: without it a keyboard user tabs through the whole page
+  // behind the open dialog, and closing dumps focus on <body>.
+  let resumeOpener = null;
+
+  function modalFocusables() {
+    const sel = 'a[href], button:not([disabled]), input:not([tabindex="-1"]), textarea, select';
+    return [...resumeModal.querySelectorAll(sel)].filter(el => el.offsetParent !== null);
+  }
+
+  function openResumeModal(opener) {
+    resumeOpener = opener || document.activeElement;
     resumeModal.hidden = false;
     document.body.style.overflow = 'hidden';
     document.getElementById('rq-name').focus();
@@ -1148,9 +1159,23 @@ opening the request form ...`;
   function closeResumeModal() {
     resumeModal.hidden = true;
     document.body.style.overflow = '';
+    if (resumeOpener && document.contains(resumeOpener)) resumeOpener.focus();
+    resumeOpener = null;
   }
+
+  // Keep Tab inside the dialog while it is open.
+  resumeModal.addEventListener('keydown', e => {
+    if (e.key !== 'Tab') return;
+    const items = modalFocusables();
+    if (!items.length) return;
+    const first = items[0];
+    const last = items[items.length - 1];
+    if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+
   document.querySelectorAll('[data-resume-request]').forEach(el =>
-    el.addEventListener('click', e => { e.preventDefault(); openResumeModal(); }));
+    el.addEventListener('click', e => { e.preventDefault(); openResumeModal(el); }));
   document.getElementById('resumeClose').addEventListener('click', closeResumeModal);
   resumeModal.addEventListener('click', e => { if (e.target === resumeModal) closeResumeModal(); });
   document.addEventListener('keydown', e => { if (e.key === 'Escape' && !resumeModal.hidden) closeResumeModal(); });
