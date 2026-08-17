@@ -93,6 +93,29 @@
   color-scheme: dark;
 }
 
+/* ---------- skip link ---------- */
+/* Off-screen until focused, then a normal-looking button. Kept in the shared
+   sheet so both nav-bearing pages get the same one. */
+.skip-link {
+  position: absolute;
+  left: 16px;
+  top: -60px;
+  z-index: 200;
+  padding: 10px 18px;
+  border-radius: 8px;
+  background: var(--azure);
+  color: #fff;
+  font-family: var(--mono);
+  font-size: .8rem;
+  text-decoration: none;
+  transition: top .15s;
+}
+
+.skip-link:focus {
+  top: 12px;
+  text-decoration: none;
+}
+
 /* ---------- theme toggle (injected by theme.js) ---------- */
 .theme-toggle {
   display: inline-flex;
