@@ -139,7 +139,7 @@
 </div>
 
 <main id="main" tabindex="-1">
-  <div class="wrap" id="studies"></div>
+  <div class="wrap" id="studies"><!--prerender:studies--><!--/prerender:studies--></div>
 </main>
 
 <footer>
@@ -150,35 +150,14 @@
 </footer>
 
 <script src="/case-studies.js"></script>
+<script src="/case-studies-render.js"></script>
 <script>
+  // Pre-rendered at build (see .github/scripts/prerender-case-studies.mjs);
+  // only render here when the markup isn't already in place.
   (function () {
     const host = document.getElementById('studies');
-    host.innerHTML = (window.CASE_STUDIES || []).map(c => {
-      const d = c.detail;
-      const body = d ? `
-        <dl>
-          <dt>Context</dt><dd>${d.context}</dd>
-          <dt>Problem</dt><dd>${c.problem}</dd>
-          <dt>Diagnosis</dt><dd>${d.diagnosis}</dd>
-          <dt>The fix</dt><dd>${d.fix}</dd>
-          <dt>Impact</dt><dd>${d.impact}</dd>
-          ${d.postscript ? `<dt>Postscript</dt><dd>${d.postscript}</dd>` : ''}
-          ${d.lessons && d.lessons.length ? `<dt>Lessons</dt><dd><ul class="lessons">${d.lessons.map(l => `<li>${l}</li>`).join('')}</ul></dd>` : ''}
-        </dl>` : `
-        <dl>
-          <dt>Problem</dt><dd>${c.problem}</dd>
-          <dt>Approach</dt><dd>${c.approach}</dd>
-        </dl>
-        <p class="wip">full writeup in progress — the summary above is the shape of it</p>`;
-      return `
-      <article class="study" id="${c.slug}">
-        <div class="tag">${c.tag}</div>
-        <h2>${c.title}</h2>
-        ${body}
-        <div class="outcome">${c.outcome}</div>
-        <div class="tech-tags">${(c.stack || []).map(s => `<span>${s}</span>`).join('')}</div>
-      </article>`;
-    }).join('');
+    if (host.children.length) return;
+    host.innerHTML = CaseStudiesRender.studies(window.CASE_STUDIES || []);
   })();
 </script>
 </body>

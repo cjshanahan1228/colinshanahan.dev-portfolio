@@ -14,6 +14,7 @@ portfolio-deploy/
 ├── resume/                       # source files → private Blob Storage via CI
 │   ├── resume-content.mjs        # the resume as data (single source of truth)
 │   └── build-docx.mjs            # renders that content → .docx
+├── .github/scripts/              # check-site.mjs (PR checks), prerender-case-studies.mjs (deploy)
 └── site/                         # index.html, status.html → Static Web Apps
 ```
 
@@ -32,6 +33,16 @@ cd resume && npm install && npm run build   # → Colin-Shanahan-Resume.docx
 Converting the PDF instead would reconstruct layout from glyph positions and
 produce text boxes and broken lists — worse than useless for the one document
 a recruiter is likely to edit. Edit the content file, rebuild, commit both.
+
+## Case studies
+
+`site/case-studies.js` is the source of truth. The deploy workflow runs
+`node .github/scripts/prerender-case-studies.mjs` before uploading `site/`,
+which bakes the homepage cards and `/case-studies` writeups into the static
+HTML (markup shared with the browser fallback in `site/case-studies-render.js`)
+so crawlers, link previews and ATS scrapers see them without JavaScript.
+Committed HTML keeps empty `<!--prerender:…-->` markers; locally the page
+renders client-side from the same data.
 
 ## Gated resume access
 
