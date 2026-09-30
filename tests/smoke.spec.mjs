@@ -346,3 +346,21 @@ test.describe("pages render", () => {
     });
   }
 });
+
+// The optional `postscript` field (#31) renders directly after Impact, and
+// only on studies that define it.
+test.describe("case study postscript", () => {
+  test("identity study shows it right after Impact", async ({ page }) => {
+    await page.goto("/case-studies");
+    const labels = await page
+      .locator("#identity-server-modernization dt")
+      .allTextContents();
+    expect(labels.indexOf("Postscript")).toBe(labels.indexOf("Impact") + 1);
+  });
+
+  test("studies without one render no Postscript heading", async ({ page }) => {
+    await page.goto("/case-studies");
+    const others = page.locator("article.study:not(#identity-server-modernization)");
+    await expect(others.locator("dt", { hasText: "Postscript" })).toHaveCount(0);
+  });
+});

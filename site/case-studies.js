@@ -21,7 +21,10 @@
 //
 // Fields: slug/tag/title/problem/approach/outcome/stack are required
 // and drive the homepage card. `detail` is the full writeup (set null
-// until written): { context, diagnosis, fix, impact, lessons[] }.
+// until written): { context, diagnosis, fix, impact, postscript?, lessons[] }.
+// `postscript` is optional HTML rendered right after Impact — use it for
+// where the ecosystem stands now. It must read as awareness, never as a
+// claim of experience with anything not listed in `stack`.
 // ═════════════════════════════════════════════════════════════
 
 window.CASE_STUDIES = [
@@ -49,6 +52,9 @@ window.CASE_STUDIES = [
         "<p><strong>Proof, not vibes.</strong> I split Container Apps traffic 50/50 across two replicas and watched real logins land on both in the logs — sessions intact, tokens validating everywhere — before calling horizontal scaling done.</p>",
       impact:
         "The company's front door went from a fragile single-instance pet to a portable, horizontally scaled service — and the change users actually feel is the one nobody sees: deploys, reboots, and scale events no longer end sessions, so nobody gets logged out because we shipped. Secret rotation is a Key Vault write instead of a config edit and a restart. Environments rebuild from code. Ownership also means continuous hardening — dependency currency and configuration tightening as a standing duty, not an afterthought. And it reshaped my role: the engineer who started by fixing dead links ended up owning the authentication platform.",
+      postscript:
+        "<p>The ecosystem has moved since I shipped this. Duende archived the IdentityServer4 repository read-only (announced March 2025). In 2026, Rock Solid Knowledge forked that Apache-2.0 codebase into Open.IdentityServer — independently maintained and free, with documented migration paths from both IdentityServer4 and Duende, and explicitly not affiliated with or endorsed by Duende. Duende's own line went the other way: source-available under a paid production license, free only below a revenue threshold, and now at v8 (June 2026). This is ecosystem awareness, not experience — I haven't run Open.IdentityServer, and the stack listed here is what I actually ran.</p>" +
+        "<p>Two things I'd take from that. <strong>Licensing is an architectural constraint, not a procurement footnote.</strong> The capability that finally unlocked horizontal scaling was key management we already owned and hadn't switched on. On a free fork, that's the first thing I'd verify rather than assume — the whole scaling story depends on every replica agreeing about signing keys. <strong>And almost none of the work was vendor-specific.</strong> Containerizing, externalizing configuration, rotating without restarts, and persisting a shared key ring are properties of the system, not the SDK — which is the real test of whether the modernization was sequenced correctly.</p>",
       lessons: [
         "Name things for the person doing the 2 a.m. rotation — numbered secrets “worked” and were still wrong.",
         "Prove cutovers with your own eyes: throwaway verification tooling and a 50/50 traffic split beat hoping.",

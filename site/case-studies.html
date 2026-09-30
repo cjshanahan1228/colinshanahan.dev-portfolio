@@ -162,6 +162,7 @@
           <dt>Diagnosis</dt><dd>${d.diagnosis}</dd>
           <dt>The fix</dt><dd>${d.fix}</dd>
           <dt>Impact</dt><dd>${d.impact}</dd>
+          ${d.postscript ? `<dt>Postscript</dt><dd>${d.postscript}</dd>` : ''}
           ${d.lessons && d.lessons.length ? `<dt>Lessons</dt><dd><ul class="lessons">${d.lessons.map(l => `<li>${l}</li>`).join('')}</ul></dd>` : ''}
         </dl>` : `
         <dl>
