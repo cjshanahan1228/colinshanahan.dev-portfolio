@@ -102,12 +102,37 @@ window.CASE_STUDIES = [
   {
     slug: "gcp-to-azure-iac",
     tag: "iac · cloud migration",
-    title: "Replacing hand-built GCP systems with Terraform & Bicep on Azure",
-    problem: "Infrastructure provisioned by hand on GCP — inconsistent environments, no repeatable path from dev to production.",
-    approach: "Codified the estate in Terraform and Bicep: Container Apps, Function Apps, VMs, and Key Vault, provisioned identically every time from version-controlled templates.",
+    title: "Replacing hand-built GCP systems with Terraform on Azure",
+    problem: "The company's GCP estate had been stood up quickly by previous staff with no planning, organization, or documentation — Windows VMs hosting IIS sites, VMs running SQL databases, a simple load balancer — and nobody could say what was needed and what wasn't.",
+    approach: "Reverse-engineered what was running, then rebuilt it on Azure with documentation and environments in mind from the start: a coherent network scheme, an Application Gateway built in Terraform first, and SQL moved to Azure SQL elastic pools — cut over in stages.",
     outcome: "✓ repeatable environments · drift eliminated · auditable infra",
-    stack: ["terraform", "bicep", "container-apps", "key-vault"],
-    detail: null,
+    stack: ["terraform", "application-gateway", "azure-sql", "elastic-pools", "gcp"],
+    detail: {
+      context:
+        "<p>The move from GCP to Azure was driven mostly by upper management wanting the company in the Microsoft ecosystem.</p>" +
+        "<p>The harder problem was what we were moving. Previous staff had stood up VMs and other cloud pieces quickly, with no planning, no organization, and no documentation. There was no inventory to migrate from — which meant it was hard to know what was actually needed and what wasn't.</p>",
+      diagnosis:
+        "<p>What existed on GCP was, on paper, simple: VMs running SQL databases, Windows VMs hosting IIS sites, a basic load balancing setup, and the networking holding it together. What it did, and why, was written down nowhere.</p>" +
+        "<p>So the first phase was archaeology. It took months of searching through the VMs and their configuration and reading the code to work out where everything was and what it did. With no documentation to lean on, the machines and the code were the only source of truth.</p>" +
+        "<p>That shaped the goal. Lifting the estate across as-is would have carried the mystery with it. The aim was to end up with something a person could understand without having to repeat the archaeology: a clearly documented, easy-to-follow site map, where every change can be tracked.</p>",
+      fix:
+        "<p><strong>Documentation and environments from day one.</strong> On Azure I designed with both in mind from the start, rather than trying to retrofit them later — the exact thing that had gone missing on GCP.</p>" +
+        "<p><strong>A network scheme that made sense.</strong> Rather than carrying the old networking across, I laid out a scheme that made sense, so it was possible to explain where things lived and how traffic moved between them.</p>" +
+        "<p><strong>An Application Gateway, built in Terraform first.</strong> The sites were fronted by an Azure Application Gateway with multiple backend pools and path-based routing, replacing the simple load balancing setup. I built it in Terraform first, so the infrastructure was defined as code in version control from the start. The payoff is the site map: how requests are routed is readable in the code, and changes to it show up as reviewable, trackable diffs rather than as someone's memory of a portal click.</p>" +
+        "<p><strong>SQL onto Azure SQL.</strong> The SQL servers that had been running on VMs moved to Azure SQL, using elastic pools.</p>" +
+        "<p><strong>Cutover in stages.</strong> Rather than switching everything at once, we moved the VMs first, then did the database work as one large migration. Staging it kept each piece of the move smaller and easier to reason about.</p>" +
+        "<p>The move to Azure DevOps that followed is its own writeup.</p>",
+      impact:
+        "<p>The migration was pretty seamless: users did not experience significant downtime on the main sites. For a move that touched the VMs, the front door, and the databases, that was the outcome that mattered most.</p>" +
+        "<p>What we ended up with is also easier to live with than what we left. The infrastructure is defined in version-controlled Terraform, and the goal throughout was a clearly documented, easy-to-understand site map with trackable changes — something the next person can read instead of reconstruct.</p>",
+      lessons: [
+        "Budget for discovery. With no documentation, understanding the old estate was most of the work — and it took months.",
+        "Don't migrate a mystery. Work out what's needed before rebuilding, so you aren't carrying pieces across just because they exist.",
+        "Build documentation and environments in from the start; they're far harder to add after the fact.",
+        "Write infrastructure in code first. Version control makes every change trackable and the site map something you can read.",
+        "Cut over in stages — VMs first, then the one big database migration — so each step stays small enough to reason about.",
+      ],
+    },
   },
   {
     slug: "restoration-failover",

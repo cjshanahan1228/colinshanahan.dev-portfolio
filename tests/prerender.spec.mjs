@@ -85,6 +85,19 @@ test.describe("no-JS HTML", () => {
     await expect(page.locator('#caseGrid a.more[href="/case-studies#azure-devops-migration"]')).toHaveText("full writeup →");
   });
 
+  test("the GCP-to-Azure study is a full writeup and no longer names Bicep", async ({ page }) => {
+    await serveBuilt(page);
+    await page.goto(`${ORIGIN}/case-studies`);
+    const a = page.locator("article.study#gcp-to-azure-iac");
+    const labels = await a.locator("dt").allTextContents();
+    expect(labels).toEqual(expect.arrayContaining(["Context", "Problem", "Diagnosis", "The fix", "Impact", "Lessons"]));
+    expect(labels).not.toContain("Approach");
+    await expect(a.locator("h2")).toHaveText("Replacing hand-built GCP systems with Terraform on Azure");
+    expect((await a.textContent()).toLowerCase()).not.toContain("bicep");
+    await page.goto(`${ORIGIN}/`);
+    await expect(page.locator('#caseGrid a.more[href="/case-studies#gcp-to-azure-iac"]')).toHaveText("full writeup →");
+  });
+
   test("the optional postscript still renders right after Impact", async ({ page }) => {
     await serveBuilt(page);
     await page.goto(`${ORIGIN}/case-studies`);
