@@ -18,8 +18,8 @@ export const RESUME = {
 
   summary:
     "DevOps engineer and cloud architect with 10+ years across infrastructure, systems, and cloud automation. " +
-    "Sole owner of the full Azure estate at RDGFilings – CI/CD architecture, IaC (Terraform-first, with Bicep " +
-    "experience), security posture, and cost governance – serving as the bridge between application teams and " +
+    "Sole owner of the full Azure estate at RDGFilings – CI/CD architecture, IaC (Terraform-first), " +
+    "security posture, and cost governance – serving as the bridge between application teams and " +
     "infrastructure. Certified in Azure administration and DevOps (AZ-104, AZ-400) with deep experience migrating " +
     "legacy toolchains (Octopus Deploy, Jenkins) to modern, credential-free pipelines.",
 
@@ -38,7 +38,7 @@ export const RESUME = {
         [
           "Authored ",
           { b: "Terraform" },
-          " (and Bicep) IaC to automate provisioning of Container Apps, Function Apps, VMs, Key Vault, and networking, replacing GCP-based systems with consistent, repeatable Azure deployments.",
+          " IaC to automate provisioning of Container Apps, Function Apps, VMs, Key Vault, and networking, replacing GCP-based systems with consistent, repeatable Azure deployments.",
         ],
         [
           "Implemented ",
@@ -122,7 +122,7 @@ export const RESUME = {
     ],
     [
       { b: "Cloud & IaC:" },
-      " Azure (Container Apps, Function Apps, Key Vault, Static Web Apps, App Insights/KQL), AWS, GCP • Terraform • Bicep • CloudFormation",
+      " Azure (Container Apps, Function Apps, Key Vault, Static Web Apps, App Insights/KQL), AWS, GCP • Terraform • CloudFormation",
     ],
     [
       { b: "CI/CD & Tooling:" },

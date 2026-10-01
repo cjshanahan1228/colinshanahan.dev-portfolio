@@ -514,7 +514,7 @@ window.SITE = {
           <div class="stage">
             <div class="stage-node">
               <div class="stage-check"><svg viewBox="0 0 16 16" fill="none"><path d="M3 8.5l3.2 3.2L13 5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-              <div class="stage-name">Plan</div><div class="stage-sub">terraform · bicep</div>
+              <div class="stage-name">Plan</div><div class="stage-sub">terraform</div>
             </div>
           </div>
           <div class="stage-link"></div>
@@ -579,7 +579,7 @@ window.SITE = {
         <ul>
           <li><strong>Architected Azure DevOps CI/CD pipelines</strong>, migrating legacy workflows off Octopus Deploy and Jenkins — cutting release cycles by 40% and improving deployment reliability.</li>
           <li>Designed and provisioned Azure infrastructure — Container Apps, Function Apps, Virtual Machines, and Key Vault — enabling scalable, secure environments for enterprise applications.</li>
-          <li>Authored <strong>Terraform and Bicep</strong> to automate infrastructure provisioning, replacing GCP-based systems with consistent, repeatable deployments.</li>
+          <li>Authored <strong>Terraform</strong> to automate infrastructure provisioning, replacing GCP-based systems with consistent, repeatable deployments.</li>
           <li>Partnered with engineering and product teams to define operational requirements, aligning DevOps practice with business needs in an Agile environment.</li>
           <li>Contributed to <strong>HIPAA compliance</strong> initiatives for a child company — secure configurations, documented processes, regulatory alignment.</li>
           <li>Mentored junior engineers and dev teams on Azure DevOps best practices, building a culture of knowledge-sharing.</li>
@@ -726,7 +726,7 @@ window.SITE = {
         <pre class="manifest" aria-label="Skills listed in YAML format"><span class="cmt"># colin-shanahan/stack.yml</span>
 <span class="k">cloud:</span>        <span class="v">[azure, aws, gcp]</span>
 <span class="k">ci_cd:</span>        <span class="v">[azure-devops, jenkins]</span>
-<span class="k">iac:</span>          <span class="v">[terraform, bicep, cloudformation]</span>
+<span class="k">iac:</span>          <span class="v">[terraform, cloudformation]</span>
 <span class="k">containers:</span>   <span class="v">[container-apps, docker]</span>
 <span class="k">azure:</span>
   <span class="k">compute:</span>    <span class="v">[container-apps, function-apps, vms]</span>
@@ -796,7 +796,7 @@ window.SITE = {
             </tr>
             <tr>
               <th>iac (native)</th>
-              <td>Bicep / ARM</td>
+              <td>ARM templates</td>
               <td>CloudFormation</td>
               <td>Deployment Manager</td>
             </tr>
@@ -825,7 +825,7 @@ window.SITE = {
         </div>
         <div>
           <div class="cl">gcp — migrated from</div>
-          <p>Replaced GCP-based systems with Terraform- and Bicep-provisioned Azure infrastructure — you learn a cloud thoroughly when you carefully move off it.</p>
+          <p>Replaced GCP-based systems with Terraform-provisioned Azure infrastructure — you learn a cloud thoroughly when you carefully move off it.</p>
         </div>
       </div>
     </div>
@@ -844,7 +844,7 @@ window.SITE = {
         <div class="principle">
           <span class="num">$ cat principles/02</span>
           <h3>If it isn't in code, it doesn't exist</h3>
-          <p>Hand-built infrastructure is a liability with an expiration date. Terraform and Bicep aren't extra work — they're the work.</p>
+          <p>Hand-built infrastructure is a liability with an expiration date. Terraform isn't extra work — it's the work.</p>
         </div>
         <div class="principle">
           <span class="num">$ cat principles/03</span>
@@ -1060,7 +1060,7 @@ opening the animated version ...`;
     stack: () =>
 `cloud:      azure (primary), aws, gcp
 ci_cd:      azure-devops, jenkins (migrated away from)
-iac:        terraform, bicep, cloudformation
+iac:        terraform, cloudformation
 azure:      container apps, function apps, vms, key vault
 endpoints:  microsoft intune
 tooling:    git, jira`,
