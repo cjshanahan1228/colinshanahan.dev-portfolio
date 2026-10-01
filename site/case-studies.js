@@ -69,11 +69,35 @@ window.CASE_STUDIES = [
     slug: "azure-devops-migration",
     tag: "migration · ci/cd",
     title: "Retiring Octopus Deploy & Jenkins without breaking release day",
-    problem: "Two legacy deployment systems, fragmented release knowledge, and slow, unreliable release cycles.",
-    approach: "Rebuilt the workflows as Azure DevOps multi-stage YAML pipelines, migrating incrementally so teams never lost the ability to ship while cutting over.",
+    problem: "Releases ran through Octopus Deploy and a self-hosted Jenkins server, and they were unreliable and hectic — many deploys only succeeded after manual server edits — with a pricey license renewal on the way.",
+    approach: "Rebuilt roughly 25 pipelines in Azure DevOps pipeline by pipeline where possible: consistent YAML builds with path-based triggers for the monorepo, and classic release pipelines with an environment per app, approvals on every release, and environment-specific variable groups.",
     outcome: "✓ release cycles −40% · reliability up · one platform",
-    stack: ["azure-devops", "yaml-pipelines", "octopus-deploy", "jenkins"],
-    detail: null,
+    stack: ["azure-devops", "yaml-pipelines", "classic-releases", "artifact-feeds", "octopus-deploy", "jenkins"],
+    detail: {
+      context:
+        "<p>The company had recently moved from GCP to Azure and wanted to stay inside the Microsoft ecosystem, which made Azure DevOps the logical home for build and deploy. At the same time, the Octopus Deploy license renewal was coming up with a significant price increase — a natural moment to ask whether we should keep paying for a tool the team already had reasons to distrust.</p>" +
+        "<p>And we did have reasons. My experience with Octopus there was that deployments were unreliable and hectic: many of them only succeeded after someone made manual edits or changes on the servers. Release day was something you got through, not something you could count on.</p>",
+      diagnosis:
+        "<p>Before replacing anything, I wanted to know why deploys were so fragile, because migrating the same fragility onto a new tool would have been a waste. A few causes kept showing up:</p>" +
+        "<p><strong>Artifacts were sometimes missing files,</strong> so a deploy could fail — or half-work — because of what was (or wasn't) in the package. <strong>Variable and configuration management in Octopus was poorly set up,</strong> which is a large part of why servers needed hand edits to get a release over the line. <strong>Environments weren't enforced to match production,</strong> so non-prod didn't deploy the way prod did and a passing test deploy proved less than it should have. And <strong>there were no approval gates:</strong> in practice nobody explicitly signed off before a release went out.</p>" +
+        "<p>None of those are really tool problems. They're discipline problems the old setup made easy to skip — which shaped the goal. It wasn't “the same thing, hosted somewhere else”; it was a setup where the safe path is the default one.</p>",
+      fix:
+        "<p><strong>One pipeline at a time, where possible.</strong> There were roughly 25 pipelines in total, across Gradle, .NET and other stacks. Migrating them pipeline by pipeline meant each cutover was small enough to reason about, instead of one big switch on release day.</p>" +
+        "<p><strong>The monorepo was the hard part.</strong> One repository held multiple projects, so a build pipeline couldn't simply fire on every commit. The Azure DevOps YAML build pipelines use path-based triggers pointing at the right project folders, so a change to one project builds that project and not its neighbors.</p>" +
+        "<p><strong>Builds: YAML, same shape every time.</strong> Every build pipeline follows a consistent structure, so once you've read one you can read them all — and so a problem in one place is easy to compare against a working one.</p>" +
+        "<p><strong>Releases: classic release pipelines, with the guardrails built in.</strong> Each app got its own deployment environment. Approvals are configured on every release pipeline, so the explicit sign-off that was missing before is now part of the path rather than something to remember. Build and release variables moved into environment-specific variable groups, so configuration lives in one visible place per environment instead of in hand edits on servers — and non-prod deploys go through the same mechanics as prod.</p>" +
+        "<p><strong>The part that took real work: leaving self-hosted Jenkins.</strong> Moving to Microsoft-hosted agents changed how builds produce and pass variables and artifacts, so I couldn't lift the old steps over as-is. I had to create artifact feeds, and work out the correct build steps and configuration for hosted agents — in effect rethinking how each build hands its output to the release.</p>",
+      impact:
+        "<p>The cutover went well — which, for a change to how everything ships, was the outcome that mattered most. Release consistency improved dramatically: the manual server edits that used to decide whether a deploy worked gave way to the same pipeline and the same variables each time. Management was happy with the better visibility into the CI/CD process.</p>" +
+        "<p>The new approvals and audit trail also helped get the company's SOC audits completed. And the company avoided the Octopus Deploy renewal at the higher price, while consolidating build and deploy on the platform it was already standardizing on.</p>",
+      lessons: [
+        "Diagnose why the old system was fragile before you replace it — otherwise you just migrate the fragility.",
+        "Migrate in slices you can reason about: pipeline by pipeline beats a single switch on release day.",
+        "Make the safe path the default one: approvals and per-environment variable groups built into every pipeline, not left to memory.",
+        "A consistent pipeline structure is a feature — it makes each one easier to read, review and debug.",
+        "Moving from a self-hosted server to hosted agents is a change in how builds pass data, not just where they run — budget for rethinking artifacts and variables.",
+      ],
+    },
   },
   {
     slug: "gcp-to-azure-iac",

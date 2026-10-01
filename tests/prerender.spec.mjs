@@ -73,6 +73,18 @@ test.describe("no-JS HTML", () => {
     }
   });
 
+  test("the Octopus/Jenkins study is a full writeup, not the summary-only shape", async ({ page }) => {
+    await serveBuilt(page);
+    await page.goto(`${ORIGIN}/case-studies`);
+    const a = page.locator("article.study#azure-devops-migration");
+    const labels = await a.locator("dt").allTextContents();
+    expect(labels).toEqual(expect.arrayContaining(["Context", "Problem", "Diagnosis", "The fix", "Impact", "Lessons"]));
+    expect(labels).not.toContain("Approach");
+    await expect(a.locator(".wip")).toHaveCount(0);
+    await page.goto(`${ORIGIN}/`);
+    await expect(page.locator('#caseGrid a.more[href="/case-studies#azure-devops-migration"]')).toHaveText("full writeup →");
+  });
+
   test("the optional postscript still renders right after Impact", async ({ page }) => {
     await serveBuilt(page);
     await page.goto(`${ORIGIN}/case-studies`);
