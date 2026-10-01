@@ -628,7 +628,7 @@ window.SITE = {
         details</strong> — the diagnosis and the reasoning are the story.
         <a href="/case-studies">Read the full writeups →</a>
       </p>
-      <div class="cases" id="caseGrid"></div>
+      <div class="cases" id="caseGrid"><!--prerender:cards--><!--/prerender:cards--></div>
     </div>
   </section>
 
@@ -957,26 +957,18 @@ window.SITE = {
 </div>
 
 <script src="/case-studies.js"></script>
+<script src="/case-studies-render.js"></script>
 <script>
   // ---------- apply SITE config to the page ----------
   const SITE = window.SITE;
 
   // ---------- case-study cards (data: case-studies.js) ----------
+  // Pre-rendered at build (see .github/scripts/prerender-case-studies.mjs);
+  // only render here when the markup isn't already in place.
   (function () {
     const grid = document.getElementById('caseGrid');
-    grid.innerHTML = (window.CASE_STUDIES || []).map(c => `
-      <article class="case">
-        <div class="tag">${c.tag}</div>
-        <h3><a href="/case-studies#${c.slug}">${c.title}</a></h3>
-        <dl>
-          <dt>Problem</dt>
-          <dd>${c.problem}</dd>
-          <dt>Approach</dt>
-          <dd>${c.approach}</dd>
-        </dl>
-        <div class="outcome">${c.outcome}</div>
-        <a class="more" href="/case-studies#${c.slug}">${c.detail ? 'full writeup →' : 'writeup in progress →'}</a>
-      </article>`).join('');
+    if (grid.children.length) return;
+    grid.innerHTML = CaseStudiesRender.cards(window.CASE_STUDIES || []);
   })();
   (function () {
     const eb = document.getElementById('eyebrow');

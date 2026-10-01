@@ -1,6 +1,7 @@
 // ═══════════════════ ADDING A CASE STUDY ═══════════════════
 // One object per study. The homepage card grid and /case-studies
-// both render from this file — add an entry, open a PR, done.
+// both render from this file — add an entry, open a PR, done. The deploy
+// workflow pre-renders them into static HTML (no JS needed to read them).
 //
 // SANITIZATION RULES — every entry must pass all six:
 //   1. No internal system names, hostnames, repo names, or vendor

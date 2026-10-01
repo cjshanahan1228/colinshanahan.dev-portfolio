@@ -1,4 +1,4 @@
-# deploy-site    → /site + /api (managed functions) to Azure Static Web Apps (token-based)
+# deploy-site    → /site (case studies pre-rendered to HTML first) + /api (managed functions) to Azure Static Web Apps (token-based)
 # publish-resume → /resume to private Blob Storage via GitHub OIDC (no stored secrets)
 #                  visitors get access via the gated request/approval flow in /api
 #
@@ -13,6 +13,7 @@ on:
     branches: [main]
     paths:
       - "site/**"
+      - ".github/scripts/prerender-case-studies.mjs"
       - "api/**"
       - "resume/**"
   workflow_dispatch:
@@ -27,6 +28,15 @@ jobs:
     name: Deploy site to Static Web Apps
     steps:
       - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+      # Bake the case studies (source of truth: site/case-studies.js) into the
+      # static HTML so crawlers and link previews see them without running JS.
+      # The deploy below uploads site/ as-is (skip_app_build), so this step's
+      # output is exactly what ships.
+      - name: Pre-render case studies
+        run: node .github/scripts/prerender-case-studies.mjs
       - name: Deploy
         uses: Azure/static-web-apps-deploy@v1
         with:
