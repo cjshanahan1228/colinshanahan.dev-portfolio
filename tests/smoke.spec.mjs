@@ -373,25 +373,25 @@ test.describe("platform-ownership framing", () => {
   });
 
   test("hero headline and subline", async ({ page }) => {
-    await expect(page.locator("h1")).toHaveText("Colin Shanahan runs Azure platforms end to end.");
+    await expect(page.locator("h1")).toHaveText("Colin Shanahan owns the Azure platform, from commit to production.");
     await expect(page.locator(".lede")).toContainText("infrastructure as code, identity, CI/CD, and observability");
   });
 
   test("title, description and share tags match the headline", async ({ page }) => {
-    const title = "Colin Shanahan — Runs Azure Platforms End to End";
+    const title = "Colin Shanahan — Owns the Azure Platform, Commit to Production";
     await expect(page).toHaveTitle(title);
     const meta = (sel) => page.locator(sel).getAttribute("content");
     expect(await meta('meta[property="og:title"]')).toBe(title);
     expect(await meta('meta[name="twitter:title"]')).toBe(title);
     for (const sel of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
-      expect(await meta(sel)).toContain("runs Azure platforms end to end");
+      expect(await meta(sel)).toContain("owns the Azure platform from commit to production");
     }
   });
 
   test("terminal whoami uses the new framing", async ({ page }) => {
     await page.locator("#term-input").fill("whoami");
     await page.locator("#term-input").press("Enter");
-    await expect(page.locator("#term-body")).toContainText("Colin Shanahan — runs Azure platforms end to end");
+    await expect(page.locator("#term-body")).toContainText("Colin Shanahan — owns the Azure platform, from commit to production");
   });
 
   test("RDGFilings role leads with the sole-owner bullet", async ({ page }) => {
