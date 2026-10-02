@@ -364,3 +364,38 @@ test.describe("case study postscript", () => {
     await expect(others.locator("dt", { hasText: "Postscript" })).toHaveCount(0);
   });
 });
+
+// The platform-ownership framing has to agree everywhere a visitor or a link
+// preview can see it: hero, <title>, description, OG/Twitter tags, terminal.
+test.describe("platform-ownership framing", () => {
+  test.beforeEach(async ({ page }) => {
+    await page.goto("/");
+  });
+
+  test("hero headline and subline", async ({ page }) => {
+    await expect(page.locator("h1")).toHaveText("Colin Shanahan runs Azure platforms end to end.");
+    await expect(page.locator(".lede")).toContainText("infrastructure as code, identity, CI/CD, and observability");
+  });
+
+  test("title, description and share tags match the headline", async ({ page }) => {
+    const title = "Colin Shanahan — Runs Azure Platforms End to End";
+    await expect(page).toHaveTitle(title);
+    const meta = (sel) => page.locator(sel).getAttribute("content");
+    expect(await meta('meta[property="og:title"]')).toBe(title);
+    expect(await meta('meta[name="twitter:title"]')).toBe(title);
+    for (const sel of ['meta[name="description"]', 'meta[property="og:description"]', 'meta[name="twitter:description"]']) {
+      expect(await meta(sel)).toContain("runs Azure platforms end to end");
+    }
+  });
+
+  test("terminal whoami uses the new framing", async ({ page }) => {
+    await page.locator("#term-input").fill("whoami");
+    await page.locator("#term-input").press("Enter");
+    await expect(page.locator("#term-body")).toContainText("Colin Shanahan — runs Azure platforms end to end");
+  });
+
+  test("RDGFilings role leads with the sole-owner bullet", async ({ page }) => {
+    const job = page.locator("article.job", { hasText: "RDGFilings" }).first();
+    await expect(job.locator("li").first()).toContainText("Sole DevOps owner of the company's full Azure estate");
+  });
+});
