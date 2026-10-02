@@ -27,7 +27,7 @@ export const RESUME = {
     {
       company: "RDGFilings",
       dates: "Oct. 2022 – Present",
-      title: "TODO(colin): confirm title (DevOps Engineer & Cloud Architect?)",
+      title: "DevOps Engineer, Cloud Infrastructure",
       location: "Remote / Onsite",
       bullets: [
         [
