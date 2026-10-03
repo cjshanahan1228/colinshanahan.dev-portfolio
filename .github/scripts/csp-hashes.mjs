@@ -47,17 +47,21 @@ if (isMain) {
     process.exit(1);
   }
   const haveHashes = have.filter((t) => t.startsWith("'sha256-")).sort();
-  const inSync = want.length === haveHashes.length && want.every((h, i) => h === haveHashes[i]);
+  // Missing hashes break a page; extra (stale) ones are harmless cruft, so only warn.
+  const missing = want.filter((h) => !haveHashes.includes(h));
+  const stale = haveHashes.filter((h) => !want.includes(h));
+  const inSync = missing.length === 0;
 
   if (process.argv.includes("--write")) {
     const next = raw.replace(/(script-src\s+)([^;"]*)/, `$1'self' ${want.join(" ")}`);
     writeFileSync(CONFIG, next);
     console.log(`  wrote ${want.length} script hash(es) to ${CONFIG}`);
   } else if (!inSync) {
-    console.error("  FAIL CSP script-src hashes are out of sync with the inline scripts in site/*.html");
+    console.error(`  FAIL CSP script-src is missing ${missing.length} hash(es) for inline scripts in site/*.html`);
     console.error("       run: node .github/scripts/csp-hashes.mjs --write");
     process.exit(1);
   } else {
-    console.log(`  ok   CSP script-src hashes match the ${want.length} inline script(s)`);
+    console.log(`  ok   CSP script-src covers the ${want.length} inline script(s)`);
+    if (stale.length) console.warn(`  warn ${stale.length} stale hash(es) in script-src — run with --write to prune`);
   }
 }
