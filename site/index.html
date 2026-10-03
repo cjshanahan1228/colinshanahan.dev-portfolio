@@ -3,8 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Colin Shanahan — DevOps Engineer</title>
-<meta name="description" content="Portfolio of Colin Shanahan, DevOps Engineer specializing in Azure DevOps, CI/CD pipelines, and infrastructure as code.">
+<title>Colin Shanahan — Owns the Azure Platform, Commit to Production</title>
+<meta name="description" content="Portfolio of Colin Shanahan, a DevOps engineer who owns the Azure platform from commit to production — infrastructure as code, identity, CI/CD, and observability.">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Colin Shanahan — Owns the Azure Platform, Commit to Production">
+<meta property="og:description" content="Portfolio of Colin Shanahan, a DevOps engineer who owns the Azure platform from commit to production — infrastructure as code, identity, CI/CD, and observability.">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Colin Shanahan — Owns the Azure Platform, Commit to Production">
+<meta name="twitter:description" content="Portfolio of Colin Shanahan, a DevOps engineer who owns the Azure platform from commit to production — infrastructure as code, identity, CI/CD, and observability.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
@@ -474,11 +480,11 @@ window.SITE = {
 <main id="main" tabindex="-1">
   <div class="hero">
     <div class="wrap">
-      <p class="eyebrow" id="eyebrow">DevOps Engineer</p>
-      <h1>Colin Shanahan ships <span class="accent">reliable pipelines.</span></h1>
+      <p class="eyebrow" id="eyebrow">DevOps Engineer, Cloud Infrastructure</p>
+      <h1>Colin Shanahan owns <span class="accent">the Azure platform, from commit to production.</span></h1>
       <p class="lede">
         Ten-plus years across systems administration, infrastructure engineering, and DevOps —
-        now <strong>architecting Azure DevOps CI/CD and infrastructure as code</strong>.
+        now owning the Azure platform across <strong>infrastructure as code, identity, CI/CD, and observability</strong>.
       </p>
       <!-- the numbers a recruiter needs in the first few seconds; the full
            context for each lives in #highlights below -->
@@ -572,11 +578,12 @@ window.SITE = {
         <div class="job-top">
           <div>
             <h3>RDGFilings <span class="status">running</span></h3>
-            <div class="role">DevOps Engineer</div>
+            <div class="role">DevOps Engineer, Cloud Infrastructure</div>
           </div>
           <div class="meta">Oct 2022 – Present<br>Remote / Onsite</div>
         </div>
         <ul>
+          <li><strong>Sole DevOps owner of the company's full Azure estate</strong> — CI/CD, infrastructure as code, security posture, and cost governance, end to end.</li>
           <li><strong>Architected Azure DevOps CI/CD pipelines</strong>, migrating legacy workflows off Octopus Deploy and Jenkins — cutting release cycles by 40% and improving deployment reliability.</li>
           <li>Designed and provisioned Azure infrastructure — Container Apps, Function Apps, Virtual Machines, and Key Vault — enabling scalable, secure environments for enterprise applications.</li>
           <li>Authored <strong>Terraform</strong> to automate infrastructure provisioning, replacing GCP-based systems with consistent, repeatable deployments.</li>
@@ -975,13 +982,13 @@ window.SITE = {
     const fp = document.getElementById('footerPitch');
     const fs = document.getElementById('footStatus');
     if (SITE.seeking) {
-      eb.textContent = 'DevOps Engineer · Relocating to ' + SITE.target;
+      eb.textContent = 'DevOps Engineer, Cloud Infrastructure · Relocating to ' + SITE.target;
       fp.innerHTML = 'Relocating to <strong style="color:#E8EEF5">' + SITE.target +
         '</strong> and actively seeking ' + SITE.roles.replace('&', '&amp;') +
         ' in the metro area — also open to remote. The fastest way to reach me is email.';
       fs.textContent = 'relocating → ' + SITE.target.toLowerCase();
     } else {
-      eb.textContent = 'DevOps Engineer · ' + SITE.home;
+      eb.textContent = 'DevOps Engineer, Cloud Infrastructure · ' + SITE.home;
       fp.innerHTML = 'Based in <strong style="color:#E8EEF5">' + SITE.home +
         '</strong>. Always open to hearing about interesting DevOps and platform engineering problems — the fastest way to reach me is email.';
       fs.textContent = SITE.home.toLowerCase();
@@ -1021,10 +1028,10 @@ window.SITE = {
   clear       clear the terminal
   sudo        try it and see`,
     whoami: () =>
-`Colin Shanahan — DevOps Engineer
+`Colin Shanahan — owns the Azure platform, from commit to production
 ${SITE.seeking ? 'Relocating to ' + SITE.target + ' — open to metro-area & remote roles.' : 'Based in ' + SITE.home + '.'}
 10+ years from help desk → infrastructure → DevOps.
-Currently architecting Azure DevOps CI/CD and IaC at RDGFilings.
+Currently owning the Azure platform at RDGFilings — IaC, identity, CI/CD, and observability.
 Believes deploys should be boring and docs are a deliverable.`,
     cases: () => {
       document.getElementById('work').scrollIntoView({ behavior: 'smooth' });
@@ -1065,7 +1072,7 @@ azure:      container apps, function apps, vms, key vault
 endpoints:  microsoft intune
 tooling:    git, jira`,
     uptime: () =>
-`2022 → now    RDGFilings — DevOps Engineer          [running]
+`2022 → now    RDGFilings — DevOps Engineer, Cloud Infrastructure       [running]
 2019 → 2022   American Electric Power — Infra Eng    [99.9% uptime]
 2015 → 2019   1901 Group — SysAdmin / Help Desk Lead [origin story]
 total: ~11 years, zero unplanned career outages`,

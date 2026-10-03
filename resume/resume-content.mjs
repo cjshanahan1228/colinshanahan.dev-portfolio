@@ -27,9 +27,14 @@ export const RESUME = {
     {
       company: "RDGFilings",
       dates: "Oct. 2022 – Present",
-      title: "DevOps Engineer / Cloud Architect (sole DevOps owner)",
+      title: "DevOps Engineer, Cloud Infrastructure",
       location: "Remote / Onsite",
       bullets: [
+        [
+          "Served as ",
+          { b: "sole DevOps owner of the company's full Azure estate" },
+          " – CI/CD, IaC, security posture, and cost governance, end to end.",
+        ],
         [
           "Architected Azure DevOps CI/CD pipelines end-to-end, migrating legacy workflows from ",
           { b: "Octopus Deploy" },
