@@ -1,0 +1,32 @@
+# Version + security updates. Actions are SHA-pinned, so Dependabot is what
+# keeps them current (it rewrites the SHA and the trailing "# vX" comment).
+version: 2
+updates:
+  - package-ecosystem: github-actions
+    directory: /
+    schedule: { interval: weekly }
+    commit-message: { prefix: "ci" }
+    groups:
+      actions: { patterns: ["*"] }
+
+  - package-ecosystem: npm
+    directory: /api
+    schedule: { interval: weekly }
+    commit-message: { prefix: "chore(api)" }
+    groups:
+      azure-sdk: { patterns: ["@azure/*"] }
+
+  - package-ecosystem: npm
+    directory: /tests
+    schedule: { interval: weekly }
+    commit-message: { prefix: "chore(tests)" }
+
+  - package-ecosystem: npm
+    directory: /resume
+    schedule: { interval: monthly }
+    commit-message: { prefix: "chore(resume)" }
+
+  - package-ecosystem: terraform
+    directory: /infra
+    schedule: { interval: weekly }
+    commit-message: { prefix: "chore(infra)" }
