@@ -61,9 +61,12 @@ Industry-standard gated-content flow — nobody downloads the resume anonymously
 1. Visitor submits the request form → `POST /api/resume-request` stores it in
    Table Storage and emails me (Azure Communication Services) with
    approve/deny capability links.
-2. I click approve → `GET /api/resume-decision` mints **7-day read-only SAS
-   URLs** for the PDF/DOCX and emails them to the requester. Deny closes the
-   request silently.
+2. I open the emailed link → `GET /api/resume-decision` shows who is asking and
+   a confirm button (GET never changes state, so mail scanners can't trigger it);
+   confirming `POST`s the decision (or I decide from `/admin` as the signed-in
+   GitHub admin). Approve mints **7-day read-only, HTTPS-only SAS URLs** for the
+   PDF/DOCX and emails them to the requester. Deny closes the request silently.
+   Decision links expire after 14 days.
 3. The blob container is private — an approval-issued SAS link is the only
    way in. All settings (storage key, ACS connection string, sender/owner
    addresses) are Terraform-managed SWA app settings; nothing lives in CI.
