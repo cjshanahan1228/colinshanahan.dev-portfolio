@@ -76,6 +76,9 @@ jobs:
           client-id: ${{ vars.AZURE_CLIENT_ID }}
           tenant-id: ${{ vars.AZURE_TENANT_ID }}
           subscription-id: ${{ vars.AZURE_SUBSCRIPTION_ID }}
+          # The CI identity is scoped to the resume container only, so it cannot
+          # list the subscription; storage calls below use --auth-mode login.
+          allow-no-subscriptions: true
       - name: Upload resume PDF
         run: |
           az storage blob upload \
