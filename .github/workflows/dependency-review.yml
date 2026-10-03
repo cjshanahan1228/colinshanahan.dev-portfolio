@@ -1,4 +1,7 @@
 # Blocks PRs that add dependencies with known high/critical vulnerabilities.
+# Needs the repository's "Dependency graph" enabled (Settings → Code security);
+# until it is, the action errors out, so the job is advisory (continue-on-error).
+# Remove continue-on-error once the graph is on.
 
 name: Dependency review
 
@@ -13,6 +16,7 @@ jobs:
   review:
     runs-on: ubuntu-latest
     timeout-minutes: 10
+    continue-on-error: true
     steps:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
