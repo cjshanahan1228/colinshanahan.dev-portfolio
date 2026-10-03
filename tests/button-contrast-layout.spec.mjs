@@ -188,8 +188,11 @@ test.describe("no horizontal overflow, toggle visible", () => {
       const { scroll, inner } = await overflow(page);
       expect(scroll, "page must not scroll sideways").toBeLessThanOrEqual(inner);
       await toggleInViewport(page);
-      // Every nav link stays reachable on screen too.
-      for (const a of await page.locator("nav.menu a").all()) {
+      // The inline links are replaced by the menu button (#56, see
+      // mobile-nav.spec.mjs); it must be on screen, and so must its links.
+      await expect(page.locator("nav.menu")).toBeHidden();
+      await page.locator("#navToggle").click();
+      for (const a of await page.locator("#siteNav a").all()) {
         const b = await a.boundingBox();
         expect(b.x).toBeGreaterThanOrEqual(0);
         expect(b.x + b.width).toBeLessThanOrEqual(inner);
