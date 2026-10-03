@@ -197,7 +197,7 @@ test.describe("admin view", () => {
       {
         id: "r1", name: "Dana Recruiter", email: "dana@example.com", company: "Acme",
         note: "Hiring for a platform role", status: "pending",
-        createdAt: "2026-08-16T12:00:00Z", decidedAt: null, token: "tok-1",
+        createdAt: "2026-08-16T12:00:00Z", decidedAt: null,
       },
       {
         id: "r2", name: "Sam Manager", email: "sam@example.com", company: "",
@@ -222,11 +222,11 @@ test.describe("admin view", () => {
     await expect(page.locator(".req").nth(1).locator(".act")).toHaveCount(0);
   });
 
-  test("approving calls the decision endpoint with the row's token", async ({ page }) => {
+  test("approving POSTs the decision as the signed-in admin (no token in the page)", async ({ page }) => {
     await page.route(API, (r) => r.fulfill({ json: REQUESTS }));
     let called = null;
     await page.route("**/api/resume-decision*", (r) => {
-      called = r.request().url();
+      called = { method: r.request().method(), url: r.request().url(), body: r.request().postDataJSON() };
       return r.fulfill({ status: 200, body: "ok" });
     });
 
@@ -234,9 +234,10 @@ test.describe("admin view", () => {
     await page.locator(".act.approve").first().click();
 
     await expect.poll(() => called, { message: "decision endpoint should be called" }).not.toBeNull();
-    expect(called).toContain("id=r1");
-    expect(called).toContain("token=tok-1");
-    expect(called).toContain("action=approve");
+    // State changes are POSTs; the approval token never appears in a URL or the DOM.
+    expect(called.method).toBe("POST");
+    expect(called.url).not.toContain("token");
+    expect(called.body).toEqual({ id: "r1", action: "approve" });
   });
 
   test("a non-admin identity is told plainly, not shown an empty list", async ({ page }) => {
