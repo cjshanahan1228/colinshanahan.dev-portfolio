@@ -36,7 +36,9 @@
   .chip.active{border-color:var(--ink);color:var(--ink)}
 
   .board{background:var(--paper);border:1px solid var(--line);border-radius:14px;padding:14px;overflow-x:auto}
-  svg{display:block;min-width:900px;width:100%;height:auto}
+  /* Scoped to the diagram: a bare `svg` also matched the theme-toggle icon
+     (injected by theme.js), which forced the whole page to 900px+ wide. */
+  .board svg{display:block;min-width:900px;width:100%;height:auto}
 
   /* node + zone styling */
   .zone{fill:none;stroke:var(--line);stroke-dasharray:5 5;rx:12}
