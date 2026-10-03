@@ -14,7 +14,7 @@ terraform {
   required_providers {
     azurerm = {
       source  = "hashicorp/azurerm"
-      version = "~> 4.0"
+      version = "~> 5.7"
     }
   }
 }
@@ -95,6 +95,14 @@ resource "azurerm_static_web_app" "portfolio" {
     SITE_BASE_URL          = var.site_base_url
     ADMIN_GITHUB_LOGIN     = var.admin_github_login
   }
+
+  # The deployment token (api_key) is used from CI, and Azure links the SWA to
+  # this GitHub repo when it deploys. The provider can't manage that link
+  # (repository_token is unreadable), so don't let Terraform try to null it.
+  # See the azurerm_static_web_app docs note on api_key deployments.
+  lifecycle {
+    ignore_changes = [repository_url, repository_branch]
+  }
 }
 
 # ── Resume storage ─────────────────────────────────────────────────────────
@@ -147,8 +155,8 @@ resource "azurerm_storage_container" "resume" {
 
 # Resume request queue: one entity per visitor request (pending/approved/denied).
 resource "azurerm_storage_table" "resume_requests" {
-  name                 = "resumerequests"
-  storage_account_name = azurerm_storage_account.resume.name
+  name               = "resumerequests"
+  storage_account_id = azurerm_storage_account.resume.id
 }
 
 # ── Resume request emails: Azure Communication Services ────────────────────
@@ -185,12 +193,11 @@ resource "azurerm_user_assigned_identity" "github" {
 }
 
 resource "azurerm_federated_identity_credential" "github_main" {
-  name                = "github-main-branch"
-  resource_group_name = azurerm_resource_group.portfolio.name
-  parent_id           = azurerm_user_assigned_identity.github.id
-  audience            = ["api://AzureADTokenExchange"]
-  issuer              = "https://token.actions.githubusercontent.com"
-  subject             = "repo:${var.github_repo}:ref:refs/heads/main"
+  name                      = "github-main-branch"
+  user_assigned_identity_id = azurerm_user_assigned_identity.github.id
+  audience                  = ["api://AzureADTokenExchange"]
+  issuer                    = "https://token.actions.githubusercontent.com"
+  subject                   = "repo:${var.github_repo}:ref:refs/heads/main"
 }
 
 # Scoped to the resume CONTAINER, not the storage account: the same account
