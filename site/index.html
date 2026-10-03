@@ -1053,11 +1053,12 @@ terraform: one language across all three.`,
         .then(d => {
           const s = d.site || {};
           const dep = (d.deploys || [])[0];
+          // API values are untrusted and the terminal renders HTML — escape them.
           return `── live telemetry (app insights) ──
-site:        ${s.status || 'unknown'}
-uptime 24h:  ${s.uptime24h ?? '–'}%  (${s.checksLast24h ?? 0} checks from 3 regions)
-response:    ${s.avgResponseMs ?? '–'} ms avg
-last deploy: ${dep ? dep.status + ' · ' + dep.sha : '–'}
+site:        ${escHtml(s.status || 'unknown')}
+uptime 24h:  ${escHtml(s.uptime24h ?? '–')}%  (${escHtml(s.checksLast24h ?? 0)} checks from 3 regions)
+response:    ${escHtml(s.avgResponseMs ?? '–')} ms avg
+last deploy: ${dep ? escHtml(dep.status) + ' · ' + escHtml(dep.sha) : '–'}
 full dashboard: /status`;
         })
         .catch(() => 'status api unreachable — provisioning, or telemetry offline'),
@@ -1119,6 +1120,13 @@ opening the request form ...`;
     pwd: () => `/home/colin/portfolio`,
   };
 
+  // Escape for the terminal's HTML output: user input and API values never
+  // reach innerHTML unescaped.
+  function escHtml(v) {
+    return String(v ?? '').replace(/[&<>"']/g, c =>
+      ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+  }
+
   function print(html) {
     const d = document.createElement('div');
     d.innerHTML = html;
@@ -1127,7 +1135,7 @@ opening the request form ...`;
 
   function runCommand(raw) {
     const cmd = raw.trim().toLowerCase();
-    print(`<span class="ps">colin@portfolio:~$</span> <span class="cmd">${raw.replace(/</g,'&lt;')}</span>`);
+    print(`<span class="ps">colin@portfolio:~$</span> <span class="cmd">${escHtml(raw)}</span>`);
     if (!cmd) return;
     const fn = commands[cmd];
     if (fn) {
@@ -1145,7 +1153,7 @@ opening the request form ...`;
         print(`<span class="out">${out}</span>`);
       }
     } else {
-      print(`<span class="out">command not found: ${cmd.replace(/</g,'&lt;')} — try 'help'</span>`);
+      print(`<span class="out">command not found: ${escHtml(cmd)} — try 'help'</span>`);
     }
     termBody.scrollTop = termBody.scrollHeight;
   }

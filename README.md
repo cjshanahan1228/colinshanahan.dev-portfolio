@@ -44,6 +44,16 @@ so crawlers, link previews and ATS scrapers see them without JavaScript.
 Committed HTML keeps empty `<!--prerender:…-->` markers; locally the page
 renders client-side from the same data.
 
+## Security headers & CSP
+
+`site/staticwebapp.config.json` sets a strict Content-Security-Policy plus
+nosniff / frame / referrer / permissions / COOP / CORP headers on every
+response. Inline scripts are allowed **by SHA-256 hash only** (no
+`'unsafe-inline'` for scripts): after editing an inline `<script>` in
+`site/*.html`, run `node .github/scripts/csp-hashes.mjs --write` — PR checks
+fail if the hashes are stale. `tests/serve.mjs` applies the same headers, so the
+Playwright suite runs under the production policy. See [SECURITY.md](SECURITY.md).
+
 ## Gated resume access
 
 Industry-standard gated-content flow — nobody downloads the resume anonymously:

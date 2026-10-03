@@ -1,6 +1,11 @@
 {
   "platform": { "apiRuntime": "node:20" },
   "routes": [
+    { "route": "/.auth/login/aad", "statusCode": 404 },
+    { "route": "/.auth/login/twitter", "statusCode": 404 },
+    { "route": "/.auth/login/google", "statusCode": 404 },
+    { "route": "/.auth/login/facebook", "statusCode": 404 },
+    { "route": "/.auth/login/apple", "statusCode": 404 },
     { "route": "/api/resume-admin", "allowedRoles": ["authenticated"], "headers": { "Cache-Control": "no-store" } },
     { "route": "/admin", "rewrite": "/admin.html", "allowedRoles": ["authenticated"], "headers": { "Cache-Control": "no-store", "X-Robots-Tag": "noindex, nofollow" } },
     { "route": "/admin.html", "redirect": "/admin", "statusCode": 301 },
@@ -13,12 +18,21 @@
     { "route": "/case-studies.html", "redirect": "/case-studies", "statusCode": 301 },
     { "route": "/*", "headers": { "Cache-Control": "public, max-age=300" } }
   ],
-  "navigationFallback": { "rewrite": "/index.html", "exclude": ["/api/*"] },
+  "navigationFallback": {
+    "rewrite": "/index.html",
+    "exclude": ["/api/*", "/.auth/*", "/*.{css,js,mjs,map,json,txt,xml,ico,png,jpg,jpeg,gif,svg,webp,woff,woff2,ttf,pdf,docx,webmanifest}"]
+  },
   "responseOverrides": {
     "401": { "redirect": "/.auth/login/github?post_login_redirect_uri=/admin", "statusCode": 302 }
   },
   "globalHeaders": {
+    "Content-Security-Policy": "default-src 'none'; script-src 'self' 'sha256-KFR4IOMJf8lmbpxJ0e33TzPfNcUqnJUUxA0dGQpjfJM=' 'sha256-LkP3AFDAIYwiySu0YfJE2RsTAYULafT0L+QN60jJOC0=' 'sha256-SgGoDKC/fnXZElMLgX669XQ3jQAHdBLhQmV5tHlJ4zI=' 'sha256-U8oCe8VTjyD/k98cfSamdBHIKiVWlO+wi5/XAIHnC1U=' 'sha256-f1+kBl7u/kL7IQui+TZGjk0jgnKbcwag20lG+TXU3FI=' 'sha256-omnGb1QkQIO6SHAusqTTS2D+My6fozCZ8c3hilvH1TM=' 'sha256-xbrudfNRhFOuYH1BLhMXHfOcNQKBO2JUIymeM6OHUfg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://github.com; connect-src 'self' https://func-colinshanahan-status.azurewebsites.net; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests",
     "X-Content-Type-Options": "nosniff",
-    "X-Frame-Options": "DENY"
+    "X-Frame-Options": "DENY",
+    "Referrer-Policy": "same-origin",
+    "Permissions-Policy": "accelerometer=(), autoplay=(), camera=(), display-capture=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), usb=()",
+    "Cross-Origin-Opener-Policy": "same-origin",
+    "Cross-Origin-Resource-Policy": "same-origin",
+    "X-XSS-Protection": "0"
   }
 }

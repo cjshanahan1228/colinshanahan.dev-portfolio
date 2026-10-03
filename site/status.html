@@ -80,6 +80,14 @@
 const API = "https://func-colinshanahan-status.azurewebsites.net/api/status";
 const app = document.getElementById("app");
 
+// Everything below comes from a cross-origin API and ends up in innerHTML, so
+// treat it as untrusted: escape text, coerce numbers, and only link to GitHub.
+const esc = s => String(s ?? "").replace(/[&<>"']/g, c =>
+  ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const num = v => (Number.isFinite(Number(v)) ? Number(v) : 0);
+const ghUrl = u => (/^https:\/\/github\.com\//.test(String(u)) ? String(u) : "#");
+const word = v => String(v ?? "").replace(/[^a-z0-9_-]/gi, "").slice(0, 24); // class-name safe
+
 const fmtAgo = iso => {
   const m = Math.round((Date.now() - new Date(iso)) / 60000);
   if (m < 60) return m + "m ago";
@@ -90,11 +98,11 @@ const fmtAgo = iso => {
 function sparkline(series) {
   if (!series.length) return "";
   const w = 800, h = 120, pad = 6;
-  const vals = series.map(p => p.ms);
+  const vals = series.map(p => num(p.ms));
   const max = Math.max(...vals) * 1.15, min = 0;
   const x = i => pad + (i / Math.max(series.length - 1, 1)) * (w - pad * 2);
   const y = v => h - pad - ((v - min) / (max - min)) * (h - pad * 2);
-  const pts = series.map((p, i) => `${x(i)},${y(p.ms)}`).join(" ");
+  const pts = series.map((p, i) => `${x(i)},${y(num(p.ms))}`).join(" ");
   const area = `${pad},${h - pad} ${pts} ${x(series.length - 1)},${h - pad}`;
   return `<svg class="spark" viewBox="0 0 ${w} ${h}" preserveAspectRatio="none" role="img" aria-label="Response time, last 24 hours">
     <polygon points="${area}" fill="currentColor" opacity="0.08"/>
@@ -115,18 +123,18 @@ fetch(API).then(r => r.json()).then(d => {
   const dur = m => m == null ? "–" : m < 60 ? `${m} min` : `${(m / 60).toFixed(1)} hr`;
   const delivery = dl.sample
     ? `<div class="grid" style="border:0;border-radius:0">
-         <div class="cell"><div class="n">${dl.deploysPerWeek ?? "–"}</div><div class="l">deploys · per week</div></div>
-         <div class="cell"><div class="n">${dur(dl.leadTimeMinutes)}</div><div class="l">merge → live · median</div></div>
-         <div class="cell"><div class="n"><em class="${dl.changeFailureRate ? "bad" : ""}">${dl.changeFailureRate ?? "–"}%</em></div><div class="l">change failure rate</div></div>
+         <div class="cell"><div class="n">${esc(dl.deploysPerWeek ?? "–")}</div><div class="l">deploys · per week</div></div>
+         <div class="cell"><div class="n">${esc(dur(dl.leadTimeMinutes))}</div><div class="l">merge → live · median</div></div>
+         <div class="cell"><div class="n"><em class="${dl.changeFailureRate ? "bad" : ""}">${esc(dl.changeFailureRate ?? "–")}%</em></div><div class="l">change failure rate</div></div>
        </div>`
     : '<p class="skel">delivery metrics unavailable — the GitHub query degraded</p>';
 
   const deploys = (d.deploys || []).map(x => `
     <div class="deploy-row">
-      <span class="st ${x.status}">${x.status}</span>
-      <a class="sha" href="${x.url}" rel="noopener">${x.sha}</a>
-      <span>${x.branch}</span>
-      <span class="when">${fmtAgo(x.when)}</span>
+      <span class="st ${word(x.status)}">${esc(x.status)}</span>
+      <a class="sha" href="${esc(ghUrl(x.url))}" rel="noopener">${esc(x.sha)}</a>
+      <span>${esc(x.branch)}</span>
+      <span class="when">${esc(fmtAgo(x.when))}</span>
     </div>`).join("") || '<p class="skel">no recent runs</p>';
 
   app.innerHTML = `
@@ -136,10 +144,10 @@ fetch(API).then(r => r.json()).then(d => {
       <span class="meta">checked from 3 regions<br>every 5 minutes</span>
     </div>
     <div class="grid">
-      <div class="cell"><div class="n"><em>${s.uptime24h ?? "–"}%</em></div><div class="l">uptime · 24h</div></div>
-      <div class="cell"><div class="n">${s.avgResponseMs ?? "–"} ms</div><div class="l">avg response · 24h</div></div>
-      <div class="cell"><div class="n">${s.checksLast24h ?? "–"}</div><div class="l">availability checks · 24h</div></div>
-      <div class="cell"><div class="n">${d.deploys?.[0] ? fmtAgo(d.deploys[0].when) : "–"}</div><div class="l">last deploy</div></div>
+      <div class="cell"><div class="n"><em>${esc(s.uptime24h ?? "–")}%</em></div><div class="l">uptime · 24h</div></div>
+      <div class="cell"><div class="n">${esc(s.avgResponseMs ?? "–")} ms</div><div class="l">avg response · 24h</div></div>
+      <div class="cell"><div class="n">${esc(s.checksLast24h ?? "–")}</div><div class="l">availability checks · 24h</div></div>
+      <div class="cell"><div class="n">${d.deploys?.[0] ? esc(fmtAgo(d.deploys[0].when)) : "–"}</div><div class="l">last deploy</div></div>
     </div>
     <section>
       <h2>Response time — last 24 hours</h2>
@@ -149,12 +157,12 @@ fetch(API).then(r => r.json()).then(d => {
       </div>
     </section>
     <section>
-      <h2>Delivery — last ${dl.windowDays ?? 30} days</h2>
+      <h2>Delivery — last ${esc(dl.windowDays ?? 30)} days</h2>
       <div class="panel">
         ${delivery}
         <p class="spark-cap" style="margin-top:14px">
           <span>measured from this repo's own deploy workflow runs</span>
-          <span>${dl.sample ? dl.sample + " runs sampled" : ""}</span>
+          <span>${dl.sample ? esc(dl.sample) + " runs sampled" : ""}</span>
         </p>
       </div>
     </section>
