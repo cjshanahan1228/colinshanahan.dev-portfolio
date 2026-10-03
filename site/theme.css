@@ -17,6 +17,9 @@
   --paper: #FFFFFF;
   --console: #0E1B2A;
   --header-bg: rgba(238, 242, 246, .88);
+  --shadow-sm: 0 1px 2px rgba(14, 27, 42, .05);
+  --shadow-md: 0 8px 24px rgba(14, 27, 42, .08);
+  --shadow-lg: 0 10px 30px rgba(14, 27, 42, .18);
 
   /* text */
   --ink: #0E1B2A;
@@ -30,10 +33,10 @@
   --azure-deep: #11518F;
   --azure-soft: #E7F0FA;
   --azure-wash: #F3F8FD;
-  --deploy: #1E9E6A;
+  --deploy: #13744F;
   --deploy-soft: #E2F4EC;
   --warn: #D97E2B;
-  --down: #C4453B;
+  --down: #B53A31;
   --down-soft: #FBE9E7;
   --down-line: #F0C4BF;
 
@@ -51,6 +54,9 @@
     --paper: #141F2E;
     --console: #070E17;
     --header-bg: rgba(11, 20, 32, .9);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, .55);
+    --shadow-md: 0 8px 24px rgba(0, 0, 0, .5);
+    --shadow-lg: 0 10px 30px rgba(0, 0, 0, .6);
     --ink: #E8EEF5;
     --body: #B7C6D6;
     --slate: #92A6BC;
@@ -63,7 +69,7 @@
     --deploy: #3CC98B;
     --deploy-soft: #10352A;
     --warn: #E0A63E;
-    --down: #E2574C;
+    --down: #EE6A5F;
     --down-soft: #3A1714;
     --down-line: #63241E;
 
@@ -77,6 +83,9 @@
   --paper: #141F2E;
   --console: #070E17;
   --header-bg: rgba(11, 20, 32, .9);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, .55);
+  --shadow-md: 0 8px 24px rgba(0, 0, 0, .5);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, .6);
   --ink: #E8EEF5;
   --body: #B7C6D6;
   --slate: #92A6BC;
@@ -89,7 +98,7 @@
   --deploy: #3CC98B;
   --deploy-soft: #10352A;
   --warn: #E0A63E;
-  --down: #E2574C;
+  --down: #EE6A5F;
   --down-soft: #3A1714;
   --down-line: #63241E;
 
@@ -117,6 +126,14 @@
 .skip-link:focus {
   top: 12px;
   text-decoration: none;
+}
+
+/* The global a:focus-visible ring is azure — invisible against the skip
+   link's own azure fill. --ink contrasts with both the fill and the page
+   behind the offset gap, in either theme. */
+.skip-link:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 3px;
 }
 
 /* ---------- theme toggle (injected by theme.js) ---------- */
