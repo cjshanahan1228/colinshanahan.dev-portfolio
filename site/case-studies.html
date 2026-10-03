@@ -57,6 +57,8 @@
     padding:7px 16px;
   }
   .disclaimer i{font-style:normal;color:var(--deploy)}
+  .disclaimer-text{min-width:0}
+  .disclaimer-text span{white-space:nowrap}
 
   main{padding:56px 0 72px}
   .study{
@@ -108,6 +110,18 @@
 
   @media (max-width:600px){
     .study{padding:26px 22px}
+    /* The one-line pill can't hold this note on a phone: it wrapped mid-phrase
+       inside a 99px radius with the check stranded top-left. Below 600px it
+       becomes a rounded rectangle: check pinned to the first line, one phrase
+       per line, separators dropped (the line breaks do that job). */
+    .disclaimer{
+      display:flex;flex-wrap:nowrap;align-items:flex-start;gap:0 10px;
+      border-radius:12px;padding:10px 14px;line-height:1.5;
+    }
+    .disclaimer i{flex:0 0 auto;line-height:inherit}
+    .disclaimer-text{display:block;text-wrap:balance}
+    .disclaimer-text>span{display:block}
+    .disclaimer-text>.sep{display:none}
     nav.menu{gap:14px}
     /* Brand + links + toggle can't share one 60px row below ~600px: the nowrap
        nav pushed the toggle off-screen (x=455 at 390px) and scrolled the page
@@ -141,7 +155,7 @@
       Real problems from real jobs — what broke, how I reasoned through it, what I changed,
       and what got better. <strong>The systems are generalized; the diagnosis is the story.</strong>
     </p>
-    <p class="disclaimer"><i>✓</i> details generalized · no confidential information · relative metrics only</p>
+    <p class="disclaimer"><i aria-hidden="true">✓</i><span class="disclaimer-text"><span>details generalized</span><span class="sep" aria-hidden="true"> · </span><span>no confidential information</span><span class="sep" aria-hidden="true"> · </span><span>relative metrics only</span></span></p>
   </div>
 </div>
 
