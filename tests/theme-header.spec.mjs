@@ -51,7 +51,7 @@ function over(top, bottom) {
 
 async function openCaseStudiesFromHome(page) {
   await page.goto("/");
-  await page.locator('a[href="/case-studies"]').first().click();
+  await page.locator('a[href="/case-studies"]:visible').first().click();
   await page.waitForURL(/\/case-studies/);
   await expect(page.locator("header.top")).toBeVisible();
 }

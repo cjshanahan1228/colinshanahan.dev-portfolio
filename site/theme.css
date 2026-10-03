@@ -173,3 +173,137 @@
   height: 16px;
   display: block;
 }
+
+/* ---------- mobile navigation (injected by theme.js) ---------- */
+/* Hidden everywhere above 760px — the pages' own inline nav is visible there
+   (index hides it at 760px, which is what left phones with no navigation).
+   Desktop (>=900px) layout is untouched. */
+.nav-toggle {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 34px;
+  height: 34px;
+  flex: 0 0 34px;
+  margin-left: 8px;
+  padding: 0;
+  background: transparent;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  color: var(--slate);
+  cursor: pointer;
+  transition: border-color .15s, color .15s;
+}
+
+.nav-toggle:hover,
+.nav-toggle[aria-expanded="true"] {
+  border-color: var(--azure);
+  color: var(--azure);
+}
+
+.nav-toggle:focus-visible,
+.site-nav a:focus-visible {
+  outline: 2px solid var(--azure);
+  outline-offset: 2px;
+}
+
+.nav-toggle svg {
+  width: 16px;
+  height: 16px;
+  display: block;
+}
+
+.site-nav {
+  display: none;
+}
+
+@media (max-width: 760px) {
+  .nav-toggle {
+    display: inline-flex;
+  }
+
+  /* Menu replaces the inline nav; if theme.js never ran the class is absent
+     and each page keeps whatever nav it had. */
+  .has-site-nav header.top nav.menu {
+    display: none;
+  }
+
+  /* With the inline nav gone, push toggle + menu button to the right edge. */
+  .has-site-nav .top-inner > .theme-toggle {
+    margin-left: auto;
+  }
+
+  /* Block-header pages: menu button at the far right, theme toggle beside
+     it (same order as the bar pages). */
+  .nav-toggle--float {
+    position: absolute;
+    top: 0;
+    right: 24px;
+    margin-left: 0;
+  }
+
+  .has-site-nav .theme-toggle--float {
+    right: 66px;
+  }
+
+  .site-nav:not([hidden]) {
+    display: block;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    z-index: 60;
+    max-height: calc(100vh - 80px);
+    max-height: calc(100dvh - 80px);
+    overflow-y: auto;
+    background: var(--paper);
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    box-shadow: var(--shadow-lg);
+  }
+
+  /* Pages with a block header (architecture, status) have no bar to hang
+     the panel from: drop it under the buttons instead. */
+  .site-nav--float:not([hidden]) {
+    top: 44px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+  }
+
+  .site-nav ul {
+    list-style: none;
+    margin: 0;
+    padding: 6px 0;
+  }
+
+  .site-nav a {
+    display: flex;
+    align-items: center;
+    min-height: 44px;
+    padding: 8px 24px;
+    font-family: var(--mono);
+    font-size: .85rem;
+    letter-spacing: .02em;
+    color: var(--ink);
+    text-decoration: none;
+    border-left: 3px solid transparent;
+  }
+
+  .site-nav a:hover {
+    background: var(--azure-wash);
+    text-decoration: none;
+  }
+
+  .site-nav a[aria-current="page"] {
+    color: var(--azure-deep);
+    background: var(--azure-soft);
+    border-left-color: var(--azure);
+    font-weight: 500;
+  }
+
+  .site-nav__sep {
+    margin-top: 6px;
+    padding-top: 6px;
+    border-top: 1px solid var(--line);
+  }
+}
