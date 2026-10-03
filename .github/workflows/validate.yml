@@ -12,16 +12,23 @@ on:
 permissions:
   contents: read
 
+concurrency:
+  group: validate-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   terraform:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     name: Terraform
     defaults:
       run:
         working-directory: infra
     steps:
-      - uses: actions/checkout@v4
-      - uses: hashicorp/setup-terraform@v3
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: hashicorp/setup-terraform@b9cd54a3c349d3f38e8881555d616ced269862dd # v3
         with:
           terraform_version: "1.15.5"
       - name: Formatting
@@ -33,17 +40,20 @@ jobs:
 
   api:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     name: API
     defaults:
       run:
         working-directory: api
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
-      - name: Dependencies resolve
-        run: npm install --no-audit --no-fund
+      - name: Dependencies resolve (lockfile-exact)
+        run: npm ci --no-audit --no-fund
       - name: Functions parse and load
         run: |
           for f in src/functions/*.js; do
@@ -51,13 +61,20 @@ jobs:
             echo "  ok   $f"
           done
           node -e "require('@azure/functions')"
+      - name: Unit tests
+        run: npm test --if-present
+      - name: Dependency audit (fails on high+)
+        run: npm audit --omit=dev --audit-level=high
 
   site:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     name: Site
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
       - name: Config, inline scripts, gated-resume invariants
@@ -65,24 +82,27 @@ jobs:
 
   smoke:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     name: Smoke
     defaults:
       run:
         working-directory: tests
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
       - name: Dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       # Both targets: `install chromium` alone can leave the headless shell
       # missing, which fails every test with "Executable doesn't exist".
       - name: Browser
         run: npx playwright install --with-deps chromium chromium-headless-shell
       - name: Smoke tests
         run: npx playwright test
-      - uses: actions/upload-artifact@v4
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         if: failure()
         with:
           name: playwright-report

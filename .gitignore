@@ -10,9 +10,24 @@ override.tf.json
 *_override.tf.json
 *tfplan*
 
-# Node (api local installs — CI builds its own via Oryx)
+# Node — lockfiles ARE committed (reproducible installs, `npm ci`, Dependabot)
 node_modules/
-package-lock.json
+
+# Secrets / local config that must never be committed
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+*.pfx
+*.p12
+*.publishsettings
+local.settings.json
+.azure/
+*.auto.tfvars
+terraform.tfvars
+*.tfvars.json
+*.sarif
 
 # Playwright
 playwright-report/

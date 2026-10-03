@@ -99,17 +99,43 @@ resource "azurerm_static_web_app" "portfolio" {
 
 # ── Resume storage ─────────────────────────────────────────────────────────
 resource "azurerm_storage_account" "resume" {
-  name                            = var.storage_account_name
-  resource_group_name             = azurerm_resource_group.portfolio.name
-  location                        = azurerm_resource_group.portfolio.location
-  account_tier                    = "Standard"
-  account_replication_type        = "LRS"
-  https_traffic_only_enabled      = true
-  min_tls_version                 = "TLS1_2"
-  allow_nested_items_to_be_public = false # gated: access only via approval-issued SAS links
+  name                             = var.storage_account_name
+  resource_group_name              = azurerm_resource_group.portfolio.name
+  location                         = azurerm_resource_group.portfolio.location
+  account_tier                     = "Standard"
+  account_replication_type         = "LRS"
+  https_traffic_only_enabled       = true
+  min_tls_version                  = "TLS1_2"
+  allow_nested_items_to_be_public  = false # gated: access only via approval-issued SAS links
+  cross_tenant_replication_enabled = false
+
+  # Shared-key access stays on deliberately: the managed (Free-tier) SWA API has
+  # no managed identity, so it authenticates to Table Storage and signs SAS
+  # links with the account key. Treat that key as the crown jewel — rotate it on
+  # any suspicion, and prefer moving tfstate to its own account.
+
+  # SAS hygiene: approval links live 7 days (+5 min clock-skew allowance). Log
+  # (don't block) anything issued with a longer lifetime.
+  sas_policy {
+    expiration_period = "07.00:05:00"
+    expiration_action = "Log"
+  }
 
   blob_properties {
     versioning_enabled = true # tfstate lives here too — versioning is the rollback story
+
+    # Soft delete: a deleted blob or container (tfstate, resume) is recoverable.
+    delete_retention_policy {
+      days = 14
+    }
+    container_delete_retention_policy {
+      days = 14
+    }
+  }
+
+  # This account also holds the Terraform state; losing it loses the state.
+  lifecycle {
+    prevent_destroy = true
   }
 }
 
@@ -167,8 +193,11 @@ resource "azurerm_federated_identity_credential" "github_main" {
   subject             = "repo:${var.github_repo}:ref:refs/heads/main"
 }
 
+# Scoped to the resume CONTAINER, not the storage account: the same account
+# holds the Terraform state (tfstate container, which contains every secret in
+# this config), and the CI identity must not be able to read or overwrite it.
 resource "azurerm_role_assignment" "github_blob_writer" {
-  scope                = azurerm_storage_account.resume.id
+  scope                = "${azurerm_storage_account.resume.id}/blobServices/default/containers/${azurerm_storage_container.resume.name}"
   role_definition_name = "Storage Blob Data Contributor"
   principal_id         = azurerm_user_assigned_identity.github.principal_id
 }
