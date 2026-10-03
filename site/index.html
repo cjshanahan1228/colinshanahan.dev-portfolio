@@ -106,7 +106,7 @@
   .pipeline{
     margin-top:56px;background:var(--paper);
     border:1px solid var(--line);border-radius:10px;
-    overflow:hidden;box-shadow:0 1px 2px rgba(14,27,42,.05);
+    overflow:hidden;box-shadow:var(--shadow-sm);
   }
   .pipeline-head{
     display:flex;align-items:center;justify-content:space-between;
@@ -199,7 +199,7 @@
   }
   .manifest .k{color:#7FB4E8}
   .manifest .v{color:#E8EEF5}
-  .manifest .cmt{color:#607B97}
+  .manifest .cmt{color:#7F98B3}
   .cert-list{display:flex;flex-direction:column;gap:12px}
   .cert{
     background:var(--paper);border:1px solid var(--line);border-radius:8px;
@@ -239,7 +239,7 @@
   .btn:hover{text-decoration:none;border-color:var(--azure);background:#16283C}
   .btn.primary{background:var(--azure);border-color:var(--azure);color:#fff}
   .btn.primary:hover{background:var(--azure-deep)}
-  .foot-note{margin-top:48px;padding-top:20px;border-top:1px solid #22364D;font-family:var(--mono);font-size:.68rem;color:#607B97;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
+  .foot-note{margin-top:48px;padding-top:20px;border-top:1px solid #22364D;font-family:var(--mono);font-size:.68rem;color:#7F98B3;display:flex;justify-content:space-between;flex-wrap:wrap;gap:8px}
 
   /* ---------- gated resume request modal ---------- */
   button.resume-btn{border:0;cursor:pointer}
@@ -253,6 +253,7 @@
   .modal input,.modal textarea{width:100%;border:1px solid var(--line);border-radius:8px;padding:9px 12px;font:inherit;font-size:.9rem;background:var(--mist);color:var(--ink)}
   .modal input:focus,.modal textarea:focus{outline:2px solid var(--azure);outline-offset:0;background:var(--paper)}
   .modal textarea{resize:vertical;min-height:70px}
+  .modal textarea::placeholder{color:var(--slate);opacity:1}
   .modal-close{position:absolute;top:14px;right:16px;background:none;border:0;font-size:1.05rem;color:var(--slate);cursor:pointer}
   .modal .resume-btn{margin-top:20px}
   .modal .form-msg{font-size:.78rem;color:var(--slate);margin-top:10px;font-family:var(--mono)}
@@ -271,7 +272,7 @@
     padding:28px;display:flex;flex-direction:column;
     transition:transform .15s ease,box-shadow .15s ease;
   }
-  .case:hover{transform:translateY(-3px);box-shadow:0 8px 24px rgba(14,27,42,.08)}
+  .case:hover{transform:translateY(-3px);box-shadow:var(--shadow-md)}
   .case .tag{
     font-family:var(--mono);font-size:.66rem;letter-spacing:.1em;text-transform:uppercase;
     color:var(--azure);margin-bottom:12px;
@@ -304,7 +305,7 @@
   /* ---------- interactive terminal ---------- */
   .term{
     background:var(--console);border-radius:10px;overflow:hidden;
-    box-shadow:0 10px 30px rgba(14,27,42,.18);
+    box-shadow:var(--shadow-lg);
   }
   .term-bar{
     display:flex;align-items:center;gap:8px;
@@ -314,7 +315,7 @@
   .term-bar i:nth-child(1){background:#E2574C}
   .term-bar i:nth-child(2){background:#E0A93E}
   .term-bar i:nth-child(3){background:#3CC98B}
-  .term-bar span{font-family:var(--mono);font-size:.7rem;color:#607B97;margin-left:8px}
+  .term-bar span{font-family:var(--mono);font-size:.7rem;color:#7F98B3;margin-left:8px}
   .term-body{
     font-family:var(--mono);font-size:.82rem;line-height:1.7;
     color:#C9D6E4;padding:18px 20px;height:300px;overflow-y:auto;cursor:text;
@@ -322,12 +323,15 @@
   .term-body .ps{color:#3CC98B}
   .term-body .cmd{color:#E8EEF5}
   .term-body .out{color:#9FB2C6;white-space:pre-wrap}
-  .term-body .hint{color:#607B97}
+  .term-body .hint{color:#7F98B3}
   .term-input-row{display:flex;gap:0;align-items:baseline}
   .term-input{
     flex:1;background:transparent;border:none;outline:none;
     font:inherit;color:#E8EEF5;caret-color:#3CC98B;padding:0;margin-left:8px;
   }
+  /* outline:none above removed the only keyboard-focus cue. #7FB4E8 is the
+     console palette's blue (>=8:1 on --console), so it reads in both themes. */
+  .term-input:focus-visible{outline:2px solid #7FB4E8;outline-offset:2px;border-radius:3px}
 
   /* ---------- projects showcase ---------- */
   .project{
@@ -363,7 +367,7 @@
     background:var(--console);padding:0;display:flex;flex-direction:column;min-width:0;
   }
   .code-head{
-    font-family:var(--mono);font-size:.7rem;color:#607B97;
+    font-family:var(--mono);font-size:.7rem;color:#7F98B3;
     padding:11px 18px;border-bottom:1px solid #22364D;
     display:flex;justify-content:space-between;gap:12px;
   }
@@ -373,7 +377,7 @@
   }
   .project-code .k{color:#7FB4E8}
   .project-code .s{color:#8BD5A8}
-  .project-code .cmt{color:#607B97}
+  .project-code .cmt{color:#7F98B3}
   .project-code .fn{color:#E0B970}
   @media (max-width:860px){
     .project{grid-template-columns:1fr}
