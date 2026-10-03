@@ -109,6 +109,13 @@
   @media (max-width:600px){
     .study{padding:26px 22px}
     nav.menu{gap:14px}
+    /* Brand + links + toggle can't share one 60px row below ~600px: the nowrap
+       nav pushed the toggle off-screen (x=455 at 390px) and scrolled the page
+       sideways. Brand and toggle keep row one; the links drop to row two. */
+    .top-inner{flex-wrap:wrap;height:auto;min-height:60px;padding-top:10px;padding-bottom:10px;row-gap:6px}
+    .brand{margin-right:auto}
+    nav.menu{order:3;flex:0 0 100%}
+    .nav-long{display:none}
   }
 </style>
 </head>
@@ -119,7 +126,7 @@
   <div class="wrap top-inner">
     <div class="brand"><a href="/" style="color:inherit">colin-shanahan<span class="dot">●</span>devops</a></div>
     <nav class="menu" aria-label="Sections">
-      <a href="/#work">← back to portfolio</a>
+      <a href="/#work">← <span class="nav-long">back to </span>portfolio</a>
       <a href="/status" style="color:var(--deploy)">status ●</a>
       <a href="/#contact">contact</a>
     </nav>

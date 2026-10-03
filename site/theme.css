@@ -26,6 +26,7 @@
   /* lines + accents */
   --line: #D5DEE8;
   --azure: #1B6DC1;
+  --on-azure: #FFFFFF; /* text on an --azure fill: flips because dark --azure is light */
   --azure-deep: #11518F;
   --azure-soft: #E7F0FA;
   --azure-wash: #F3F8FD;
@@ -55,6 +56,7 @@
     --slate: #92A6BC;
     --line: #26384E;
     --azure: #61A6EA;
+    --on-azure: #0B1420;
     --azure-deep: #8FC4F4;
     --azure-soft: #15304C;
     --azure-wash: #12283F;
@@ -80,6 +82,7 @@
   --slate: #92A6BC;
   --line: #26384E;
   --azure: #61A6EA;
+  --on-azure: #0B1420;
   --azure-deep: #8FC4F4;
   --azure-soft: #15304C;
   --azure-wash: #12283F;
@@ -104,7 +107,7 @@
   padding: 10px 18px;
   border-radius: 8px;
   background: var(--azure);
-  color: #fff;
+  color: var(--on-azure);
   font-family: var(--mono);
   font-size: .8rem;
   text-decoration: none;
