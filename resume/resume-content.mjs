@@ -33,17 +33,20 @@ export const RESUME = {
         [
           "Served as ",
           { b: "sole DevOps owner of the company's full Azure estate" },
-          " – CI/CD, IaC, security posture, and cost governance, end to end.",
+          " – [TODO(colin): # apps/environments] across CI/CD, IaC, security posture, and cost governance, end to end.",
         ],
         [
-          "Architected Azure DevOps CI/CD pipelines end-to-end, migrating legacy workflows from ",
+          "Architected Azure DevOps CI/CD end-to-end, migrating ~25 pipelines (path-triggered YAML builds for a monorepo; classic releases with approvals and per-environment variable groups) off ",
           { b: "Octopus Deploy" },
-          " and Jenkins to Azure DevOps, reducing release cycles by 40% and improving deployment reliability.",
+          " and Jenkins – release cycles down 40%, deployment reliability up.",
+        ],
+        [
+          "Built the approval gates and audit trail that helped the company complete its SOC audits; avoided the Octopus Deploy renewal ([TODO(colin): license savings, relative % only]).",
         ],
         [
           "Authored ",
           { b: "Terraform" },
-          " IaC to automate provisioning of Container Apps, Function Apps, VMs, Key Vault, and networking, replacing GCP-based systems with consistent, repeatable Azure deployments.",
+          " IaC for Container Apps, Function Apps, VMs, Key Vault, and networking, replacing hand-built GCP systems and cutting over to Azure in stages – no significant downtime on main sites ([TODO(colin): downtime during cutover]); environments rebuild from code.",
         ],
         [
           "Implemented ",
@@ -59,7 +62,7 @@ export const RESUME = {
           { b: "data protection key ring" },
           " in Blob Storage encrypted with a Key Vault master key, enabling first-ever horizontal scaling – all traffic over ",
           { b: "private endpoints" },
-          " with zero public data-plane exposure.",
+          " with zero public data-plane exposure, serving [TODO(colin): # users/clients].",
         ],
         [
           "Served as liaison between application architects, developers, and infrastructure, translating operational requirements into DevOps processes in an Agile environment; mentored junior engineers on Azure DevOps best practices.",

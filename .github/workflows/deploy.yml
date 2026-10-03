@@ -43,6 +43,10 @@ jobs:
       - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
         with:
           node-version: "20"
+      # Owner-input placeholders (TODO(colin)) must never ship: strict mode fails
+      # on any left in site/, the resume source, or the generated DOCX.
+      - name: Block unfilled TODO(colin) placeholders
+        run: node .github/scripts/check-site.mjs --strict
       # Bake the case studies (source of truth: site/case-studies.js) into the
       # static HTML so crawlers and link previews see them without running JS.
       # The deploy below uploads site/ as-is (skip_app_build), so this step's
@@ -70,6 +74,10 @@ jobs:
       - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
         with:
           persist-credentials: false
+      # Owner-input placeholders (TODO(colin)) must never ship: strict mode fails
+      # on any left in site/, the resume source, or the generated DOCX.
+      - name: Block unfilled TODO(colin) placeholders
+        run: node .github/scripts/check-site.mjs --strict
       - name: Azure login via OIDC federation
         uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2
         with:

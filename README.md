@@ -44,6 +44,22 @@ so crawlers, link previews and ATS scrapers see them without JavaScript.
 Committed HTML keeps empty `<!--prerender:…-->` markers; locally the page
 renders client-side from the same data.
 
+## Owner-input placeholders (`TODO(colin)`)
+
+When copy needs a figure only the owner can supply (never guess one), write it
+as a single greppable token in square brackets: `[TODO(colin): # apps/environments]`.
+`node .github/scripts/check-site.mjs` scans `site/`, `resume/resume-content.mjs`
+and the generated `.docx` for `TODO(colin)`:
+
+- **PR branches:** prints a loud WARNING list (file:line) and still passes, so a
+  draft with placeholders can be reviewed.
+- **`main` / deploy:** runs strict (`--strict`, or `GITHUB_REF_NAME`/`CI_REF` = `main`)
+  and **fails**. `deploy.yml` runs `check-site.mjs --strict` before both the site
+  deploy and the resume publish, so a placeholder can never ship. Fill them all in
+  (then rebuild the DOCX) before merging.
+
+`grep -rn "TODO(colin)" site resume/resume-content.mjs` lists what's left.
+
 ## Security headers & CSP
 
 `site/staticwebapp.config.json` sets a strict Content-Security-Policy plus
