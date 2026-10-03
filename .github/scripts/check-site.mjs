@@ -1,6 +1,11 @@
 // Static checks for the site bundle — no browser, no network, no credentials.
-// Run from the repo root: `node .github/scripts/check-site.mjs`
-import { readFileSync, readdirSync } from "node:fs";
+// Run from the repo root: `node .github/scripts/check-site.mjs [--strict]`
+//
+// --strict (or CI_REF / GITHUB_REF_NAME === "main") turns the TODO(colin)
+// owner-input placeholder scan from a loud warning into a failure. Deploy
+// runs it strict, so a placeholder can never ship; PR branches only warn.
+import { execFileSync } from "node:child_process";
+import { existsSync, readFileSync, readdirSync, statSync } from "node:fs";
 import { join } from "node:path";
 import { inlineScriptHashes, scriptSrcOf } from "./csp-hashes.mjs";
 
@@ -13,6 +18,9 @@ const fail = (msg) => {
   console.error(`  FAIL ${msg}`);
   failures++;
 };
+const STRICT =
+  process.argv.includes("--strict") ||
+  [process.env.CI_REF, process.env.GITHUB_REF_NAME].includes("main");
 
 // The SWA config drives routing and the managed API runtime — a JSON typo
 // here breaks the whole site silently at deploy time.
@@ -54,6 +62,50 @@ for (const page of pages) {
   }
 }
 if (!placeholders) pass("no scaffold placeholders");
+
+// Owner-input placeholders: `[TODO(colin): <what is needed>]` marks a figure
+// only the owner can supply (never guess one). Branches/PRs may carry them —
+// they print a loud WARNING list — but main/deploy (strict) must not. Scans
+// everything under site/ (what ships), the resume source, and the generated
+// DOCX that the deploy uploads as-is.
+{
+  const TOKEN = "TODO(colin)";
+  const TEXT = /\.(html|js|mjs|css|json|txt|md|svg)$/;
+  const walk = (dir) =>
+    readdirSync(dir).flatMap((f) => {
+      const p = join(dir, f);
+      return statSync(p).isDirectory() ? walk(p) : TEXT.test(f) ? [p] : [];
+    });
+  const hits = [];
+  for (const file of [...walk(SITE), join("resume", "resume-content.mjs")]) {
+    readFileSync(file, "utf8")
+      .split("\n")
+      .forEach((line, i) => {
+        if (line.includes(TOKEN)) hits.push({ file, line: i + 1, text: line.trim().slice(0, 140) });
+      });
+  }
+  const docx = join("resume", "Colin-Shanahan-Resume.docx");
+  if (existsSync(docx)) {
+    try {
+      const xml = execFileSync("unzip", ["-p", docx, "word/document.xml"], { maxBuffer: 1 << 26 }).toString();
+      if (xml.includes(TOKEN)) hits.push({ file: docx, line: 0, text: "generated DOCX still contains placeholders — rebuild: cd resume && npm run build" });
+    } catch {
+      console.warn(`  warn could not inspect ${docx} (is \`unzip\` installed?)`);
+    }
+  }
+  if (!hits.length) {
+    pass(`no ${TOKEN} placeholders`);
+  } else if (STRICT) {
+    for (const h of hits) fail(`${h.file}${h.line ? `:${h.line}` : ""} ${TOKEN} placeholder: ${h.text}`);
+  } else {
+    console.warn(`\n  ⚠⚠⚠ WARNING: ${hits.length} ${TOKEN} placeholder(s) — fill in before merging to main (strict mode fails on these):`);
+    for (const h of hits) {
+      console.warn(`  WARN ${h.file}${h.line ? `:${h.line}` : ""}  ${h.text}`);
+      if (process.env.GITHUB_ACTIONS) console.warn(`::warning file=${h.file}${h.line ? `,line=${h.line}` : ""}::${TOKEN} placeholder must be filled before merge`);
+    }
+    console.warn("");
+  }
+}
 
 // Resume access is gated (issue #5): the container is private, so a direct
 // blob link is now a dead download AND a hole in the approval flow.

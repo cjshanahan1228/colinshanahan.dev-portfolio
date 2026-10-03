@@ -105,7 +105,7 @@ window.CASE_STUDIES = [
     title: "Replacing hand-built GCP systems with Terraform on Azure",
     problem: "The company's GCP estate had been stood up quickly by previous staff with no planning, organization, or documentation — Windows VMs hosting IIS sites, VMs running SQL databases, a simple load balancer — and nobody could say what was needed and what wasn't.",
     approach: "Reverse-engineered what was running, then rebuilt it on Azure with documentation and environments in mind from the start: a coherent network scheme, an Application Gateway built in Terraform first, and SQL moved to Azure SQL elastic pools — cut over in stages.",
-    outcome: "✓ pretty seamless migration · no significant downtime on main sites · documented, version-controlled infra",
+    outcome: "✓ [TODO(colin): downtime during cutover] · no significant downtime on main sites · documented, version-controlled infra",
     stack: ["terraform", "application-gateway", "azure-sql", "elastic-pools", "gcp"],
     detail: {
       context:
