@@ -189,7 +189,7 @@ Azure Databricks has three independent network controls, and "private" can mean 
 
 **One-time manual identity steps (Colin, by design):**
 1. Apply the `bootstrap` stack locally with his own `az login`. It creates the state account, both managed identities, the federated credentials, role assignments, and budgets. CI can't create its own identity.
-2. Sign in to the Databricks **account console**. The first sign-in requires an Entra Global Administrator. Confirm whether a Unity Catalog metastore already exists in East US 2 (one is allowed per region per account; accounts created after Nov 9, 2023 get one automatically). Either turn on auto-assignment of new workspaces to it, or grant the CI identity what it needs. Then grant the apply identity `CREATE CATALOG`, `CREATE STORAGE CREDENTIAL`, and `CREATE EXTERNAL LOCATION` on the metastore rather than making it an account admin.
+2. Sign in to the Databricks **account console**. If the account has no account admin yet, the first one must be an Entra Global Administrator when they first sign in. If admins already exist, one of them can add Colin. Confirm whether a Unity Catalog metastore already exists in East US 2 (one is allowed per region per account; accounts created after Nov 9, 2023 get one automatically). Either turn on auto-assignment of new workspaces to it, or grant the CI identity what it needs. Then grant the apply identity `CREATE CATALOG`, `CREATE STORAGE CREDENTIAL`, and `CREATE EXTERNAL LOCATION` on the metastore rather than making it an account admin.
 
 ## 6. Terraform layout
 
@@ -638,7 +638,7 @@ Steps marked **[Colin]** are hands-on steps Colin does himself on purpose, so he
 
 ### Risks
 
-- **Account console access.** UC setup needs a Databricks account admin, and the first account console sign-in needs an Entra Global Administrator. If Colin isn't one in this tenant, phase 1 blocks on whoever is.
+- **Account console access.** UC setup needs a Databricks account admin, and if the account has no admin yet, the first one must be an Entra Global Administrator. If Colin can't get either, phase 1 blocks on whoever can.
 - **An existing metastore** in East US 2 may belong to someone else's setup in the tenant. The lab's catalogs would live in it. Agree on naming and ownership first.
 - **Managed RG permissions.** RG-scoped Contributor may not be enough to create the workspace (§7). Subscription-scope Contributor would be a broader grant.
 - **Destroy flakiness.** VNet-injected workspaces can leave subnet delegation or managed-RG locks that make a destroy fail or need a retry. The destroy workflow must surface failures, and budgets are the backstop.
@@ -653,7 +653,7 @@ Steps marked **[Colin]** are hands-on steps Colin does himself on purpose, so he
 4. **Repo:** new public `azure-databricks-platform-lab` (recommended) or this portfolio repo?
 5. **Region:** East US 2 (recommended, same as the portfolio) or East US?
 6. **Subscription:** is *Shanahan Enterprises Development* the right home, and is it OK for the lab to create a Databricks-managed RG there (possibly needing subscription-scope Contributor for the CI identity)?
-7. **Unity Catalog metastore:** does one already exist for this tenant's Databricks account in the chosen region? Is Colin (or can he become) a Databricks account admin, and an Entra Global Administrator for the first sign-in?
+7. **Unity Catalog metastore:** does one already exist for this tenant's Databricks account in the chosen region? Is Colin (or can he become) a Databricks account admin, and, if the account has no admin yet, an Entra Global Administrator?
 8. **State:** dedicated state storage account (recommended) or a separate container in `stcolinshanahanresume`?
 9. **Defender for Cloud:** which plans are enabled on the Development subscription (affects per-resource cost)?
 10. **Showcase:** dedicated `/databricks-lab` page plus home card plus case study (recommended), or fewer? Is a hosted video walkthrough wanted (needs a link-out or a CSP change)?
