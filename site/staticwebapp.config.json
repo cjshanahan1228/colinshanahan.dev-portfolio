@@ -13,9 +13,11 @@
     { "route": "/architecture", "rewrite": "/architecture.html" },
     { "route": "/status", "rewrite": "/status.html" },
     { "route": "/case-studies", "rewrite": "/case-studies.html" },
+    { "route": "/privacy", "rewrite": "/privacy.html" },
     { "route": "/architecture.html", "redirect": "/architecture", "statusCode": 301 },
     { "route": "/status.html", "redirect": "/status", "statusCode": 301 },
     { "route": "/case-studies.html", "redirect": "/case-studies", "statusCode": 301 },
+    { "route": "/privacy.html", "redirect": "/privacy", "statusCode": 301 },
     { "route": "/*", "headers": { "Cache-Control": "public, max-age=300" } }
   ],
   "navigationFallback": {
@@ -26,7 +28,7 @@
     "401": { "redirect": "/.auth/login/github?post_login_redirect_uri=/admin", "statusCode": 302 }
   },
   "globalHeaders": {
-    "Content-Security-Policy": "default-src 'none'; script-src 'self' 'sha256-KFR4IOMJf8lmbpxJ0e33TzPfNcUqnJUUxA0dGQpjfJM=' 'sha256-LkP3AFDAIYwiySu0YfJE2RsTAYULafT0L+QN60jJOC0=' 'sha256-SgGoDKC/fnXZElMLgX669XQ3jQAHdBLhQmV5tHlJ4zI=' 'sha256-U8oCe8VTjyD/k98cfSamdBHIKiVWlO+wi5/XAIHnC1U=' 'sha256-f1+kBl7u/kL7IQui+TZGjk0jgnKbcwag20lG+TXU3FI=' 'sha256-omnGb1QkQIO6SHAusqTTS2D+My6fozCZ8c3hilvH1TM=' 'sha256-xbrudfNRhFOuYH1BLhMXHfOcNQKBO2JUIymeM6OHUfg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://github.com; connect-src 'self' https://func-colinshanahan-status.azurewebsites.net; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests",
+    "Content-Security-Policy": "default-src 'none'; script-src 'self' 'sha256-KFR4IOMJf8lmbpxJ0e33TzPfNcUqnJUUxA0dGQpjfJM=' 'sha256-LkP3AFDAIYwiySu0YfJE2RsTAYULafT0L+QN60jJOC0=' 'sha256-SgGoDKC/fnXZElMLgX669XQ3jQAHdBLhQmV5tHlJ4zI=' 'sha256-U8oCe8VTjyD/k98cfSamdBHIKiVWlO+wi5/XAIHnC1U=' 'sha256-f1+kBl7u/kL7IQui+TZGjk0jgnKbcwag20lG+TXU3FI=' 'sha256-omnGb1QkQIO6SHAusqTTS2D+My6fozCZ8c3hilvH1TM=' 'sha256-xbrudfNRhFOuYH1BLhMXHfOcNQKBO2JUIymeM6OHUfg='; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com; img-src 'self' https://github.com; connect-src 'self' https://func-colinshanahan-status.azurewebsites.net https://*.in.applicationinsights.azure.com; manifest-src 'self'; base-uri 'none'; form-action 'self'; frame-ancestors 'none'; object-src 'none'; upgrade-insecure-requests",
     "X-Content-Type-Options": "nosniff",
     "X-Frame-Options": "DENY",
     "Referrer-Policy": "same-origin",

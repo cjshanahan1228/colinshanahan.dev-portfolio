@@ -5,6 +5,9 @@
 # Prereqs (values from `terraform output` in infra/):
 #   Secret:    SWA_DEPLOYMENT_TOKEN
 #   Variables: AZURE_CLIENT_ID, AZURE_TENANT_ID, AZURE_SUBSCRIPTION_ID
+#   Optional variable: APPINSIGHTS_CONNECTION_STRING (browser analytics; not a
+#              secret, it ships to every browser). Unset = no analytics. After
+#              changing it, re-run this workflow (Run workflow) to redeploy.
 
 name: Deploy portfolio
 
@@ -14,6 +17,7 @@ on:
     paths:
       - "site/**"
       - ".github/scripts/prerender-case-studies.mjs"
+      - ".github/scripts/inject-analytics.mjs"
       - "api/**"
       - "resume/**"
   workflow_dispatch:
@@ -49,6 +53,14 @@ jobs:
       # output is exactly what ships.
       - name: Pre-render case studies
         run: node .github/scripts/prerender-case-studies.mjs
+      # Browser analytics (Application Insights). Reads a repository VARIABLE,
+      # not a secret: the connection string is public by design. Empty = the
+      # step is a no-op and the SDK never loads; malformed or not allowed by
+      # the CSP connect-src = the deploy fails with the reason.
+      - name: Configure browser analytics
+        env:
+          APPINSIGHTS_CONNECTION_STRING: ${{ vars.APPINSIGHTS_CONNECTION_STRING }}
+        run: node .github/scripts/inject-analytics.mjs
       - name: Deploy
         uses: Azure/static-web-apps-deploy@1a947af9992250f3bc2e68ad0754c0b0c11566c9 # v1
         with:

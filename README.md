@@ -54,6 +54,15 @@ response. Inline scripts are allowed **by SHA-256 hash only** (no
 fail if the hashes are stale. `tests/serve.mjs` applies the same headers, so the
 Playwright suite runs under the production policy. See [SECURITY.md](SECURITY.md).
 
+## Visitor analytics
+
+Unique visitors, sessions, page views and referrers via the Application
+Insights browser SDK, self-hosted (`site/vendor/`, SRI-pinned) and loaded by
+`site/analytics.js` on public pages only (never `/admin`). It doesn't load under
+GPC / Do Not Track, for bots, or under automation (`navigator.webdriver`), and it shows a
+small cookie notice linking to `/privacy`. Setup, portal blades and KQL:
+[docs/analytics.md](docs/analytics.md).
+
 ## Gated resume access
 
 Industry-standard gated-content flow — nobody downloads the resume anonymously:
@@ -85,6 +94,9 @@ create the `tfstate` container, restore the block, `terraform init -migrate-stat
    - Secret `SWA_DEPLOYMENT_TOKEN` ← `terraform output -raw deployment_token`
    - Variables `AZURE_CLIENT_ID` / `AZURE_TENANT_ID` / `AZURE_SUBSCRIPTION_ID`
      ← matching outputs (identifiers, not secrets — that's the point of OIDC)
+   - Optional variable `APPINSIGHTS_CONNECTION_STRING`
+     ← `terraform output -raw appinsights_web_connection_string` (browser
+     analytics; public by design; unset = no analytics). See [docs/analytics.md](docs/analytics.md).
 4. Run the workflow. Site live at `terraform output default_hostname`.
 5. Custom domain: CNAME `www` → the SWA hostname, then
    `az staticwebapp hostname set -n swa-colinshanahan-portfolio --hostname www.colinshanahan.dev`

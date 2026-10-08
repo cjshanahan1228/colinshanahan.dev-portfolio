@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 
 const CONFIG = JSON.parse(readFileSync(new URL("../site/staticwebapp.config.json", import.meta.url), "utf8"));
 const STATUS_API = "https://func-colinshanahan-status.azurewebsites.net/api/status";
-const PAGES = ["/", "/status", "/architecture", "/case-studies", "/admin"];
+const PAGES = ["/", "/status", "/architecture", "/case-studies", "/privacy", "/admin"];
 
 // Track CSP violations from the very first script: both the DOM event and
 // Chromium's console report (which also covers blocked stylesheets/fonts).
@@ -72,6 +72,22 @@ test.describe("response headers (globalHeaders)", () => {
       expect(scriptSrc).not.toMatch(/unsafe-inline|unsafe-eval|\*|https?:/);
     });
   }
+
+  test("connect-src is exactly self, the status API and App Insights regional ingestion", () => {
+    const csp = CONFIG.globalHeaders["Content-Security-Policy"];
+    const connect = csp.match(/connect-src ([^;]*)/)[1].trim().split(/\s+/).sort();
+    expect(connect).toEqual(
+      [
+        "'self'",
+        "https://func-colinshanahan-status.azurewebsites.net",
+        // browser analytics: <region>-N.in.applicationinsights.azure.com, N is
+        // only known after the resource exists (see docs/analytics.md)
+        "https://*.in.applicationinsights.azure.com",
+      ].sort()
+    );
+    // the SDK is self-hosted: no CDN or legacy global endpoint anywhere in the policy
+    expect(csp).not.toMatch(/js\.monitor\.azure\.com|dc\.services\.visualstudio\.com|livediagnostics/);
+  });
 
   test("only GitHub sign-in is routable; other providers 404", () => {
     const blocked = CONFIG.routes.filter((r) => r.statusCode === 404).map((r) => r.route);
