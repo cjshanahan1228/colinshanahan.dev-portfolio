@@ -209,6 +209,69 @@ resource "azurerm_role_assignment" "github_blob_writer" {
   principal_id         = azurerm_user_assigned_identity.github.principal_id
 }
 
+# ── Visitor analytics: browser Application Insights ────────────────────────
+# A SEPARATE component from the status project's appi-colinshanahan-dev (which
+# lives in cjshanahan1228/portfolio-status), on the same Log Analytics
+# workspace. Why not reuse that one:
+#   * The browser SDK ships the connection string (ingestion key) to every
+#     visitor. On the shared component, anyone holding it could post fake
+#     availabilityResults and move the uptime the /status page reports.
+#   * A daily cap on the shared component would also cut off the availability
+#     data the status page queries once web traffic hit the cap.
+#   * Page views stay out of the status page's KQL entirely (it queries its
+#     own component via queryResource), so nothing there changes.
+# Same workspace = one place to query, one retention setting, one bill line.
+variable "analytics_workspace_name" {
+  description = "Existing Log Analytics workspace (managed by the portfolio-status repo) that the browser telemetry is stored in."
+  type        = string
+  default     = "log-portfolio-status"
+}
+
+variable "analytics_workspace_resource_group" {
+  description = "Resource group of analytics_workspace_name. Must be in the same subscription as this config."
+  type        = string
+  default     = "rg-portfolio-status"
+}
+
+variable "analytics_daily_cap_gb" {
+  description = "Daily ingestion cap for browser telemetry. A portfolio's real traffic is a few MB/day; the cap only matters if the public key is abused. 0.1 GB/day x 31 days stays under the free 5 GB/month."
+  type        = number
+  default     = 0.1
+}
+
+data "azurerm_log_analytics_workspace" "telemetry" {
+  name                = var.analytics_workspace_name
+  resource_group_name = var.analytics_workspace_resource_group
+}
+
+resource "azurerm_application_insights" "web" {
+  name                = "appi-colinshanahan-web"
+  resource_group_name = azurerm_resource_group.portfolio.name
+  # Same region as the workspace it writes to; this also fixes the region in
+  # the connection string's IngestionEndpoint (<region>-N.in.applicationinsights.azure.com).
+  location         = data.azurerm_log_analytics_workspace.telemetry.location
+  workspace_id     = data.azurerm_log_analytics_workspace.telemetry.id
+  application_type = "web"
+
+  # Matches the workspace (30 days), so nothing is kept longer than the
+  # availability data already is.
+  retention_in_days                    = 30
+  daily_data_cap_in_gb                 = var.analytics_daily_cap_gb
+  daily_data_cap_notifications_enabled = true
+  sampling_percentage                  = 100
+
+  # The browser SDK authenticates with the ingestion key in the connection
+  # string; there is no Entra ID option for anonymous browsers, so local auth
+  # must stay ON for this component. The key can only WRITE telemetry here.
+  local_authentication_enabled = true
+  internet_ingestion_enabled   = true
+  internet_query_enabled       = true
+
+  # Keep Azure's default: the client IP is used for country/city lookup and
+  # then zeroed (0.0.0.0) before it is stored.
+  ip_masking_enabled = true
+}
+
 # ── Outputs ────────────────────────────────────────────────────────────────
 output "default_hostname" {
   value = "https://${azurerm_static_web_app.portfolio.default_host_name}"
@@ -238,4 +301,15 @@ output "azure_tenant_id" {
 output "azure_subscription_id" {
   description = "GitHub variable: AZURE_SUBSCRIPTION_ID"
   value       = data.azurerm_client_config.current.subscription_id
+}
+
+output "appinsights_web_connection_string" {
+  description = "GitHub repository VARIABLE (not secret): APPINSIGHTS_CONNECTION_STRING. Public by design: it ships to every browser. Read with: terraform output -raw appinsights_web_connection_string"
+  value       = azurerm_application_insights.web.connection_string
+  sensitive   = true # the provider marks it sensitive; it is not a secret in practice
+}
+
+output "appinsights_web_ingestion_origin" {
+  description = "Ingestion origin the browser SDK posts to. Covered by connect-src https://*.in.applicationinsights.azure.com in site/staticwebapp.config.json; can be pinned to this exact origin in a follow-up."
+  value       = nonsensitive(regex("IngestionEndpoint=(https://[^/;]+)", azurerm_application_insights.web.connection_string)[0])
 }

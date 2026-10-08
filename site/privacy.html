@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy — colinshanahan.dev</title>
+<meta name="description" content="What colinshanahan.dev collects: anonymous visit counts via Azure Application Insights, how long it is kept, and how Global Privacy Control and Do Not Track are honoured.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<script src="/theme.js"></script>
+<script src="/analytics.js" defer></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);background:var(--mist);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--azure);text-decoration:none}
+  a:hover{text-decoration:underline}
+  .wrap{max-width:760px;margin:0 auto;padding:0 24px}
+  header{padding:56px 0 8px}
+  .crumb{font-family:var(--mono);font-size:.75rem;color:var(--slate)}
+  h1{font-family:var(--display);font-size:clamp(1.8rem,4vw,2.6rem);font-weight:700;letter-spacing:-.01em;margin-top:10px}
+  .sub{color:var(--slate);font-size:.95rem;margin-top:6px;max-width:60ch}
+  section{margin:28px 0}
+  h2{font-family:var(--display);font-size:1.1rem;font-weight:600;margin-bottom:10px}
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px 22px}
+  .panel p+p,.panel p+ul,.panel ul+p{margin-top:10px}
+  ul{padding-left:20px}
+  li{margin:4px 0;color:var(--body)}
+  p{color:var(--body)}
+  code{font-family:var(--mono);font-size:.85em;background:var(--azure-wash);border:1px solid var(--line);border-radius:4px;padding:0 4px;color:var(--ink)}
+  .note{font-family:var(--mono);font-size:.7rem;color:var(--slate);margin:26px 0 50px}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="crumb"><a href="/">← colinshanahan.dev</a> / privacy</div>
+    <h1>Privacy note</h1>
+    <p class="sub">This site counts visits so I can see whether anyone reads it. That's the whole purpose: no ads, no profiles, nothing sold or shared.</p>
+  </header>
+
+  <main id="main">
+    <section id="analytics">
+      <h2>What is collected</h2>
+      <div class="panel">
+        <p>Visits are measured with <strong>Azure Application Insights</strong> (Microsoft), running in my own Azure subscription. The script is served from this site, not a third-party CDN. For each page you open it records:</p>
+        <ul>
+          <li>the page title and path (query strings and <code>#fragments</code> are stripped before sending)</li>
+          <li>the referring page, origin and path only</li>
+          <li>browser, operating system and device type, and how long the page took to load</li>
+          <li>an approximate country / region / city, which Azure derives from your IP address and then discards: the stored IP is <code>0.0.0.0</code></li>
+          <li>JavaScript errors, so I can fix broken pages</li>
+        </ul>
+        <p>It does <strong>not</strong> record anything you type (including the résumé request form), clicks, scrolling, or your full IP address. The admin area is never tracked.</p>
+      </div>
+    </section>
+
+    <section id="cookies">
+      <h2>Cookies</h2>
+      <div class="panel">
+        <ul>
+          <li><code>ai_user</code>: a random ID so repeat visits count as one visitor. Kept for up to one year.</li>
+          <li><code>ai_session</code>: a random ID grouping pages into one visit. Ends after 30 minutes of inactivity or 24 hours.</li>
+        </ul>
+        <p>Neither contains personal information, and neither is linked to your name or email. Clearing your cookies resets them. Dismissing the cookie notice is remembered in your browser's local storage (<code>cookie-notice-dismissed</code>), not a cookie.</p>
+      </div>
+    </section>
+
+    <section id="opt-out">
+      <h2>Opting out: Global Privacy Control and Do Not Track</h2>
+      <div class="panel">
+        <p>If your browser sends <strong>Global Privacy Control</strong> or <strong>Do Not Track</strong>, the analytics script never loads: no cookies are set and nothing is sent. Blocking the script or the cookies with your browser or an extension works too; the site works the same either way.</p>
+        <p>Automated browsers and known bots and crawlers are also excluded, so the numbers reflect people.</p>
+      </div>
+    </section>
+
+    <section id="retention">
+      <h2>Retention and access</h2>
+      <div class="panel">
+        <p>Telemetry is stored in Azure (Log Analytics) for <strong>30 days</strong> and then deleted automatically. Only I can read it. To ask about or delete anything, email <a href="mailto:Colin.shanahan1@gmail.com">Colin.shanahan1@gmail.com</a>.</p>
+        <p>Résumé requests you submit are a separate thing: they are stored only to process the request, and the <a href="/architecture">architecture</a> page shows how that flow works.</p>
+      </div>
+    </section>
+  </main>
+
+  <p class="note">
+    analytics: application insights browser sdk, self-hosted · <a href="https://github.com/cjshanahan1228/colinshanahan.dev-portfolio/blob/main/site/analytics.js">see the exact script</a>
+  </p>
+</div>
+</body>
+</html>

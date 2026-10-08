@@ -1,8 +1,10 @@
 // Static checks for the site bundle — no browser, no network, no credentials.
 // Run from the repo root: `node .github/scripts/check-site.mjs`
-import { readFileSync, readdirSync } from "node:fs";
+import { createHash } from "node:crypto";
+import { existsSync, readFileSync, readdirSync } from "node:fs";
 import { join } from "node:path";
 import { inlineScriptHashes, scriptSrcOf } from "./csp-hashes.mjs";
+import { MARKER, connectSrcAllows, parseConnectionString } from "./inject-analytics.mjs";
 
 const SITE = "site";
 const pages = readdirSync(SITE).filter((f) => f.endsWith(".html"));
@@ -100,6 +102,48 @@ if (!directLinks) pass("no direct resume blob links");
   missing.length
     ? fail(`CSP script-src is missing ${missing.length} inline-script hash(es) — run: node .github/scripts/csp-hashes.mjs --write`)
     : pass("every inline script is covered by a CSP hash");
+}
+
+// ── Browser analytics (Application Insights) ─────────────────────────────
+// The SDK is vendored and loaded with SRI from /analytics.js. Guard the
+// pieces that would otherwise only break in production: the pinned hash vs.
+// the file, the deploy-time marker, which pages load it, and the CSP.
+{
+  const js = readFileSync(join(SITE, "analytics.js"), "utf8");
+  const src = js.match(/SDK_SRC = "([^"]+)"/);
+  const ver = js.match(/SDK_VERSION = "([^"]+)"/);
+  const sri = js.match(/SDK_SRI = "(sha384-[^"]+)"/);
+  const file = ver && join(SITE, "vendor/applicationinsights", `ai.${ver[1]}.gbl.min.js`);
+  if (!src || !ver || !sri) fail("analytics.js: SDK_VERSION / SDK_SRC / SDK_SRI not found");
+  else if (!existsSync(file)) fail(`analytics.js pins SDK ${ver[1]} but ${file} is missing`);
+  else {
+    const actual = "sha384-" + createHash("sha384").update(readFileSync(file)).digest("base64");
+    actual === sri[1]
+      ? pass(`vendored App Insights SDK ${ver[1]} matches its pinned SRI`)
+      : fail(`vendored SDK hash ${actual} != SDK_SRI in analytics.js (browsers would refuse to run it)`);
+  }
+
+  const marker = js.match(new RegExp(MARKER.source, "g")) ?? [];
+  marker.length === 1 && /""$/.test(marker[0])
+    ? pass("analytics.js keeps an empty connection-string marker (set at deploy)")
+    : fail("analytics.js must contain exactly one /*@APPINSIGHTS_CONNECTION_STRING@*/ \"\" marker; the value comes from the repo variable at deploy");
+
+  for (const page of pages) {
+    const loads = /<script src="\/analytics\.js" defer><\/script>/.test(readFileSync(join(SITE, page), "utf8"));
+    if (page === "admin.html") loads ? fail("admin.html must not load analytics.js") : pass("admin.html does not load analytics");
+    else loads ? pass(`${page} loads analytics.js (deferred)`) : fail(`${page} does not load /analytics.js`);
+  }
+
+  const csp = JSON.parse(readFileSync(join(SITE, "staticwebapp.config.json"), "utf8")).globalHeaders["Content-Security-Policy"];
+  const sample = parseConnectionString(
+    "InstrumentationKey=00000000-0000-0000-0000-000000000000;IngestionEndpoint=https://centralus-0.in.applicationinsights.azure.com/"
+  );
+  connectSrcAllows(csp, sample.origin)
+    ? pass("CSP connect-src allows the regional App Insights ingestion endpoint")
+    : fail("CSP connect-src does not allow https://<region>.in.applicationinsights.azure.com");
+  /js\.monitor\.azure\.com|dc\.services\.visualstudio\.com|az416426/.test(csp)
+    ? fail("CSP must not allow the App Insights CDN / legacy global endpoint (the SDK is self-hosted and uses the regional endpoint)")
+    : pass("CSP has no App Insights CDN or legacy endpoint holes");
 }
 
 // target="_blank" without rel="noopener" lets the opened page script window.opener.

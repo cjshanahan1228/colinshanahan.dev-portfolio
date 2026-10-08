@@ -307,3 +307,93 @@
     border-top: 1px solid var(--line);
   }
 }
+
+/* ---------- cookie notice (injected by analytics.js) ---------- */
+/* Only shown when analytics actually loads (not under GPC/DNT, bots or
+   automation). A notice, not a wall: small, bottom-right (the page content is
+   left-aligned, so it covers the least there), never covers the resume modal
+   (z-index below its 100 backdrop), one tap to dismiss. */
+.cookie-notice {
+  position: fixed;
+  right: 16px;
+  bottom: max(16px, env(safe-area-inset-bottom));
+  z-index: 90;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  max-width: 440px;
+  margin: 0;
+  padding: 10px 10px 10px 16px;
+  background: var(--paper);
+  color: var(--body);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: var(--shadow-lg);
+  font-family: var(--sans);
+  font-size: .82rem;
+  line-height: 1.45;
+}
+
+.cookie-notice .cookie-notice__text {
+  margin: 0;
+  font-size: inherit;
+  line-height: inherit;
+  color: inherit;
+}
+
+.cookie-notice a {
+  color: var(--azure);
+  text-decoration: underline;
+  text-underline-offset: 2px;
+  white-space: nowrap;
+}
+
+.cookie-notice a:focus-visible {
+  outline: 2px solid var(--azure);
+  outline-offset: 2px;
+}
+
+.cookie-notice__dismiss {
+  flex: 0 0 auto;
+  min-width: 48px;
+  min-height: 36px;
+  padding: 6px 14px;
+  background: var(--azure);
+  color: var(--on-azure);
+  border: 1px solid var(--azure);
+  border-radius: 8px;
+  font-family: var(--mono);
+  font-size: .78rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color .15s, border-color .15s;
+}
+
+.cookie-notice__dismiss:hover {
+  background: var(--azure-deep);
+  border-color: var(--azure-deep);
+}
+
+/* Azure ring would vanish on the azure fill; --ink contrasts in both themes. */
+.cookie-notice__dismiss:focus-visible {
+  outline: 2px solid var(--ink);
+  outline-offset: 2px;
+}
+
+@media (max-width: 600px) {
+  .cookie-notice {
+    left: 12px;
+    right: 12px;
+    bottom: max(12px, env(safe-area-inset-bottom));
+    max-width: none;
+    gap: 12px;
+    padding: 10px 10px 10px 14px;
+    font-size: .8rem;
+  }
+}
+
+@media print {
+  .cookie-notice {
+    display: none;
+  }
+}
