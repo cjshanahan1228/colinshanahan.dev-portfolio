@@ -1,0 +1,128 @@
+# Weekly site stats → encrypted artifact for the Monday stats email.
+#
+# Runs Monday 11:23 UTC (7:23 AM EDT / 6:23 AM EST), so it finishes before the
+# 8:09 AM ET email year-round. Collects the previous full week (Mon 00:00 to
+# Mon 00:00, America/New_York) and the week before from Log Analytics.
+#
+# THIS REPO IS PUBLIC. Logs, job summaries and artifacts are readable by
+# anyone, so:
+#   * the stats are never printed; .github/scripts/weekly-stats.py writes them
+#     to a file and logs only progress / error codes;
+#   * the file is encrypted with age to STATS_AGE_RECIPIENT (a public key; the
+#     private identity never leaves Colin's assistant box) and only
+#     stats.json.age is uploaded.
+#
+# Azure auth: OIDC (no stored secret) as id-portfolio-stats, whose only role is
+# Log Analytics Reader on log-portfolio-status. Its federated credential trusts
+# only the `stats` environment, which only the main branch may deploy to.
+#
+# Variables: STATS_AZURE_CLIENT_ID (terraform output stats_azure_client_id),
+#            AZURE_TENANT_ID (shared with deploy.yml), STATS_WORKSPACE_ID,
+#            STATS_AGE_RECIPIENT. See docs/analytics.md.
+
+name: Weekly stats
+
+on:
+  schedule:
+    - cron: "23 11 * * 1"
+  workflow_dispatch:
+
+permissions:
+  id-token: write # OIDC token for azure/login
+  contents: read
+
+concurrency:
+  group: weekly-stats
+  cancel-in-progress: false
+
+env:
+  AGE_VERSION: v1.3.2
+  # sha256 of age-v1.3.2-linux-amd64.tar.gz (matches the digest GitHub
+  # records for the release asset). Bump both together.
+  AGE_SHA256: cbe24006683f8eb669266162894b9a522a1af52f2665fbc63a4bb032ed26ac10
+
+jobs:
+  collect:
+    name: Collect weekly stats
+    runs-on: ubuntu-latest
+    # workflow_dispatch can be started from any branch; the environment's
+    # branch policy would refuse it anyway, this just fails earlier and clearer.
+    if: github.ref == 'refs/heads/main'
+    environment: stats
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@11d5960a326750d5838078e36cf38b85af677262 # v4
+        with:
+          persist-credentials: false
+
+      - name: Check configuration
+        env:
+          STATS_AZURE_CLIENT_ID: ${{ vars.STATS_AZURE_CLIENT_ID }}
+          AZURE_TENANT_ID: ${{ vars.AZURE_TENANT_ID }}
+          STATS_WORKSPACE_ID: ${{ vars.STATS_WORKSPACE_ID }}
+          STATS_AGE_RECIPIENT: ${{ vars.STATS_AGE_RECIPIENT }}
+        run: |
+          missing=0
+          for v in STATS_AZURE_CLIENT_ID AZURE_TENANT_ID STATS_WORKSPACE_ID STATS_AGE_RECIPIENT; do
+            if [ -z "${!v}" ]; then echo "::error::repository variable $v is not set"; missing=1; fi
+          done
+          case "$STATS_AGE_RECIPIENT" in
+            age1*) ;;
+            *) echo "::error::STATS_AGE_RECIPIENT is not an age public key (age1...)"; missing=1 ;;
+          esac
+          exit $missing
+
+      - name: Install age (pinned, checksum-verified)
+        run: |
+          set -euo pipefail
+          tarball="age-${AGE_VERSION}-linux-amd64.tar.gz"
+          curl -fsSL --retry 3 -o "$RUNNER_TEMP/$tarball" \
+            "https://github.com/FiloSottile/age/releases/download/${AGE_VERSION}/${tarball}"
+          echo "${AGE_SHA256}  $RUNNER_TEMP/$tarball" | sha256sum --check --strict
+          tar -xzf "$RUNNER_TEMP/$tarball" -C "$RUNNER_TEMP"
+          install -m 0755 "$RUNNER_TEMP/age/age" /usr/local/bin/age
+          age --version
+
+      - name: Azure login via OIDC federation
+        uses: azure/login@7184910d9eb2b1c5e48f7073824a90609bb9b6d6 # v2
+        with:
+          client-id: ${{ vars.STATS_AZURE_CLIENT_ID }}
+          tenant-id: ${{ vars.AZURE_TENANT_ID }}
+          # The identity has no subscription role, only Log Analytics Reader
+          # on one workspace.
+          allow-no-subscriptions: true
+
+      - name: Collect stats (never printed)
+        env:
+          STATS_WORKSPACE_ID: ${{ vars.STATS_WORKSPACE_ID }}
+        run: |
+          set -euo pipefail
+          umask 077
+          out="$RUNNER_TEMP/stats.json"
+          python3 .github/scripts/weekly-stats.py --workspace-id "$STATS_WORKSPACE_ID" --out "$out"
+          # Fail closed: a JSON parse check that prints nothing on success.
+          python3 -c 'import json,sys; d=json.load(open(sys.argv[1])); assert d["schemaVersion"] == 1 and "week" in d and "previousWeek" in d' "$out"
+
+      - name: Encrypt
+        env:
+          STATS_AGE_RECIPIENT: ${{ vars.STATS_AGE_RECIPIENT }}
+        run: |
+          set -euo pipefail
+          mkdir -p "$RUNNER_TEMP/upload"
+          age --encrypt --recipient "$STATS_AGE_RECIPIENT" \
+            --output "$RUNNER_TEMP/upload/stats.json.age" "$RUNNER_TEMP/stats.json"
+          # Remove the plaintext before anything else runs.
+          shred -u "$RUNNER_TEMP/stats.json" 2>/dev/null || rm -f "$RUNNER_TEMP/stats.json"
+          echo "Weekly stats generated and encrypted (stats.json.age)." >> "$GITHUB_STEP_SUMMARY"
+
+      - name: Upload encrypted stats
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        with:
+          name: weekly-stats
+          path: ${{ runner.temp }}/upload/stats.json.age
+          if-no-files-found: error
+          retention-days: 14
+
+      - name: Azure logout
+        if: always()
+        run: az logout || true

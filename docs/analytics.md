@@ -206,6 +206,108 @@ AppPageViews
 (`url` → `Url`, `client_CountryOrRegion` → `ClientCountryOrRegion`,
 `customDimensions.refUri` → `Properties.refUri`.)
 
+## Weekly stats email (encrypted, read-only)
+
+Every Monday a GitHub Actions workflow collects last week's numbers so Colin's
+assistant can email them at 8:09 AM ET. No Azure credential is stored on the
+assistant's box or in GitHub.
+
+```
+weekly-stats.yml (Mon 11:23 UTC = 7:23 EDT / 6:23 EST, or Run workflow)
+   │  environment: stats (main branch only)
+   │  OIDC token: repo:cjshanahan1228/colinshanahan.dev-portfolio:environment:stats
+   ▼
+id-portfolio-stats ── Log Analytics Reader ──► log-portfolio-status (only role it has)
+   │  .github/scripts/weekly-stats.py: AppPageViews (appi-colinshanahan-web)
+   │                                   AppAvailabilityResults (appi-colinshanahan-dev)
+   ▼
+stats.json ── age --encrypt -r $STATS_AGE_RECIPIENT ──► artifact "weekly-stats" (stats.json.age, 14 days)
+                                                              │
+assistant box: ~/bin/fetch-site-stats.sh ── gh run download ──┘ ── age --decrypt (private key stays on the box)
+```
+
+**What's collected** (`stats.json`, `schemaVersion: 1`): for the previous full
+week (Monday 00:00 to the next Monday 00:00, America/New_York, so DST weeks
+are handled) and the week before: unique visitors (`dcount(UserId)`), sessions,
+page views, top 10 pages, top 10 referrer hosts (the site's own hosts
+excluded), top 10 countries and country/region pairs, uptime % from the status
+project's availability tests, week-over-week % change, the exact date ranges
+(local and UTC) and `generatedAt`.
+
+**Why it's built this way**
+
+* **No secrets.** `azure/login` exchanges GitHub's OIDC token for an Entra
+  token. Nothing to rotate or leak. A managed identity can't be used from the
+  assistant's box directly (it isn't in Azure), so GitHub runs the query and the
+  box only talks to GitHub, which it's already signed into.
+* **Least privilege.** `id-portfolio-stats` is a separate identity from the
+  deploy identity. Its only role is **Log Analytics Reader on the one
+  workspace**: no subscription or resource-group role, no write access. Its
+  federated credential trusts only the `stats` environment, and that
+  environment's deployment branch policy allows only `main`. A pull request,
+  fork or other branch can't get a token for it.
+* **The repo is public.** Anyone can read run logs, job summaries and (when
+  signed in to GitHub) download artifacts. So the script never prints stats; it
+  logs progress and, on failure, only the HTTP status and API error code. The
+  job summary just says the stats were generated and encrypted. The JSON is
+  encrypted with [age](https://age-encryption.org) to a public key
+  (`STATS_AGE_RECIPIENT`) and only `stats.json.age` is uploaded. The private
+  identity lives at `~/.config/portfolio-stats/age.key` (mode 600) on the
+  assistant's box and nowhere else. age is downloaded at a pinned version and
+  checked against a hardcoded SHA-256 before use.
+* **Fails closed.** Any query error, an empty token, or invalid JSON fails the
+  job before anything is uploaded. The fetch script refuses runs older than 8
+  days, so a stale week is never emailed as if it were new.
+
+**Repository variables** (Settings → Secrets and variables → Actions → Variables)
+
+| Variable | Value |
+|---|---|
+| `STATS_AZURE_CLIENT_ID` | `terraform output -raw stats_azure_client_id` (set after apply) |
+| `AZURE_TENANT_ID` | already set for `deploy.yml`, reused |
+| `STATS_WORKSPACE_ID` | `terraform output -raw stats_workspace_id` (workspace/customer ID) |
+| `STATS_AGE_RECIPIENT` | age public key (`age1...`) from `age-keygen -y ~/.config/portfolio-stats/age.key` |
+
+**GitHub environment `stats`**: Settings → Environments → `stats` →
+Deployment branches and tags → *Selected branches* → `main`. No required
+reviewers (it runs unattended), no environment secrets.
+
+### Turning it on (one time, after merge)
+
+1. **Apply Terraform** (Colin approves): `cd infra && terraform plan` should
+   show **3 to add, 0 to change, 0 to destroy**:
+   `azurerm_user_assigned_identity.stats` (`id-portfolio-stats`),
+   `azurerm_federated_identity_credential.stats_environment`
+   (`github-environment-stats`), and
+   `azurerm_role_assignment.stats_workspace_reader` (Log Analytics Reader on
+   `log-portfolio-status`). Then `terraform apply`.
+2. **Set the client ID variable**:
+   ```sh
+   gh variable set STATS_AZURE_CLIENT_ID \
+     --repo cjshanahan1228/colinshanahan.dev-portfolio \
+     --body "$(terraform output -raw stats_azure_client_id)"
+   ```
+3. **Run it once**: `gh workflow run weekly-stats.yml --ref main`, then
+   `gh run watch`. A new role assignment can take a few minutes to apply; if
+   the first run fails with 403 `InsufficientAccessError`, re-run it.
+4. **Verify decryption** on the assistant's box:
+   `~/bin/fetch-site-stats.sh | python3 -m json.tool | head` (exit 0 = good;
+   2 = no successful run in the last 8 days; 3 = download failed; 4 =
+   decryption failed).
+
+### Maintenance
+
+* **Rotating the age key**: generate a new key on the box (`age-keygen -o`),
+  `gh variable set STATS_AGE_RECIPIENT` to its public key, re-run the workflow.
+  Old artifacts expire after 14 days.
+* **Upgrading age**: change `AGE_VERSION` and `AGE_SHA256` in
+  `weekly-stats.yml` together (the digest is listed on the GitHub release asset).
+* **Scheduled workflows on public repos are disabled after 60 days with no
+  repository activity.** If the Monday email reports no recent run, check
+  Actions → *Weekly stats* and re-enable it.
+* **Turning it off**: disable the workflow, then remove the three resources
+  from `infra/main.tf` and apply.
+
 ## Cost
 
 Ingestion is billed by the Log Analytics workspace. Analytics Logs: **the first

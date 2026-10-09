@@ -272,6 +272,45 @@ resource "azurerm_application_insights" "web" {
   ip_masking_enabled = true
 }
 
+# ── Weekly site stats: read-only GitHub Actions identity ───────────────────
+# .github/workflows/weekly-stats.yml signs in with this identity (OIDC, no
+# stored secret) to run the weekly stats KQL. Kept separate from the deploy
+# identity above so neither can do the other's job:
+#   * Federated only for the `stats` GitHub environment, which only the main
+#     branch may use (deployment branch policy). A PR, fork, other branch or
+#     other workflow job can't get a token for it.
+#   * Its ONLY role is Log Analytics Reader on the one workspace. No
+#     subscription or resource-group roles, no write access anywhere.
+variable "stats_github_environment" {
+  description = "GitHub environment the weekly stats job runs in. Restrict it to the main branch in the repo settings (deployment branch policy)."
+  type        = string
+  default     = "stats"
+}
+
+resource "azurerm_user_assigned_identity" "stats" {
+  name                = "id-portfolio-stats"
+  resource_group_name = azurerm_resource_group.portfolio.name
+  location            = azurerm_resource_group.portfolio.location
+}
+
+resource "azurerm_federated_identity_credential" "stats_environment" {
+  name                      = "github-environment-${var.stats_github_environment}"
+  user_assigned_identity_id = azurerm_user_assigned_identity.stats.id
+  audience                  = ["api://AzureADTokenExchange"]
+  issuer                    = "https://token.actions.githubusercontent.com"
+  subject                   = "repo:${var.github_repo}:environment:${var.stats_github_environment}"
+}
+
+# Reads every table in the workspace (page views AND the status project's
+# availability results, for the uptime %). Reader can query; it can't change
+# data, settings, retention or keys.
+resource "azurerm_role_assignment" "stats_workspace_reader" {
+  scope                = data.azurerm_log_analytics_workspace.telemetry.id
+  role_definition_name = "Log Analytics Reader"
+  principal_id         = azurerm_user_assigned_identity.stats.principal_id
+  principal_type       = "ServicePrincipal"
+}
+
 # ── Outputs ────────────────────────────────────────────────────────────────
 output "default_hostname" {
   value = "https://${azurerm_static_web_app.portfolio.default_host_name}"
@@ -312,4 +351,14 @@ output "appinsights_web_connection_string" {
 output "appinsights_web_ingestion_origin" {
   description = "Ingestion origin the browser SDK posts to. Covered by connect-src https://*.in.applicationinsights.azure.com in site/staticwebapp.config.json; can be pinned to this exact origin in a follow-up."
   value       = nonsensitive(regex("IngestionEndpoint=(https://[^/;]+)", azurerm_application_insights.web.connection_string)[0])
+}
+
+output "stats_azure_client_id" {
+  description = "GitHub variable: STATS_AZURE_CLIENT_ID (weekly-stats.yml). Tenant comes from AZURE_TENANT_ID."
+  value       = azurerm_user_assigned_identity.stats.client_id
+}
+
+output "stats_workspace_id" {
+  description = "GitHub variable: STATS_WORKSPACE_ID (Log Analytics workspace/customer ID the stats job queries)."
+  value       = data.azurerm_log_analytics_workspace.telemetry.workspace_id
 }
