@@ -2,7 +2,7 @@
 
 | | |
 |---|---|
-| **Status** | Draft. Waiting for Colin's decisions (see [Open questions](#15-risks-and-open-questions)) |
+| **Status** | **Accepted** (2026-10-09; decisions in #61). The maintained copy is [ADR-0001 in the lab repo](https://github.com/cjshanahan1228/azure-databricks-platform-lab/blob/main/docs/adr/0001-databricks-platform-lab-design.md), which carries later amendments and the [implementation notes](https://github.com/cjshanahan1228/azure-databricks-platform-lab/blob/main/docs/adr/README.md). This copy is kept for history. |
 | **Owner** | Colin Shanahan (`cjshanahan1228`) |
 | **Date** | 2026-10-06, updated 2026-10-09 (added the visitor-triggered on-demand demo, §10) |
 | **Scope of this doc** | Design only. Nothing has been deployed, no Terraform has run, and nothing gets built until Colin approves the design. |
