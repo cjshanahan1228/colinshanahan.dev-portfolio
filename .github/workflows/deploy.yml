@@ -100,6 +100,13 @@ jobs:
             --file resume/Colin-Shanahan-Resume.pdf \
             --content-type application/pdf \
             --auth-mode login --overwrite
+          az storage blob upload \
+            --account-name stcolinshanahanresume \
+            --container-name resume \
+            --name Colin-Shanahan-Resume-Mobile.pdf \
+            --file resume/Colin-Shanahan-Resume-Mobile.pdf \
+            --content-type application/pdf \
+            --auth-mode login --overwrite
       - name: Upload resume DOCX
         run: |
           az storage blob upload \
@@ -107,5 +114,12 @@ jobs:
             --container-name resume \
             --name Colin-Shanahan-Resume.docx \
             --file resume/Colin-Shanahan-Resume.docx \
+            --content-type application/vnd.openxmlformats-officedocument.wordprocessingml.document \
+            --auth-mode login --overwrite
+          az storage blob upload \
+            --account-name stcolinshanahanresume \
+            --container-name resume \
+            --name Colin-Shanahan-Resume-Mobile.docx \
+            --file resume/Colin-Shanahan-Resume-Mobile.docx \
             --content-type application/vnd.openxmlformats-officedocument.wordprocessingml.document \
             --auth-mode login --overwrite
