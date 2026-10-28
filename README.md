@@ -20,19 +20,13 @@ portfolio-deploy/
 
 ## Resume artifacts
 
-The PDF is authored externally and committed as-is. The **Word version is
-generated**, not hand-maintained: `resume/resume-content.mjs` holds the resume
-as structured data and `build-docx.mjs` renders it with real Word constructs
-(tab-stopped dates, native bullet lists, a live portfolio hyperlink), so it
-stays editable by whoever receives it.
+Both files are the **mobile-friendly** version (single column, 2 pages),
+authored externally and committed as-is. Blob names are unchanged
+(`Colin-Shanahan-Resume.pdf` / `.docx`), so the API's signed links need no change.
 
-```bash
-cd resume && npm install && npm run build   # → Colin-Shanahan-Resume.docx
-```
-
-Converting the PDF instead would reconstruct layout from glyph positions and
-produce text boxes and broken lists — worse than useless for the one document
-a recruiter is likely to edit. Edit the content file, rebuild, commit both.
+`resume-content.mjs` + `build-docx.mjs` generated the previous Word version and
+are kept for reference. **Do not run `npm run build`** — it would overwrite the
+mobile DOCX with the old layout/content.
 
 ## Case studies
 
