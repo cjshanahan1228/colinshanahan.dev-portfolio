@@ -31,6 +31,8 @@ const CONTAINER = "resume";
 const FILES = [
   { blob: "Colin-Shanahan-Resume.pdf", label: "PDF" },
   { blob: "Colin-Shanahan-Resume.docx", label: "Word" },
+  { blob: "Colin-Shanahan-Resume-Mobile.pdf", label: "PDF (mobile-friendly)" },
+  { blob: "Colin-Shanahan-Resume-Mobile.docx", label: "Word (mobile-friendly)" },
 ];
 const LINK_TTL_DAYS = 7;
 const TOKEN_TTL_DAYS = 14; // emailed approve/deny links stop working after this
@@ -307,10 +309,10 @@ app.http("resume-decision", {
           "Colin Shanahan — resume download links",
           `<p>Hi ${esc(entity.name)},</p>
 <p>Thanks for your interest — here's my resume. The links below are valid until <strong>${expiryDate}</strong>:</p>
-<p>${links.map((l) => `<a href="${l.url}" style="background:#1B6DC1;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Download ${l.label}</a>`).join("&nbsp;&nbsp;")}</p>
+${links.map((l) => `<p style="margin:10px 0"><a href="${l.url}" style="display:inline-block;background:#1B6DC1;color:#fff;padding:10px 18px;border-radius:8px;text-decoration:none">Download ${l.label}</a></p>`).join("\n")}
 <p>If a link expires, just request again at <a href="https://colinshanahan.dev">colinshanahan.dev</a> — or reply to reach me directly at ${esc(cfg.owner)}.</p>
 <p>— Colin</p>`,
-          `Hi ${entity.name},\n\nResume download links (valid until ${expiryDate}):\n\n${links.map((l) => `${l.label}: ${l.url}`).join("\n\n")}\n\n— Colin`
+          `Hi ${entity.name},\n\nResume download links (valid until ${expiryDate}):\n\n${links.map((l) => `Download ${l.label}: ${l.url}`).join("\n\n")}\n\n— Colin`
         );
       } catch (err) {
         // Release the claim so the owner can retry.

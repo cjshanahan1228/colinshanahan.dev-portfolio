@@ -185,6 +185,11 @@ test("decision POST with token approves exactly once even when clicked twice con
   assert.equal(tableRows.get(ID).status, "approved");
   assert.match(sent[0].content.html, /sig=/);
   assert.match(sent[0].content.html, /spr=https/); // HTTPS-only SAS
+  for (const label of ["Download PDF<", "Download Word<", "Download PDF (mobile-friendly)", "Download Word (mobile-friendly)"]) {
+    assert.ok(sent[0].content.html.includes(label), `approval email must offer "${label}"`);
+  }
+  assert.match(sent[0].content.html, /Colin-Shanahan-Resume\.pdf/);
+  assert.match(sent[0].content.html, /Colin-Shanahan-Resume-Mobile\.docx/);
   assert.equal(sent[0].recipients.to[0].address, "pat@example.com");
 });
 

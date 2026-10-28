@@ -20,6 +20,11 @@ portfolio-deploy/
 
 ## Resume artifacts
 
+Two layouts are served side by side: the standard `Colin-Shanahan-Resume.pdf` /
+`.docx`, and a **mobile-friendly** single-column `Colin-Shanahan-Resume-Mobile.pdf` /
+`.docx` (authored externally, committed as-is; not produced by `build-docx.mjs`).
+Approved requesters get links to all four.
+
 The PDF is authored externally and committed as-is. The **Word version is
 generated**, not hand-maintained: `resume/resume-content.mjs` holds the resume
 as structured data and `build-docx.mjs` renders it with real Word constructs
