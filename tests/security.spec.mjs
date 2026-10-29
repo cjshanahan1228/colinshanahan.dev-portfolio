@@ -9,7 +9,7 @@ import { readFileSync } from "node:fs";
 
 const CONFIG = JSON.parse(readFileSync(new URL("../site/staticwebapp.config.json", import.meta.url), "utf8"));
 const STATUS_API = "https://func-colinshanahan-status.azurewebsites.net/api/status";
-const PAGES = ["/", "/status", "/architecture", "/case-studies", "/privacy", "/admin"];
+const PAGES = ["/", "/status", "/architecture", "/case-studies", "/privacy", "/resume", "/admin"];
 
 // Track CSP violations from the very first script: both the DOM event and
 // Chromium's console report (which also covers blocked stylesheets/fonts).

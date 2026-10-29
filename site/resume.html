@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Résumé — Colin Shanahan, DevOps Engineer</title>
+<meta name="description" content="Colin Shanahan's résumé: DevOps engineer and cloud architect with 10+ years across Azure infrastructure, IaC, CI/CD and identity. Read it here; request the PDF or Word file.">
+<link rel="canonical" href="https://colinshanahan.dev/resume">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/theme.css">
+<script src="/theme.js"></script>
+<script src="/analytics.js" defer></script>
+<style>
+  *{margin:0;padding:0;box-sizing:border-box}
+  body{font-family:var(--sans);background:var(--mist);color:var(--ink);line-height:1.6;-webkit-font-smoothing:antialiased}
+  a{color:var(--azure);text-decoration:none}
+  a:hover{text-decoration:underline}
+  a:focus-visible,button:focus-visible{outline:2px solid var(--azure);outline-offset:3px;border-radius:2px}
+  .skip{position:absolute;left:-9999px}
+  .skip:focus{left:12px;top:12px;z-index:100;background:var(--paper);padding:6px 10px;border-radius:6px}
+  .wrap{max-width:860px;margin:0 auto;padding:0 24px}
+  header.top{position:sticky;top:0;z-index:50;background:var(--header-bg);backdrop-filter:blur(10px);border-bottom:1px solid var(--line)}
+  .top-inner{display:flex;align-items:center;justify-content:space-between;height:60px;max-width:1060px}
+  .brand{font-family:var(--mono);font-size:.85rem;color:var(--ink);letter-spacing:.02em}
+  .brand .dot{color:var(--deploy)}
+  nav.menu{display:flex;gap:22px;align-items:center;white-space:nowrap}
+  nav.menu a{font-family:var(--mono);font-size:.76rem;color:var(--slate);letter-spacing:.03em;text-transform:lowercase}
+  nav.menu a:hover{color:var(--azure);text-decoration:none}
+  nav.menu a[aria-current="page"]{color:var(--azure)}
+  @media (max-width:760px){nav.menu{display:none}}
+
+  .intro{padding:52px 0 8px}
+  .crumb{font-family:var(--mono);font-size:.75rem;color:var(--slate)}
+  h1{font-family:var(--display);font-size:clamp(2rem,5vw,2.8rem);font-weight:700;letter-spacing:-.01em;margin-top:10px;line-height:1.15}
+  .role{font-family:var(--mono);font-size:.85rem;color:var(--azure);margin-top:6px}
+  .meta{color:var(--slate);font-size:.92rem;margin-top:8px}
+  .cta{margin-top:22px;display:flex;flex-wrap:wrap;gap:12px;align-items:center}
+  .resume-btn,.ghost-btn{display:inline-flex;align-items:center;gap:8px;padding:10px 18px;border-radius:8px;font-family:var(--mono);font-size:.8rem;transition:background .15s,border-color .15s}
+  .resume-btn{background:var(--azure);color:var(--on-azure)}
+  .resume-btn:hover{background:var(--azure-deep);color:var(--on-azure);text-decoration:none}
+  .ghost-btn{background:var(--paper);color:var(--ink);border:1px solid var(--line);cursor:pointer}
+  .ghost-btn:hover{border-color:var(--azure);text-decoration:none}
+  .gate-note{font-family:var(--mono);font-size:.68rem;color:var(--slate);margin-top:10px}
+
+  section{margin:30px 0}
+  h2{font-family:var(--mono);font-size:.78rem;font-weight:500;letter-spacing:.08em;text-transform:uppercase;color:var(--slate);margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid var(--line)}
+  .panel{background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:20px 22px;box-shadow:var(--shadow-sm)}
+  .panel+.panel{margin-top:14px}
+  p,li{color:var(--body)}
+  .job-head{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 16px;align-items:baseline}
+  h3{font-family:var(--display);font-size:1.15rem;font-weight:600;color:var(--ink)}
+  .when{font-family:var(--mono);font-size:.75rem;color:var(--slate)}
+  .title{font-weight:500;color:var(--ink);font-size:.95rem}
+  .where{color:var(--slate);font-size:.85rem}
+  ul.bullets{padding-left:20px;margin-top:10px}
+  ul.bullets li{margin:6px 0}
+  dl.skills{display:grid;grid-template-columns:max-content 1fr;gap:10px 18px}
+  dl.skills dt{font-family:var(--mono);font-size:.78rem;color:var(--ink);font-weight:500;padding-top:2px}
+  dl.skills dd{color:var(--body)}
+  ul.certs{list-style:none;display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:10px}
+  ul.certs li{border:1px solid var(--line);border-radius:8px;padding:10px 12px;background:var(--azure-wash)}
+  ul.certs b{display:block;color:var(--ink);font-weight:500}
+  ul.certs span{font-family:var(--mono);font-size:.72rem;color:var(--slate)}
+  @media (max-width:560px){dl.skills{grid-template-columns:1fr;gap:2px}dl.skills dd{margin-bottom:10px}.panel{padding:16px}}
+  .note{font-family:var(--mono);font-size:.7rem;color:var(--slate);margin:26px 0 50px}
+
+  @media print{
+    @page{margin:14mm}
+    :root{--ink:#000;--body:#111;--slate:#444;--line:#bbb;--paper:#fff;--mist:#fff;--azure:#000;--azure-wash:#fff}
+    body{background:#fff;font-size:10.5pt;line-height:1.4}
+    header.top,.cta,.gate-note,.crumb,.note,.skip,.theme-toggle,.no-print{display:none!important}
+    .intro{padding:0}
+    h1{font-size:20pt;margin:0}
+    section{margin:12px 0;break-inside:auto}
+    .panel{border:0;box-shadow:none;padding:0}
+    .panel+.panel{margin-top:10px}
+    .job{break-inside:avoid}
+    ul.certs li{border:0;padding:0;background:none}
+    a{color:#000}
+  }
+</style>
+</head>
+<body>
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="wrap top-inner">
+    <a class="brand" href="/">colin-shanahan<span class="dot">●</span>devops</a>
+    <nav class="menu" aria-label="Sections">
+      <a href="/#experience">experience</a>
+      <a href="/#projects">projects</a>
+      <a href="/status" style="color:var(--deploy)">status ●</a>
+      <a href="/resume" aria-current="page">résumé</a>
+    </nav>
+  </div>
+</header>
+
+<main id="main" class="wrap" tabindex="-1">
+  <div class="intro">
+    <div class="crumb"><a href="/">← colinshanahan.dev</a> / résumé</div>
+    <h1>Colin Shanahan</h1>
+    <p class="role">DevOps Engineer / Cloud Architect</p>
+    <p class="meta">Rocky Mount, VA · open to relocation to Charlotte, NC · remote-ready</p>
+    <div class="cta">
+      <a class="resume-btn" href="/#request-resume">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" aria-hidden="true"><path d="M3 6h18v12H3z" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M3 7l9 6 9-6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Request PDF / Word
+      </a>
+      <a class="ghost-btn" href="https://www.linkedin.com/in/colin-shanahan-devops-engineer/" target="_blank" rel="noopener">LinkedIn</a>
+      <a class="ghost-btn" href="https://github.com/cjshanahan1228" target="_blank" rel="noopener">GitHub</a>
+    </div>
+    <p class="gate-note">Downloads are gated: request → email approval → time-limited link. Contact details are in the requested file.</p>
+  </div>
+
+  <section aria-labelledby="h-summary">
+    <h2 id="h-summary">Summary</h2>
+    <div class="panel">
+      <p>DevOps engineer and cloud architect with 10+ years across infrastructure, systems, and cloud automation. Sole owner of the full Azure estate at RDGFilings (CI/CD architecture, IaC: Terraform-first, with Bicep experience, security posture, and cost governance), serving as the bridge between application teams and infrastructure. Certified in Azure administration and DevOps (AZ-104, AZ-400) with deep experience migrating legacy toolchains (Octopus Deploy, Jenkins) to modern, credential-free pipelines.</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-experience">
+    <h2 id="h-experience">Experience</h2>
+    <article class="panel job">
+      <div class="job-head"><h3>RDGFilings</h3><span class="when"><time datetime="2022-10">Oct 2022</time> – Present</span></div>
+      <div class="job-head"><span class="title">DevOps Engineer / Cloud Architect (sole DevOps owner)</span><span class="where">Remote / Onsite</span></div>
+      <ul class="bullets">
+        <li>Architected Azure DevOps CI/CD pipelines end-to-end, migrating legacy workflows from Octopus Deploy and Jenkins to Azure DevOps, reducing release cycles by 40% and improving deployment reliability.</li>
+        <li>Authored Terraform (and Bicep) IaC to automate provisioning of Container Apps, Function Apps, VMs, Key Vault, and networking, replacing GCP-based systems with consistent, repeatable Azure deployments.</li>
+        <li>Implemented OIDC / workload identity federation for all pipeline authentication, eliminating stored credentials and long-lived secrets from CI/CD and improving audit posture.</li>
+        <li>Modernized a legacy Duende IdentityServer: programmatic Key Vault secret loading and a shared data protection key ring in Blob Storage encrypted with a Key Vault master key, enabling first-ever horizontal scaling, with all traffic over private endpoints and zero public data-plane exposure.</li>
+        <li>Served as liaison between application architects, developers, and infrastructure, translating operational requirements into DevOps processes in an Agile environment; mentored junior engineers on Azure DevOps best practices.</li>
+        <li>Conducted a subscription-wide Azure security and cost audit via Resource Graph/KQL, including Reserved VM Instance retirement exposure analysis, driving remediation and cost-optimization decisions.</li>
+        <li>Contributed to HIPAA compliance initiatives for a subsidiary, implementing secure configurations and documenting processes to meet regulatory standards.</li>
+      </ul>
+    </article>
+    <article class="panel job">
+      <div class="job-head"><h3>American Electric Power (AEP)</h3><span class="when"><time datetime="2019-06">Jun 2019</time> – <time datetime="2022-10">Oct 2022</time></span></div>
+      <div class="job-head"><span class="title">Infrastructure Engineer</span><span class="where">Roanoke, VA</span></div>
+      <ul class="bullets">
+        <li>Led the onsite team managing critical restoration-focused infrastructure, including Oracle databases and Windows servers, sustaining 99.9% uptime.</li>
+        <li>Designed and implemented failover systems using Azure DevOps, enabling rapid recovery and minimizing downtime; documented configurations and collaborated cross-functionally on complex issues.</li>
+      </ul>
+    </article>
+    <article class="panel job">
+      <div class="job-head"><h3>1901 Group</h3><span class="when"><time datetime="2015-05">May 2015</time> – <time datetime="2019-06">Jun 2019</time></span></div>
+      <div class="job-head"><span class="title">Systems Administrator / Help Desk Lead</span><span class="where">Blacksburg, VA / Washington, DC</span></div>
+      <ul class="bullets">
+        <li>Deployed Microsoft Intune for endpoint management, streamlining device configuration and security compliance.</li>
+        <li>Performed networking (firewalls, DNS, switching) and served as mid-level escalation point for complex server and system issues, mentoring junior team members.</li>
+      </ul>
+    </article>
+  </section>
+
+  <section aria-labelledby="h-projects">
+    <h2 id="h-projects">Selected project</h2>
+    <div class="panel">
+      <p><a href="/"><b>colinshanahan.dev</b></a>: production portfolio on Azure Static Web Apps, with GitHub Actions using OIDC (zero stored credentials), Terraform IaC, and a <a href="/status">live status page</a> driven by an Azure Function querying Application Insights (KQL, managed identity).</p>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-skills">
+    <h2 id="h-skills">Skills</h2>
+    <div class="panel">
+      <dl class="skills">
+        <dt>Cloud &amp; IaC</dt>
+        <dd>Azure (Container Apps, Function Apps, Key Vault, Static Web Apps, App Insights/KQL), AWS, GCP · Terraform · Bicep · CloudFormation</dd>
+        <dt>CI/CD &amp; tooling</dt>
+        <dd>Azure DevOps, GitHub Actions, Octopus Deploy, Jenkins · OIDC/WIF · Docker · Git, Bitbucket · PowerShell · build-once/deploy-many · cost governance</dd>
+      </dl>
+    </div>
+  </section>
+
+  <section aria-labelledby="h-certs">
+    <h2 id="h-certs">Certifications</h2>
+    <ul class="certs">
+      <li><b>Microsoft Azure Administrator</b><span>AZ-104 · 2025, renewed 2026</span></li>
+      <li><b>Microsoft DevOps Engineer Expert</b><span>AZ-400 · 2025, renewed 2026</span></li>
+      <li><b>AWS Solutions Architect – Associate</b><span>Amazon Web Services</span></li>
+      <li><b>AWS Certified Developer – Associate</b><span>Amazon Web Services</span></li>
+      <li><b>CompTIA Security+</b><span>CompTIA</span></li>
+      <li><b>ITIL Foundation</b><span>AXELOS</span></li>
+    </ul>
+  </section>
+
+  <section aria-labelledby="h-edu">
+    <h2 id="h-edu">Education</h2>
+    <div class="panel">
+      <div class="job-head"><h3>Ferrum College</h3><span class="when"><time datetime="2015-05">May 2015</time></span></div>
+      <div class="job-head"><span class="title">B.S. Computer Science</span><span class="where">Ferrum, VA</span></div>
+    </div>
+  </section>
+
+  <div class="cta no-print">
+    <a class="resume-btn" href="/#request-resume">Request PDF / Word</a>
+    <a class="ghost-btn" href="/">← Back to the portfolio</a>
+  </div>
+  <p class="note">This page is the same content as the downloadable résumé, rendered as HTML. <a href="/privacy">privacy</a></p>
+</main>
+</body>
+</html>

@@ -84,6 +84,7 @@
     ["Case studies", "/case-studies"],
     ["Architecture", "/architecture"],
     ["Status", "/status"],
+    ["Résumé", "/resume"],
     ["Experience", "/#experience"],
     ["Projects", "/#projects"],
     ["Skills", "/#skills"],
